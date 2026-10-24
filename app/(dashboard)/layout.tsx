@@ -11,6 +11,7 @@ import { useRouter, usePathname } from "next/navigation"
 import { toast } from "@/components/ui/toast"
 import { LoadingSpinner } from "@/components/loading-spinner"
 import { isUserAdmin } from "@/lib/auth-admin"
+import { processAuthTokensFromUrl } from "@/lib/auth-callback"
 
 
 const ADMIN_ROUTES = ["/analytics", "/broadcast", "/settings", "/linked"]
@@ -23,12 +24,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     const [isCheckingRole, setIsCheckingRole] = useState(isTryingToAccessAdminRoute)
 
     useEffect(() => {
-        // Cek apakah ada error di URL (seperti saat user membatalkan login)
-        if (typeof window !== "undefined" && (window.location.hash.includes("error=access_denied") || window.location.search.includes("error=access_denied"))) {
-            toast.add({ title: "Akses Ditolak", description: "Anda membatalkan proses login.", type: "error" })
-            router.replace("/")
-            return
-        }
+        let mounted = true
 
         const isAccessingAdmin = Boolean(pathname && ADMIN_ROUTES.some(route => pathname.startsWith(route)))
         if (!isAccessingAdmin) {
@@ -37,9 +33,36 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             setIsCheckingRole(true)
         }
 
-        // Cek sesi yang ada untuk menentukan hak akses
-        const checkAuthAndRole = async () => {
+        const initAuthAndRole = async () => {
+            // Cek dan proses jika terdapat token OAuth di URL (misal redirect callback dengan hash #access_token=...)
+            if (typeof window !== "undefined" && (window.location.hash.includes("access_token=") || window.location.search.includes("code="))) {
+                const result = await processAuthTokensFromUrl()
+                if (!mounted) return
+
+                if (result.success && result.user) {
+                    const userIsAdmin = isUserAdmin(result.user.email)
+                    setIsAdmin(userIsAdmin)
+                    setIsCheckingRole(false)
+                    toast.add({
+                        title: "Login Berhasil",
+                        description: `Selamat datang, ${result.user.user_metadata?.full_name || result.user.email}${userIsAdmin ? " (Admin)" : ""}`,
+                        type: "success"
+                    })
+                    return
+                } else if (result.error) {
+                    toast.add({ title: "Gagal Login", description: result.error, type: "error" })
+                }
+            } else if (typeof window !== "undefined" && (window.location.hash.includes("error=") || window.location.search.includes("error="))) {
+                const result = await processAuthTokensFromUrl()
+                if (result.error) {
+                    toast.add({ title: "Akses Ditolak", description: result.error, type: "error" })
+                }
+            }
+
+            // Cek sesi yang ada untuk menentukan hak akses
             const { data: { session } } = await supabase.auth.getSession()
+            if (!mounted) return
+
             const userIsAdmin = isUserAdmin(session?.user?.email)
             setIsAdmin(userIsAdmin)
 
@@ -51,9 +74,10 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             }
         }
 
-        checkAuthAndRole()
+        initAuthAndRole()
 
         const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+            if (!mounted) return
             if (!session?.user) {
                 setIsAdmin(false)
             } else {
@@ -61,7 +85,20 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             }
         })
 
-        return () => subscription.unsubscribe()
+        const handleAuthChanged = (e: any) => {
+            if (!mounted) return
+            const user = e.detail?.rawUser
+            if (user?.email) {
+                setIsAdmin(isUserAdmin(user.email))
+            }
+        }
+        window.addEventListener("auth-state-changed", handleAuthChanged as EventListener)
+
+        return () => {
+            mounted = false
+            subscription.unsubscribe()
+            window.removeEventListener("auth-state-changed", handleAuthChanged as EventListener)
+        }
     }, [router, pathname])
 
     if (isCheckingRole) {

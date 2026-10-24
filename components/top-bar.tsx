@@ -203,9 +203,18 @@ export function TopBar() {
         };
         window.addEventListener("topbar-config-updated", handleConfigUpdate as EventListener);
 
+        // Listen for instant auth state sync
+        const handleAuthChanged = (e: any) => {
+            if (e.detail?.user) {
+                setUser(e.detail.user);
+            }
+        };
+        window.addEventListener("auth-state-changed", handleAuthChanged as EventListener);
+
         return () => {
             subscription.unsubscribe();
             window.removeEventListener("topbar-config-updated", handleConfigUpdate as EventListener);
+            window.removeEventListener("auth-state-changed", handleAuthChanged as EventListener);
         };
     }, []);
 

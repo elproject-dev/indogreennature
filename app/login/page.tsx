@@ -15,6 +15,7 @@ import { useRouter } from "next/navigation"
 import { supabase } from "@/lib/supabase"
 import { toast } from "@/components/ui/toast"
 import { LoadingSpinner } from "@/components/loading-spinner"
+import { processAuthTokensFromUrl } from "@/lib/auth-callback"
 
 export default function LoginPage() {
  const [isLoading, setIsLoading] = useState(false)
@@ -84,18 +85,28 @@ export default function LoginPage() {
  let mounted = true
 
  const checkUser = async () => {
- // Fast-path: check if any supabase auth token exists in localStorage
- if (typeof window !== "undefined") {
- try {
- const hasToken = Object.keys(window.localStorage).some(k => k.startsWith('sb-') && k.endsWith('-auth-token'))
- if (!hasToken) {
- setIsCheckingSession(false)
- return
- }
- } catch (e) {
- // ignore localStorage access errors (e.g. strict privacy mode)
- }
- }
+  // Jika terdapat token callback di URL (misal redirect ke /login dengan hash), proses dahulu
+  if (typeof window !== "undefined" && (window.location.hash.includes("access_token=") || window.location.search.includes("code="))) {
+   const result = await processAuthTokensFromUrl()
+   if (!mounted) return
+   if (result.success && result.user) {
+    router.replace(getNextPath())
+    return
+   }
+  }
+
+  // Fast-path: check if any supabase auth token exists in localStorage
+  if (typeof window !== "undefined") {
+  try {
+  const hasToken = Object.keys(window.localStorage).some(k => k.startsWith('sb-') && k.endsWith('-auth-token'))
+  if (!hasToken) {
+  setIsCheckingSession(false)
+  return
+  }
+  } catch (e) {
+  // ignore localStorage access errors (e.g. strict privacy mode)
+  }
+  }
 
  try {
  const { data: { session }, error } = await supabase.auth.getSession()
@@ -134,22 +145,27 @@ export default function LoginPage() {
 
 
  const handleOAuthLogin = async (provider: 'google') => {
- try {
- setIsLoading(true)
- const { error } = await supabase.auth.signInWithOAuth({
- provider,
- options: {
- redirectTo:`${window.location.origin}${getNextPath()}`,
- queryParams: {
- prompt: 'select_account consent',
- },
- },
- })
- if (error) throw error
- } catch (error: any) {
- toast.add({ title: "Gagal login", description: error.message, type: "error" })
- setIsLoading(false)
- }
+  try {
+   setIsLoading(true)
+   const nextPath = getNextPath()
+   const callbackUrl = `${window.location.origin}/auth/callback${
+    nextPath && nextPath !== '/' ? `?next=${encodeURIComponent(nextPath)}` : ''
+   }`
+
+   const { error } = await supabase.auth.signInWithOAuth({
+    provider,
+    options: {
+     redirectTo: callbackUrl,
+     queryParams: {
+      prompt: 'select_account consent',
+     },
+    },
+   })
+   if (error) throw error
+  } catch (error: any) {
+   toast.add({ title: "Gagal login", description: error.message, type: "error" })
+   setIsLoading(false)
+  }
  }
 
  if (isCheckingSession) {
