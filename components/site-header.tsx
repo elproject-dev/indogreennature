@@ -1,0 +1,136 @@
+"use client"
+
+import { useEffect, useState } from "react"
+import { useRouter } from "next/navigation"
+import { Separator } from "@/components/ui/separator"
+import { SidebarTrigger } from "@/components/ui/sidebar"
+import {
+  Avatar,
+  AvatarFallback,
+  AvatarImage,
+} from "@/components/ui/avatar"
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuGroup,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
+import { CircleUserRoundIcon, LogOutIcon } from "lucide-react"
+import { supabase } from "@/lib/supabase"
+
+export function SiteHeader() {
+  const router = useRouter()
+  const [user, setUser] = useState<{ name: string; email: string; avatar: string } | null>(null)
+  const [isCheckingUser, setIsCheckingUser] = useState(true)
+
+  useEffect(() => {
+    const fetchUser = async () => {
+      const { data: { session } } = await supabase.auth.getSession()
+      if (session?.user) {
+        setUser({
+          name: session.user.user_metadata?.full_name || session.user.user_metadata?.name || session.user.email?.split('@')[0] || "Pengguna",
+          email: session.user.email || "",
+          avatar: session.user.user_metadata?.avatar_url || session.user.user_metadata?.picture || "",
+        })
+      } else {
+        setUser({ name: "Belum Login", email: "Mode Tamu", avatar: "" })
+      }
+      setIsCheckingUser(false)
+    }
+    fetchUser()
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event: any, session: any) => {
+      if (session?.user) {
+        setUser({
+          name: session.user.user_metadata?.full_name || session.user.user_metadata?.name || session.user.email?.split('@')[0] || "Pengguna",
+          email: session.user.email || "",
+          avatar: session.user.user_metadata?.avatar_url || session.user.user_metadata?.picture || "",
+        })
+      } else {
+        setUser({ name: "Belum Login", email: "Mode Tamu", avatar: "" })
+      }
+      setIsCheckingUser(false)
+    })
+
+    return () => subscription.unsubscribe()
+  }, [])
+
+  const handleLogout = async () => {
+    if (user?.name === "Belum Login") {
+      router.push("/login");
+    } else {
+      await supabase.auth.signOut();
+      router.push("/");
+    }
+  };
+
+  return (
+    <header className="flex h-(--header-height) shrink-0 items-center gap-2 transition-[width,height] ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-(--header-height)">
+      <div className="flex w-full items-center gap-2 px-4 lg:gap-2 lg:px-6 ml-1">
+        {/* Mobile: Profile avatar dropdown */}
+        <div className="lg:hidden -ml-1">
+          <DropdownMenu>
+            <DropdownMenuTrigger className="flex items-center justify-center outline-none">
+              {isCheckingUser ? (
+                <div className="size-8 rounded-full bg-muted animate-pulse" />
+              ) : (
+                <Avatar className="size-8 rounded-full">
+                  <AvatarImage src={user?.avatar || undefined} alt={user?.name || "User"} referrerPolicy="no-referrer" />
+                  <AvatarFallback className="rounded-full text-xs">
+                    {user?.name?.charAt(0)?.toUpperCase() || "U"}
+                  </AvatarFallback>
+                </Avatar>
+              )}
+            </DropdownMenuTrigger>
+            <DropdownMenuContent
+              className="min-w-56"
+              side="bottom"
+              align="start"
+              sideOffset={8}
+            >
+              <DropdownMenuGroup>
+                <DropdownMenuLabel className="p-0 font-normal">
+                  <div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
+                    <Avatar className="size-8">
+                      <AvatarImage src={user?.avatar || undefined} alt={user?.name || "User"} referrerPolicy="no-referrer" />
+                      <AvatarFallback className="rounded-full text-xs">
+                        {user?.name?.charAt(0)?.toUpperCase() || "U"}
+                      </AvatarFallback>
+                    </Avatar>
+                    <div className="grid flex-1 text-left text-sm leading-tight">
+                      <span className="truncate font-medium">{user?.name}</span>
+                      <span className="truncate text-xs text-muted-foreground">
+                        {user?.email}
+                      </span>
+                    </div>
+                  </div>
+                </DropdownMenuLabel>
+              </DropdownMenuGroup>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem onClick={handleLogout} className="cursor-pointer text-red-600 focus:bg-red-500 focus:!text-white focus:**:!text-white dark:text-red-500 dark:focus:bg-red-900">
+                <LogOutIcon className="mr-2 h-4 w-4" />
+                {user?.name === "Belum Login" ? "Masuk / Login" : "Keluar"}
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
+
+        {/* Desktop: Sidebar trigger */}
+        <SidebarTrigger className="-ml-1 hidden lg:flex" />
+        <Separator
+          orientation="vertical"
+          className="mx-2 h-4 data-vertical:self-auto hidden lg:block"
+        />
+
+        <div className="flex flex-1 items-center justify-end">
+          <div className="flex items-center justify-center mt-3">
+            <img src="/logo-maga2.png" alt="CV. Indo Green Nature Logo" className="h-8 md:h-10 w-auto object-contain dark:brightness-0 dark:invert" />
+          </div>
+        </div>
+      </div>
+    </header>
+  )
+}

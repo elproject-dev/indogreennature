@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400" width="100%" height="100%">
+  <rect width="400" height="400" rx="24" fill="#FFFFFF" />
+  <circle cx="200" cy="200" r="160" fill="#FEF2F2" stroke="#B91C1C" stroke-width="8" />
+  <circle cx="200" cy="200" r="140" fill="#FFFFFF" stroke="#FCA5A5" stroke-width="3" stroke-dasharray="6 6" />
+  <g transform="translate(200, 145) scale(0.95)">
+    <!-- Badge HACCP -->
+    <path d="M0,-45 L38,-20 L38,25 L0,50 L-38,25 L-38,-20 Z" fill="#B91C1C" />
+    <path d="M0,-35 L30,-15 L30,20 L0,40 L-30,20 L-30,-15 Z" fill="#FFFFFF" />
+    <path d="M-12,0 L-3,10 L14,-10" stroke="#B91C1C" stroke-width="6" stroke-linecap="round" stroke-linejoin="round" fill="none" />
+  </g>
+  <text x="200" y="255" text-anchor="middle" font-family="sans-serif" font-weight="900" font-size="34" fill="#B91C1C" letter-spacing="3">HACCP</text>
+  <text x="200" y="284" text-anchor="middle" font-family="sans-serif" font-weight="700" font-size="12" fill="#991B1B" letter-spacing="1">HAZARD ANALYSIS CRITICAL CONTROL</text>
+  <text x="200" y="304" text-anchor="middle" font-family="sans-serif" font-weight="600" font-size="11" fill="#4B5563">CERTIFIED SYSTEM</text>
+</svg>

@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400" width="100%" height="100%">
+  <rect width="400" height="400" rx="24" fill="#FFFFFF" />
+  <circle cx="200" cy="200" r="160" fill="#FBF7EE" stroke="#9A3412" stroke-width="8" />
+  <circle cx="200" cy="200" r="140" fill="#FFFFFF" stroke="#FDBA74" stroke-width="3" stroke-dasharray="6 6" />
+  <g transform="translate(200, 150) scale(0.9)">
+    <!-- Gunungan / Simbol Halal Indonesia Modern -->
+    <path d="M0,-65 C25,-35 45,-15 45,20 C45,50 25,65 0,65 C-25,65 -45,50 -45,20 C-45,-15 -25,-35 0,-65 Z" fill="#9A3412" />
+    <path d="M0,-48 C18,-25 32,-10 32,16 C32,38 18,50 0,50 C-18,50 -32,38 -32,16 C-32,-10 -18,-25 0,-48 Z" fill="#FFFFFF" />
+    <path d="M-8,-10 Q0,-25 8,-10 Q0,25 -8,-10 Z" fill="#9A3412" />
+  </g>
+  <text x="200" y="258" text-anchor="middle" font-family="sans-serif" font-weight="900" font-size="30" fill="#9A3412" letter-spacing="3">HALAL</text>
+  <text x="200" y="286" text-anchor="middle" font-family="sans-serif" font-weight="700" font-size="14" fill="#C2410C" letter-spacing="2">INDONESIA</text>
+  <text x="200" y="308" text-anchor="middle" font-family="sans-serif" font-weight="600" font-size="11" fill="#4B5563">SERTIFIKASI RESMI BPJPH</text>
+</svg>

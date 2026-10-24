@@ -1,0 +1,294 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-sans);
+  --font-mono: var(--font-geist-mono);
+  --font-heading: var(--font-sans);
+  --color-sidebar-ring: var(--sidebar-ring);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar: var(--sidebar);
+  --color-chart-5: var(--chart-5);
+  --color-chart-4: var(--chart-4);
+  --color-chart-3: var(--chart-3);
+  --color-chart-2: var(--chart-2);
+  --color-chart-1: var(--chart-1);
+  --color-ring: var(--ring);
+  --color-input: var(--input);
+  --color-border: var(--border);
+  --color-destructive: var(--destructive);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-accent: var(--accent);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-muted: var(--muted);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-secondary: var(--secondary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary: var(--primary);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-popover: var(--popover);
+  --color-card-foreground: var(--card-foreground);
+  --color-card: var(--card);
+  --color-card-alt: var(--card-alt);
+  --color-brand-accent: var(--brand-accent);
+  --color-primary-soft: var(--primary-soft);
+  --radius-sm: calc(var(--radius) * 0.6);
+  --radius-md: calc(var(--radius) * 0.8);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) * 1.4);
+  --radius-2xl: calc(var(--radius) * 1.8);
+  --radius-3xl: calc(var(--radius) * 2.2);
+  --radius-4xl: calc(var(--radius) * 2.6);
+}
+
+:root {
+  --background: #FFFFFF;
+  --foreground: #0f172a;
+  --card: #FFFFFF;
+  --card-alt: #FFFFFF;
+  --card-foreground: #0f172a;
+  --popover: #FFFFFF;
+  --popover-foreground: #0f172a;
+  --primary: #1e5631;
+  --primary-soft: #e8f5ec;
+  --brand-accent: #166534;
+  --primary-foreground: #FFFFFF;
+  --secondary: #f0fdf4;
+  --secondary-foreground: #1e5631;
+  --muted: #f4f5f4;
+  --muted-foreground: #64748b;
+  --accent: #f0fdf4;
+  --accent-foreground: #1e5631;
+  --destructive: oklch(0.577 0.245 27.325);
+  --border: #e5e7eb;
+  --input: #e5e7eb;
+  --ring: #1e5631;
+  --chart-1: #1e5631;
+  --chart-2: #166534;
+  --chart-3: #15803d;
+  --chart-4: #2d6a4f;
+  --chart-5: #059669;
+  --radius: 0.625rem;
+  --sidebar: #FFFFFF;
+  --sidebar-foreground: #0f172a;
+  --sidebar-primary: #1e5631;
+  --sidebar-primary-foreground: #FFFFFF;
+  --sidebar-accent: #f0fdf4;
+  --sidebar-accent-foreground: #1e5631;
+  --sidebar-border: #e5e7eb;
+  --sidebar-ring: #1e5631;
+}
+
+.dark {
+  --background: #000000;
+  --foreground: #f8fafc;
+  --card: #0a0a0a;
+  --card-alt: #0a0a0a;
+  --card-foreground: #f8fafc;
+  --popover: #0a0a0a;
+  --popover-foreground: #f8fafc;
+  --primary: #2d8a4e;
+  --primary-soft: #052e16;
+  --brand-accent: #34d399;
+  --primary-foreground: #ffffff;
+  --secondary: #0f2916;
+  --secondary-foreground: #86efac;
+  --muted: #171d18;
+  --muted-foreground: #94a3b8;
+  --accent: #0f2916;
+  --accent-foreground: #86efac;
+  --destructive: #ef4444;
+  --border: #1f2b21;
+  --input: #1f2b21;
+  --ring: #2d8a4e;
+  --chart-1: #2d8a4e;
+  --chart-2: #22c55e;
+  --chart-3: #10b981;
+  --chart-4: #34d399;
+  --chart-5: #059669;
+  --sidebar: #000000;
+  --sidebar-foreground: #f8fafc;
+  --sidebar-primary: #2d8a4e;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: #0f2916;
+  --sidebar-accent-foreground: #86efac;
+  --sidebar-border: #1f2b21;
+  --sidebar-ring: #2d8a4e;
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+    -webkit-touch-callout: none;
+    /* Disable native context menu (e.g., long press on image/link) */
+    -webkit-user-select: none;
+    /* Disable text selection (Webkit) */
+    user-select: none;
+    /* Disable text selection */
+  }
+
+  /* Allow text selection on specific elements if needed, like inputs */
+  input,
+  textarea {
+    -webkit-user-select: auto;
+    user-select: auto;
+  }
+
+  html {
+    @apply font-sans;
+  }
+}
+
+/* Hide scrollbar for Chrome, Safari and Opera */
+::-webkit-scrollbar {
+  display: none;
+}
+
+/* Hide scrollbar for IE, Edge and Firefox */
+html,
+body {
+  -ms-overflow-style: none;
+  /* IE and Edge */
+  scrollbar-width: none;
+  /* Firefox */
+}
+
+/* Running text marquee animation — seamless loop */
+@keyframes marquee-scroll {
+  0% {
+    transform: translateX(0%);
+  }
+
+  100% {
+    transform: translateX(-100%);
+  }
+}
+
+@keyframes zoom-soft {
+
+  0%,
+  100% {
+    transform: scale(1);
+  }
+
+  50% {
+    transform: scale(1.03);
+  }
+}
+
+.animate-zoom-soft {
+  animation: zoom-soft 4s ease-in-out infinite;
+}
+
+@keyframes marquee {
+  0% {
+    transform: translateX(0);
+  }
+
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
+.animate-marquee {
+  animation: marquee 25s linear infinite;
+  display: flex;
+  width: max-content;
+}
+
+.animate-marquee:hover {
+  animation-play-state: paused;
+}
+
+/* Global Fixed Styles untuk Loading Spinner - Hijau Hutan (#15803d) */
+.loading-spinner-fixed-outer {
+  position: absolute;
+  width: 4rem;
+  height: 4rem;
+  border-radius: 9999px;
+  border-width: 4px;
+  border-style: solid;
+  border-color: rgba(21, 128, 61, 0.2);
+  border-top-color: #15803d;
+  border-bottom-color: #15803d;
+  animation: spin 1s linear infinite;
+}
+
+.loading-spinner-fixed-inner {
+  position: absolute;
+  width: 3rem;
+  height: 3rem;
+  border-radius: 9999px;
+  border-width: 4px;
+  border-style: solid;
+  border-color: rgba(21, 128, 61, 0.25);
+  border-left-color: #15803d;
+  border-right-color: #15803d;
+  animation: spin 1.5s linear infinite reverse;
+}
+
+.loading-spinner-fixed-dot {
+  width: 1.5rem;
+  height: 1.5rem;
+  background-color: #15803d;
+  border-radius: 9999px;
+  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  box-shadow: 0 0 20px rgba(21, 128, 61, 0.7);
+}
+
+.loading-spinner-fixed-text {
+  color: #15803d !important;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif !important;
+  font-weight: 600 !important;
+  font-size: 0.875rem !important;
+  letter-spacing: 0.05em !important;
+  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+/* ─── Auto-Slide Vertikal Our Products ─── */
+@keyframes slideUpInfinite {
+  0% {
+    transform: translateY(0);
+  }
+  100% {
+    transform: translateY(-50%);
+  }
+}
+
+@keyframes slideDownInfinite {
+  0% {
+    transform: translateY(-50%);
+  }
+  100% {
+    transform: translateY(0);
+  }
+}
+
+.slide-up-track {
+  animation: slideUpInfinite 18s linear infinite;
+  will-change: transform;
+}
+
+.slide-down-track {
+  animation: slideDownInfinite 18s linear infinite;
+  will-change: transform;
+}
+
+.slide-up-track:hover,
+.slide-down-track:hover {
+  animation-play-state: paused;
+}

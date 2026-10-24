@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400" width="100%" height="100%">
+  <rect width="400" height="400" rx="24" fill="#FFFFFF" />
+  <circle cx="200" cy="200" r="160" fill="#F0FDF4" stroke="#15803D" stroke-width="8" />
+  <circle cx="200" cy="200" r="140" fill="#FFFFFF" stroke="#86EFAC" stroke-width="3" stroke-dasharray="6 6" />
+  <g transform="translate(200, 150) scale(0.9)">
+    <path d="M-60,-20 C-60,-50 60,-50 60,-20 C60,40 0,70 0,70 C0,70 -60,40 -60,-20 Z" fill="#15803D" />
+    <path d="M-45,-15 C-45,-38 45,-38 45,-15 C45,30 0,55 0,55 C0,55 -45,30 -45,-15 Z" fill="#FFFFFF" />
+    <path d="M-15,-5 L-5,10 L18,-15" stroke="#15803D" stroke-width="6" stroke-linecap="round" stroke-linejoin="round" fill="none" />
+  </g>
+  <text x="200" y="260" text-anchor="middle" font-family="sans-serif" font-weight="900" font-size="34" fill="#15803D" letter-spacing="3">BPOM RI</text>
+  <text x="200" y="288" text-anchor="middle" font-family="sans-serif" font-weight="700" font-size="13" fill="#166534" letter-spacing="1.5">BADAN PENGAWAS OBAT &amp; MAKANAN</text>
+  <text x="200" y="308" text-anchor="middle" font-family="sans-serif" font-weight="600" font-size="11" fill="#4B5563">TEREGISTRASI RESMI</text>
+</svg>

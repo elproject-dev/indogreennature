@@ -1,0 +1,208 @@
+"use client"
+
+import * as React from "react"
+import { useEffect, useState } from "react"
+import { supabase } from "@/lib/supabase"
+import { isUserAdmin } from "@/lib/auth-admin"
+
+import { NavDocuments } from "@/components/nav-documents"
+import { NavMain } from "@/components/nav-main"
+import { NavUser } from "@/components/nav-user"
+import {
+  Sidebar,
+  SidebarContent,
+  SidebarFooter,
+  SidebarHeader,
+  SidebarMenu,
+  SidebarMenuButton,
+  SidebarMenuItem,
+} from "@/components/ui/sidebar"
+import { LayoutDashboardIcon, ListIcon, ChartBarIcon, FolderIcon, CameraIcon, FileTextIcon, Settings2Icon, CircleHelpIcon, SearchIcon, DatabaseIcon, FileChartColumnIcon, FileIcon, CommandIcon, Disc2Icon, BoxIcon, PointerIcon, User2Icon, MapPinIcon, UserCogIcon, CalendarDaysIcon } from "lucide-react"
+
+const data = {
+  user: {
+    name: "Belum Login",
+    email: "Mode Tamu",
+    avatar: "",
+  },
+  navMain: [
+    {
+      title: "Beranda",
+      url: "/",
+      icon: (
+        <LayoutDashboardIcon
+        />
+      ),
+    },
+    {
+      title: "Tentang Kami",
+      url: "/about",
+      icon: (
+        <CircleHelpIcon
+        />
+      ),
+    },
+  ],
+  navClouds: [
+    {
+      title: "Capture",
+      icon: (
+        <CameraIcon
+        />
+      ),
+      isActive: true,
+      url: "#",
+      items: [
+        {
+          title: "Active Proposals",
+          url: "#",
+        },
+        {
+          title: "Archived",
+          url: "#",
+        },
+      ],
+    },
+    {
+      title: "Proposal",
+      icon: (
+        <FileTextIcon
+        />
+      ),
+      url: "#",
+      items: [
+        {
+          title: "Active Proposals",
+          url: "#",
+        },
+        {
+          title: "Archived",
+          url: "#",
+        },
+      ],
+    },
+    {
+      title: "Prompts",
+      icon: (
+        <FileTextIcon
+        />
+      ),
+      url: "#",
+      items: [
+        {
+          title: "Active Proposals",
+          url: "#",
+        },
+        {
+          title: "Archived",
+          url: "#",
+        },
+      ],
+    },
+  ],
+
+  documents: [
+    {
+      name: "Analytics",
+      url: "/analytics",
+      icon: (
+        <FileChartColumnIcon
+        />
+      ),
+    },
+
+    {
+      name: "Poin",
+      url: "/poin",
+      icon: (
+        <PointerIcon
+        />
+      ),
+    },
+    {
+      name: "Database",
+      url: "/database",
+      icon: (
+        <DatabaseIcon
+        />
+      ),
+    },
+
+    {
+      name: "Manajemen",
+      url: "/settings",
+      icon: (
+        <Settings2Icon
+        />
+      ),
+    },
+  ],
+}
+export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+  const [userData, setUserData] = useState(data.user)
+  const [isAdminOrStaff, setIsAdminOrStaff] = useState(false)
+
+  const checkRole = async (email: string | undefined) => {
+    setIsAdminOrStaff(isUserAdmin(email))
+  }
+
+  useEffect(() => {
+    const fetchUser = async () => {
+      const { data: { session } } = await supabase.auth.getSession()
+      if (session?.user) {
+        setUserData({
+          name: session.user.user_metadata?.full_name || session.user.user_metadata?.name || session.user.email?.split('@')[0] || "Pengguna",
+          email: session.user.email || "",
+          avatar: session.user.user_metadata?.avatar_url || session.user.user_metadata?.picture || "",
+        })
+        checkRole(session.user.email)
+      } else {
+        setUserData({ name: "Belum Login", email: "Mode Tamu", avatar: "" })
+        setIsAdminOrStaff(false)
+      }
+    }
+    fetchUser()
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      if (session?.user) {
+        setUserData({
+          name: session.user.user_metadata?.full_name || session.user.user_metadata?.name || session.user.email?.split('@')[0] || "Pengguna",
+          email: session.user.email || "",
+          avatar: session.user.user_metadata?.avatar_url || session.user.user_metadata?.picture || "",
+        })
+        checkRole(session.user.email)
+      } else {
+        setIsAdminOrStaff(false)
+        setUserData({ name: "Belum Login", email: "Mode Tamu", avatar: "" })
+      }
+    })
+
+    return () => subscription.unsubscribe()
+  }, [])
+
+  return (
+    <Sidebar collapsible="offcanvas" {...props}>
+      <SidebarHeader>
+        <SidebarMenu>
+          <SidebarMenuItem>
+            <SidebarMenuButton
+              className="data-[slot=sidebar-menu-button]:p-1.5!"
+              render={<a href="#" />}
+            >
+              <div className="flex w-full items-center">
+                <img src="/logo-maga2.png" alt="CV. Indo Green Nature Logo" className="h-8 w-auto object-contain dark:brightness-0 dark:invert" />
+              </div>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+        </SidebarMenu>
+      </SidebarHeader>
+      <SidebarContent>
+        <NavMain items={data.navMain} isAdminOrStaff={isAdminOrStaff} />
+        {isAdminOrStaff && <NavDocuments items={data.documents} />}
+      </SidebarContent>
+      <SidebarFooter>
+        <NavUser user={userData} />
+      </SidebarFooter>
+    </Sidebar>
+  )
+}
