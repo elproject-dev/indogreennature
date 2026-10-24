@@ -1,7 +1,11 @@
 import { createClient } from '@supabase/supabase-js'
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.VITE_SUPABASE_URL || ''
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || process.env.VITE_SUPABASE_ANON_KEY || ''
+const rawSupabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.VITE_SUPABASE_URL || ''
+const rawSupabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || process.env.VITE_SUPABASE_ANON_KEY || ''
+
+// Bersihkan dari spasi, baris baru (\n / \r), atau tanda kutip yang tidak sengaja terbawa saat copy-paste env
+const supabaseUrl = rawSupabaseUrl.trim().replace(/[\r\n"']/g, '').replace(/\/+$/, '')
+const supabaseAnonKey = rawSupabaseAnonKey.trim().replace(/[\r\n"']/g, '')
 
 export const isSupabaseConfigured = Boolean(
   supabaseUrl &&
@@ -23,7 +27,15 @@ const dummyFetch: typeof fetch = async () => {
 export const supabase = createClient(
   isSupabaseConfigured ? supabaseUrl : 'https://placeholder.supabase.co',
   isSupabaseConfigured ? supabaseAnonKey : 'placeholder',
-  isSupabaseConfigured ? undefined : { global: { fetch: dummyFetch } }
+  isSupabaseConfigured
+    ? {
+        auth: {
+          persistSession: true,
+          autoRefreshToken: true,
+          detectSessionInUrl: true,
+        },
+      }
+    : { global: { fetch: dummyFetch } }
 )
 
 

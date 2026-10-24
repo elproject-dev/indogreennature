@@ -25,15 +25,15 @@ export default function LoginPage() {
  // Inisialisasi background dari localStorage agar sama dan instan dengan landing page
  const [bgDesktop, setBgDesktop] = useState<string>(() => {
   if (typeof window !== "undefined") {
-   return localStorage.getItem("landing_bg_desktop") || "/cofee-bg.webp"
+   return localStorage.getItem("landing_bg_desktop") || "/images/about_hero_banner.jpg"
   }
-  return "/cofee-bg.webp"
+  return "/images/about_hero_banner.jpg"
  })
  const [bgMobile, setBgMobile] = useState<string>(() => {
   if (typeof window !== "undefined") {
-   return localStorage.getItem("landing_bg_mobile") || "/cofee-bg.webp"
+   return localStorage.getItem("landing_bg_mobile") || "/images/about_hero_banner.jpg"
   }
-  return "/cofee-bg.webp"
+  return "/images/about_hero_banner.jpg"
  })
  const [bgFit, setBgFit] = useState<string>(() => {
   if (typeof window !== "undefined") {
@@ -208,7 +208,7 @@ export default function LoginPage() {
  <CardHeader className="text-center">
  <div className="flex flex-col items-center gap-4">
  <div className="w-60 h-60 flex items-center justify-center">
- <img src="/logo-member1.png" alt="CV. Indo Green Nature Logo" className="w-full h-full object-contain" />
+ <img src="/logo.png" alt="CV. Indo Green Nature Logo" className="w-full h-full object-contain" />
  </div>
  </div>
  </CardHeader>

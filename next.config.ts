@@ -3,7 +3,21 @@ import withPWAInit from "@ducanh2912/next-pwa";
 
 const withPWA = withPWAInit({
   dest: "public",
-  disable: process.env.NODE_ENV === 'development',
+  disable: process.env.NODE_ENV === "development",
+  extendDefaultRuntimeCaching: true,
+  workboxOptions: {
+    navigateFallbackDenylist: [/^\/api\/.*/, /^\/auth\/.*/, /^\/login(\/.*)?$/],
+    runtimeCaching: [
+      {
+        urlPattern: ({ url }: { url: URL }) =>
+          url.hostname.includes("supabase.co") ||
+          url.pathname.startsWith("/auth") ||
+          url.pathname.startsWith("/login") ||
+          url.pathname.startsWith("/api"),
+        handler: "NetworkOnly",
+      },
+    ],
+  },
 });
 
 const nextConfig: NextConfig = {

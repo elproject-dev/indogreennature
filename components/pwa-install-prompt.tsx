@@ -103,7 +103,7 @@ export function PWAInstallPrompt() {
 
           <div className="flex flex-col items-center text-center gap-3 mt-2">
             <div className="w-40 h-20 flex items-center justify-center">
-              <img src="/logo-member1.png" alt="Logo CV. Indo Green Nature" className="w-full h-full object-contain drop-shadow-md" />
+              <img src="/logo.png" alt="Logo CV. Indo Green Nature" className="w-full h-full object-contain drop-shadow-md" />
             </div>
             <div>
               <h4 className="text-base font-bold text-primary mb-1">

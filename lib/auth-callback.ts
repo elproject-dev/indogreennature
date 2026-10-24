@@ -16,10 +16,25 @@ export async function processAuthTokensFromUrl(): Promise<AuthProcessResult> {
     return { success: false }
   }
 
+  // 1. Cek terlebih dahulu apakah sesi sudah aktif (misal sudah di-recover otomatis oleh Supabase detectSessionInUrl)
+  try {
+    const { data: currentData } = await supabase.auth.getSession()
+    if (currentData?.session?.user) {
+      if (window.location.hash.includes("access_token")) {
+        const cleanUrl = window.location.pathname + (window.location.search ? window.location.search : "")
+        window.history.replaceState(null, "", cleanUrl)
+      }
+      syncUserToStorageAndBroadcast(currentData.session.user)
+      return { success: true, user: currentData.session.user }
+    }
+  } catch (e) {
+    // Abaikan jika belum ada sesi
+  }
+
   const hash = window.location.hash || ""
   const search = window.location.search || ""
 
-  // 1. Cek apakah ada error pada URL (misal user membatalkan consent atau provider error)
+  // 2. Cek apakah ada error pada URL (misal user membatalkan consent atau provider error)
   const hashParams = new URLSearchParams(hash.startsWith("#") ? hash.substring(1) : hash)
   const searchParams = new URLSearchParams(search)
 
@@ -38,11 +53,15 @@ export async function processAuthTokensFromUrl(): Promise<AuthProcessResult> {
     }
   }
 
-  // 2. Cek Implicit Grant Flow (#access_token=...&refresh_token=...)
-  const accessToken = hashParams.get("access_token")
-  const refreshToken = hashParams.get("refresh_token")
+  // 3. Cek Implicit Grant Flow (#access_token=...&refresh_token=...)
+  const rawAccessToken = hashParams.get("access_token")
+  const rawRefreshToken = hashParams.get("refresh_token")
 
-  if (accessToken && refreshToken) {
+  if (rawAccessToken && rawRefreshToken) {
+    // Bersihkan token dari spasi, newline, carriage return, dan tanda kutip
+    const accessToken = decodeURIComponent(rawAccessToken).trim().replace(/[\r\n"']/g, "")
+    const refreshToken = decodeURIComponent(rawRefreshToken).trim().replace(/[\r\n"']/g, "")
+
     try {
       const { data, error } = await supabase.auth.setSession({
         access_token: accessToken,
@@ -50,7 +69,15 @@ export async function processAuthTokensFromUrl(): Promise<AuthProcessResult> {
       })
 
       if (error) {
-        console.error("[AuthCallback] Gagal menetapkan sesi dari token URL:", error)
+        console.warn("[AuthCallback] Warning setSession:", error)
+        // Fallback: cek apakah _initialize() internal Supabase sudah berhasil membuat sesi
+        const { data: secondCheck } = await supabase.auth.getSession()
+        if (secondCheck?.session?.user) {
+          const cleanUrl = window.location.pathname + (window.location.search ? window.location.search : "")
+          window.history.replaceState(null, "", cleanUrl)
+          syncUserToStorageAndBroadcast(secondCheck.session.user)
+          return { success: true, user: secondCheck.session.user }
+        }
         return { success: false, error: error.message }
       }
 
@@ -65,29 +92,40 @@ export async function processAuthTokensFromUrl(): Promise<AuthProcessResult> {
 
       return { success: true, user }
     } catch (err: any) {
-      console.error("[AuthCallback] Error saat memproses hash token:", err)
+      console.warn("[AuthCallback] Tangkap error setSession, mencoba verifikasi sesi fallback:", err)
+      try {
+        const { data: fallbackCheck } = await supabase.auth.getSession()
+        if (fallbackCheck?.session?.user) {
+          const cleanUrl = window.location.pathname + (window.location.search ? window.location.search : "")
+          window.history.replaceState(null, "", cleanUrl)
+          syncUserToStorageAndBroadcast(fallbackCheck.session.user)
+          return { success: true, user: fallbackCheck.session.user }
+        }
+      } catch (e) {}
+
       return { success: false, error: err?.message || "Gagal memproses sesi login" }
     }
   }
 
-  // 3. Cek PKCE Authorization Code Flow (?code=...)
-  const code = searchParams.get("code")
-  if (code) {
+  // 4. Cek PKCE Authorization Code Flow (?code=...)
+  const rawCode = searchParams.get("code")
+  if (rawCode) {
+    const code = rawCode.trim().replace(/[\r\n"']/g, "")
     try {
       const { data, error } = await supabase.auth.exchangeCodeForSession(code)
 
       if (error) {
-        console.error("[AuthCallback] Gagal exchange code for session:", error)
+        console.warn("[AuthCallback] Gagal exchange code for session:", error)
+        const { data: secondCheck } = await supabase.auth.getSession()
+        if (secondCheck?.session?.user) {
+          cleanQueryParams(searchParams)
+          syncUserToStorageAndBroadcast(secondCheck.session.user)
+          return { success: true, user: secondCheck.session.user }
+        }
         return { success: false, error: error.message }
       }
 
-      // Bersihkan code & flow params dari search query
-      searchParams.delete("code")
-      searchParams.delete("state")
-      searchParams.delete("sb_flow_id")
-      const remainingSearch = searchParams.toString()
-      const cleanUrl = window.location.pathname + (remainingSearch ? `?${remainingSearch}` : "")
-      window.history.replaceState(null, "", cleanUrl)
+      cleanQueryParams(searchParams)
 
       const user = data.user || data.session?.user
       if (user) {
@@ -96,12 +134,30 @@ export async function processAuthTokensFromUrl(): Promise<AuthProcessResult> {
 
       return { success: true, user }
     } catch (err: any) {
-      console.error("[AuthCallback] Error saat exchange auth code:", err)
+      console.warn("[AuthCallback] Error saat exchange auth code, mencoba cek sesi:", err)
+      try {
+        const { data: fallbackCheck } = await supabase.auth.getSession()
+        if (fallbackCheck?.session?.user) {
+          cleanQueryParams(searchParams)
+          syncUserToStorageAndBroadcast(fallbackCheck.session.user)
+          return { success: true, user: fallbackCheck.session.user }
+        }
+      } catch (e) {}
+
       return { success: false, error: err?.message || "Gagal memproses kode otentikasi" }
     }
   }
 
   return { success: false }
+}
+
+function cleanQueryParams(searchParams: URLSearchParams) {
+  searchParams.delete("code")
+  searchParams.delete("state")
+  searchParams.delete("sb_flow_id")
+  const remainingSearch = searchParams.toString()
+  const cleanUrl = window.location.pathname + (remainingSearch ? `?${remainingSearch}` : "")
+  window.history.replaceState(null, "", cleanUrl)
 }
 
 /**
