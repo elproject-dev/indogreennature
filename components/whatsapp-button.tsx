@@ -150,7 +150,8 @@ export function WhatsAppButton() {
     window.open(waUrl, "_blank", "noopener,noreferrer")
   }
 
-  if (pathname?.startsWith("/settings") || !settings.isEnabled) {
+  const isHomePage = pathname === "/" || pathname === "/home"
+  if (!isHomePage || !settings.isEnabled) {
     return null
   }
 

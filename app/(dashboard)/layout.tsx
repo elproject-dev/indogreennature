@@ -119,8 +119,8 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                     {children}
                 </div>
                 <BottomNavigation />
-                {(isAdmin || pathname === "/" || pathname === "/about" || pathname === "/legality" || pathname === "/contact" || pathname?.startsWith("/our-product") || pathname?.startsWith("/insight")) && <AdminFAB />}
-                {!pathname?.startsWith("/settings") && <WhatsAppButton />}
+                {isAdmin && <AdminFAB />}
+                {(pathname === "/" || pathname === "/home") && <WhatsAppButton />}
             </div>
         </>
     )
