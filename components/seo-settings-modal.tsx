@@ -355,16 +355,25 @@ export function SeoSettingsModal({ isOpen, onClose }: SeoSettingsModalProps) {
 
                     {/* Target Kata Kunci */}
                     <div className="space-y-2">
-                      <Label htmlFor="siteKeywords" className="text-xs font-semibold">
-                        Target Kata Kunci (Keywords dipisahkan tanda koma)
-                      </Label>
-                      <Input
+                      <div className="flex items-center justify-between">
+                        <Label htmlFor="siteKeywords" className="text-xs font-semibold">
+                          Target Kata Kunci (Keywords dipisahkan tanda koma)
+                        </Label>
+                        <span className="text-[11px] text-muted-foreground font-mono">
+                          {config.siteKeywords.split(",").map((k) => k.trim()).filter(Boolean).length} kata kunci terdeteksi
+                        </span>
+                      </div>
+                      <Textarea
                         id="siteKeywords"
+                        rows={3}
                         value={config.siteKeywords}
                         onChange={(e) => setConfig({ ...config, siteKeywords: e.target.value })}
-                        placeholder="maklon herbal, jasa maklon herbal, maklon herbal bpom, pabrik herbal"
-                        className="text-sm"
+                        placeholder="Contoh: maklon herbal, jasa maklon herbal, maklon herbal bpom, pabrik herbal sediaan kapsul, biaya maklon herbal murah"
+                        className="text-sm leading-relaxed w-full resize-y"
                       />
+                      <p className="text-[11px] text-muted-foreground">
+                        Pisahkan setiap target kata kunci dengan tanda koma (,). Kotak teks ini dapat ditarik ke bawah (resize) untuk memuat puluhan frasa kata kunci secara leluasa.
+                      </p>
                       <div className="flex flex-wrap gap-1.5 pt-1">
                         {config.siteKeywords
                           .split(",")
