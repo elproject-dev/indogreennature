@@ -2,7 +2,7 @@ import { MetadataRoute } from "next"
 import { fetchInsights } from "@/lib/insight/db"
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://indogreennature.com"
+  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://www.indogreennature.com"
 
   // 1. Static Pages
   const staticRoutes: MetadataRoute.Sitemap = [

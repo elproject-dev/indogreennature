@@ -43,14 +43,14 @@ export const metadata: Metadata = {
     "maklon teh herbal",
     "cv indo green nature",
   ],
-  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || "https://indogreennature.com"),
+  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || "https://www.indogreennature.com"),
   alternates: {
     canonical: "/",
   },
   openGraph: {
     title: "CV. Indo Green Nature | Jasa Maklon Herbal BPOM & Halal Resmi",
     description: "Pabrik dan jasa maklon herbal terpercaya di Indonesia. Melayani formulasi minuman serbuk, kapsul herbal, teh herbal berstandar BPOM & Halal dengan legalitas lengkap.",
-    url: "https://indogreennature.com",
+    url: "https://www.indogreennature.com",
     siteName: "CV. Indo Green Nature",
     images: [
       {
