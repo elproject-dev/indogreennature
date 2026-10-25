@@ -16,10 +16,13 @@ export function PWAInstallPrompt() {
       // Manual Service Worker registration
       if ("serviceWorker" in navigator) {
         if (process.env.NODE_ENV === 'development') {
-          // Bersihkan sisa service worker di mode development
+          // Bersihkan hanya sisa service worker caching utama di development, jangan hapus firebase-messaging-sw
           navigator.serviceWorker.getRegistrations().then((registrations) => {
             for (let registration of registrations) {
-              registration.unregister();
+              const scriptUrl = registration.active?.scriptURL || registration.installing?.scriptURL || '';
+              if (!scriptUrl.includes('firebase-messaging-sw.js')) {
+                registration.unregister();
+              }
             }
           });
         } else {

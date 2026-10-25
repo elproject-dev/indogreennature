@@ -17,6 +17,15 @@ const app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
 
 export const requestForToken = async () => {
   try {
+    if (typeof window === 'undefined' || !('Notification' in window)) {
+      return null;
+    }
+
+    // Pastikan izin sudah granted sebelum memproses token
+    if (Notification.permission !== 'granted') {
+      return null;
+    }
+
     const supported = await isSupported();
     if (!supported) {
       console.log("Firebase Messaging is not supported in this browser.");
@@ -27,43 +36,41 @@ export const requestForToken = async () => {
       return null;
     }
 
-    const messaging = getMessaging(app);
-    const permission = await Notification.requestPermission();
-    
-    if (permission === 'granted') {
-      // Register the firebase-messaging-sw.js
+    // Pastikan service worker firebase-messaging-sw.js terdaftar
+    let registration: ServiceWorkerRegistration | undefined;
+    if ('serviceWorker' in navigator) {
       try {
-        await navigator.serviceWorker.register('/firebase-messaging-sw.js');
+        registration = await navigator.serviceWorker.register('/firebase-messaging-sw.js');
       } catch (err) {
-        console.error('Service Worker registration failed:', err);
-        return null;
+        console.warn('Service worker register warning:', err);
       }
-
-      // Tunggu sampai Service Worker benar-benar aktif sebelum meminta token
-      const registration = await navigator.serviceWorker.ready;
-
-      const vapidKey = process.env.NEXT_PUBLIC_FIREBASE_VAPID_KEY;
-      if (!vapidKey) {
-        // VAPID key opsional: jika tidak disetel, return null tanpa mencemari console
-        return null;
+      try {
+        registration = await navigator.serviceWorker.ready;
+      } catch (err) {
+        console.warn('Service worker ready warning:', err);
       }
+    }
 
-      const currentToken = await getToken(messaging, {
-        serviceWorkerRegistration: registration,
-        vapidKey,
-      });
-      if (currentToken) {
-        return currentToken;
-      } else {
-        console.log('No registration token available. Request permission to generate one.');
-        return null;
-      }
+    const messaging = getMessaging(app);
+    const vapidKey = process.env.NEXT_PUBLIC_FIREBASE_VAPID_KEY;
+
+    const tokenOptions: { serviceWorkerRegistration?: ServiceWorkerRegistration; vapidKey?: string } = {};
+    if (registration) {
+      tokenOptions.serviceWorkerRegistration = registration;
+    }
+    if (vapidKey) {
+      tokenOptions.vapidKey = vapidKey;
+    }
+
+    const currentToken = await getToken(messaging, tokenOptions);
+    if (currentToken) {
+      return currentToken;
     } else {
-      console.log('Notification permission denied.');
+      console.log('No registration token available.');
       return null;
     }
   } catch (error) {
-    console.error('An error occurred while retrieving token. ', error);
+    console.warn('An error occurred while retrieving token: ', error);
     return null;
   }
 };
