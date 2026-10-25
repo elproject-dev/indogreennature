@@ -3792,6 +3792,8 @@ export default function HomePage() {
                         <img
                           src={card.image}
                           alt={card.title || "Solusi Maklon"}
+                          loading="lazy"
+                          decoding="async"
                           className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                         />
                       ) : (
@@ -4121,8 +4123,9 @@ export default function HomePage() {
                               fill
                               sizes="197px"
                               unoptimized
-                              priority={imgUrl === heroImage || (!heroImage && i === 0)}
-                              loading={imgUrl === heroImage || (!heroImage && i === 0) ? "eager" : "lazy"}
+                              priority={false}
+                              loading="lazy"
+                              decoding="async"
                               suppressHydrationWarning
                               className="object-cover group-hover:scale-105 transition-transform duration-300"
                             />
@@ -4157,8 +4160,9 @@ export default function HomePage() {
                               fill
                               sizes="197px"
                               unoptimized
-                              priority={imgUrl === heroImage || (!heroImage && i === 0)}
-                              loading={imgUrl === heroImage || (!heroImage && i === 0) ? "eager" : "lazy"}
+                              priority={false}
+                              loading="lazy"
+                              decoding="async"
                               suppressHydrationWarning
                               className="object-cover group-hover:scale-105 transition-transform duration-300"
                             />
@@ -5290,6 +5294,8 @@ export default function HomePage() {
                   <img
                     src={videoProfilThumbnail || DEFAULT_VIDEO_PROFIL_THUMBNAIL}
                     alt={videoProfilTitle || "Video Profil Indo Green Nature"}
+                    loading="lazy"
+                    decoding="async"
                     className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                   />
 
@@ -5418,9 +5424,9 @@ export default function HomePage() {
                     src={hero2Image}
                     alt="Banner 2"
                     fill
-                    priority
-                    loading="eager"
-                    fetchPriority="high"
+                    priority={false}
+                    loading="lazy"
+                    decoding="async"
                     unoptimized
                     sizes="(max-width: 640px) 100vw, 453px"
                     className="object-cover"
