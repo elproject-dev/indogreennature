@@ -402,7 +402,7 @@ export default function InsightIndexPage() {
                   ? "items-center text-center"
                   : insightSettings.bannerTitleAlign === "right"
                   ? "items-end text-right"
-                  : "items-start text-left"
+                  : "items-center lg:items-start text-center lg:text-left"
               )}
             >
               {/* Badge Sub-Judul Banner */}
@@ -414,7 +414,7 @@ export default function InsightIndexPage() {
                       ? "justify-center"
                       : insightSettings.bannerTitleAlign === "right"
                       ? "justify-end"
-                      : "justify-start"
+                      : "justify-center lg:justify-start"
                   )}
                 >
                   <div
@@ -444,7 +444,7 @@ export default function InsightIndexPage() {
                     ? "items-center text-center mx-auto"
                     : insightSettings.bannerTitleAlign === "right"
                     ? "items-end text-right ml-auto"
-                    : "items-start text-left"
+                    : "items-center lg:items-start text-center lg:text-left mx-auto lg:mx-0"
                 )}
               >
                 {/* Judul Utama Banner */}
@@ -454,7 +454,10 @@ export default function InsightIndexPage() {
                     color: insightSettings.bannerTitleColor || undefined,
                     fontSize: insightSettings.bannerTitleSize ? `clamp(22px, 5.5vw, ${insightSettings.bannerTitleSize}px)` : undefined,
                     fontWeight: insightSettings.bannerTitleWeight || "800",
-                    textAlign: insightSettings.bannerTitleAlign || "left",
+                    textAlign:
+                      insightSettings.bannerTitleAlign === "center" || insightSettings.bannerTitleAlign === "right"
+                        ? insightSettings.bannerTitleAlign
+                        : undefined,
                   }}
                   className={cn(
                     "tracking-tight text-foreground leading-[1.15]",
@@ -462,7 +465,7 @@ export default function InsightIndexPage() {
                       ? "text-center"
                       : insightSettings.bannerTitleAlign === "right"
                       ? "text-right"
-                      : "text-left",
+                      : "text-center lg:text-left",
                     getHeroFontClass(insightSettings.bannerTitleFont || "outfit")
                   )}
                 >
@@ -494,7 +497,10 @@ export default function InsightIndexPage() {
                     style={{
                       color: insightSettings.bannerDescColor || undefined,
                       fontSize: insightSettings.bannerDescSize ? `clamp(12.5px, 3.2vw, ${insightSettings.bannerDescSize}px)` : undefined,
-                      textAlign: insightSettings.bannerTitleAlign || "left",
+                      textAlign:
+                        insightSettings.bannerTitleAlign === "center" || insightSettings.bannerTitleAlign === "right"
+                          ? insightSettings.bannerTitleAlign
+                          : undefined,
                     }}
                     className={cn(
                       "text-muted-foreground leading-relaxed",
@@ -502,7 +508,7 @@ export default function InsightIndexPage() {
                         ? "text-center mx-auto"
                         : insightSettings.bannerTitleAlign === "right"
                         ? "text-right ml-auto"
-                        : "text-left",
+                        : "text-center lg:text-left mx-auto lg:mx-0",
                       getHeroFontClass(insightSettings.bannerDescFont || "poppins")
                     )}
                   >
@@ -519,7 +525,7 @@ export default function InsightIndexPage() {
                         ? "justify-center"
                         : insightSettings.bannerTitleAlign === "right"
                         ? "justify-end"
-                        : "justify-start"
+                        : "justify-center lg:justify-start"
                     )}
                   >
                     <a
