@@ -16,29 +16,33 @@ const messaging = firebase.messaging();
 messaging.onBackgroundMessage((payload) => {
   console.log('[firebase-messaging-sw.js] Received background message ', payload);
 
-  const notificationTitle = payload.notification?.title || "Notifikasi Baru";
+  const notificationTitle = payload.notification?.title || payload.data?.title || "CV. Indo Green Nature";
   const notificationOptions = {
-    body: payload.notification?.body || "",
-    icon: '/pwa-icon.png',
+    body: payload.notification?.body || payload.data?.body || "",
+    icon: payload.notification?.icon || '/pwa-icon.png',
     badge: '/badge-icon.png',
+    image: payload.notification?.image || payload.data?.image,
+    vibrate: [200, 100, 200],
+    tag: 'ign-broadcast',
+    renotify: true,
     data: {
-      url: payload.fcmOptions?.link || '/'
+      url: payload.fcmOptions?.link || payload.data?.url || '/'
     }
   };
 
-  self.registration.showNotification(notificationTitle, notificationOptions);
+  return self.registration.showNotification(notificationTitle, notificationOptions);
 });
 
 self.addEventListener('notificationclick', (event) => {
   event.notification.close();
-  const urlToOpen = event.notification.data.url || '/';
+  const urlToOpen = event.notification.data?.url || '/';
 
   event.waitUntil(
-    clients.matchAll({ type: 'window' }).then((windowClients) => {
+    clients.matchAll({ type: 'window', includeUncontrolled: true }).then((windowClients) => {
       // Check if there is already a window/tab open with the target URL
       for (let i = 0; i < windowClients.length; i++) {
         const client = windowClients[i];
-        if (client.url === urlToOpen && 'focus' in client) {
+        if (client.url.includes(urlToOpen) && 'focus' in client) {
           return client.focus();
         }
       }
@@ -49,3 +53,4 @@ self.addEventListener('notificationclick', (event) => {
     })
   );
 });
+

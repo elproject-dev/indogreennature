@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { adminMessaging } from '@/lib/firebase-admin';
+import { supabase } from '@/lib/supabase';
 
 export async function POST(req: Request) {
   try {
@@ -10,32 +11,124 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'Title and body are required' }, { status: 400 });
     }
 
-    const message = {
+    const payloadNotification = {
+      title,
+      body: messageBody,
+      ...(imageUrl && { image: imageUrl }),
+    };
+
+    const webpushConfig = {
+      headers: {
+        Urgency: 'high',
+      },
       notification: {
         title,
         body: messageBody,
-        ...(imageUrl && { image: imageUrl })
+        icon: '/pwa-icon.png',
+        badge: '/badge-icon.png',
+        ...(imageUrl && { image: imageUrl }),
+        vibrate: [200, 100, 200],
+        requireInteraction: true,
+        tag: 'ign-broadcast',
       },
-      webpush: {
-        notification: {
-          title,
-          body: messageBody,
-          icon: '/pwa-icon.png',
-          badge: '/badge-icon.png',
-          ...(imageUrl && { image: imageUrl }), // Gambar di notifikasi browser/PWA
-        },
-        fcmOptions: {
-          link: '/' // Memaksa browser membuka/fokus ke aplikasi PWA saat notifikasi diklik
-        }
+      fcmOptions: {
+        link: '/',
       },
-      topic: 'sbagiamu_all_users'
     };
 
-    const response = await adminMessaging.send(message);
+    const dataPayload = {
+      title,
+      body: messageBody,
+      ...(imageUrl && { image: imageUrl }),
+      url: '/',
+    };
 
-    return NextResponse.json({ success: true, messageId: response });
+    // 1. Ambil semua token perangkat yang terdaftar di database Supabase
+    let directTokens: string[] = [];
+    try {
+      const { data: tokenRows } = await supabase
+        .from('fcm_tokens')
+        .select('token');
+      if (tokenRows && tokenRows.length > 0) {
+        directTokens = tokenRows.map((r: { token: string }) => r.token).filter(Boolean);
+      }
+    } catch (dbErr) {
+      console.warn('Error fetching fcm_tokens from Supabase:', dbErr);
+    }
+
+    let directSuccessCount = 0;
+    let directFailureCount = 0;
+
+    // 2. Kirim pesan langsung ke setiap token perangkat (Multicast) untuk pengiriman instan tanpa delay topik
+    if (directTokens.length > 0) {
+      try {
+        const multicastResponse = await adminMessaging.sendEachForMulticast({
+          tokens: directTokens,
+          notification: payloadNotification,
+          webpush: webpushConfig,
+          data: dataPayload,
+          android: {
+            priority: 'high',
+          },
+        });
+
+        directSuccessCount = multicastResponse.successCount;
+        directFailureCount = multicastResponse.failureCount;
+
+        // Bersihkan token yang sudah tidak aktif / di-uninstall
+        if (multicastResponse.failureCount > 0) {
+          const invalidTokens: string[] = [];
+          multicastResponse.responses.forEach((resp, idx) => {
+            if (!resp.success) {
+              const errCode = resp.error?.code;
+              if (
+                errCode === 'messaging/registration-token-not-registered' ||
+                errCode === 'messaging/invalid-registration-token'
+              ) {
+                invalidTokens.push(directTokens[idx]);
+              }
+            }
+          });
+
+          if (invalidTokens.length > 0) {
+            await supabase
+              .from('fcm_tokens')
+              .delete()
+              .in('token', invalidTokens);
+            console.log(`Membersihkan ${invalidTokens.length} token yang sudah kadaluarsa`);
+          }
+        }
+      } catch (multiErr) {
+        console.warn('Multicast direct send error:', multiErr);
+      }
+    }
+
+    // 3. Kirim juga ke topik 'sbagiamu_all_users' sebagai fallback distribusi massal
+    let topicMessageId: string | null = null;
+    try {
+      topicMessageId = await adminMessaging.send({
+        topic: 'sbagiamu_all_users',
+        notification: payloadNotification,
+        webpush: webpushConfig,
+        data: dataPayload,
+        android: {
+          priority: 'high',
+        },
+      });
+    } catch (topicErr: any) {
+      console.warn('Error sending to FCM topic:', topicErr?.message || topicErr);
+    }
+
+    return NextResponse.json({
+      success: true,
+      directSuccessCount,
+      directFailureCount,
+      topicMessageId,
+      totalRegisteredDevices: directTokens.length,
+    });
   } catch (error: any) {
     console.error('Error sending broadcast:', error);
     return NextResponse.json({ error: error.message || 'Failed to send broadcast' }, { status: 500 });
   }
 }
+
