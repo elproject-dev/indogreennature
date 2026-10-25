@@ -5,9 +5,9 @@
  */
 
 export const DEFAULT_ADMIN_EMAILS: string[] = [
+  "indogreennature.web@gmail.com",
   "elproject.dev@gmail.com",
   "sbagiamu.pos@gmail.com",
-  // Tambahkan email admin CV Indo Green Nature di sini atau via .env.local
 ]
 
 export function getAdminEmails(): string[] {

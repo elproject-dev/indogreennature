@@ -86,7 +86,7 @@ export function SeoSettingsModal({ isOpen, onClose }: SeoSettingsModalProps) {
   const isDescGood = descLength >= 120 && descLength <= 165
 
   // URL Target generator
-  const rawTargetUrl = config.canonicalUrl?.trim() || "https://indogreennature.com"
+  const rawTargetUrl = config.canonicalUrl?.trim() || "https://www.indogreennature.com"
   const targetUrl = rawTargetUrl.startsWith("http") ? rawTargetUrl.replace(/\/$/, "") : `https://${rawTargetUrl}`
   const targetDomain = targetUrl.replace(/^https?:\/\//, "")
 

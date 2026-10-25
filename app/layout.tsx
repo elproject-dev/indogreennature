@@ -104,8 +104,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     "@context": "https://schema.org",
     "@type": "Organization",
     "name": "CV. Indo Green Nature",
-    "url": "https://indogreennature.com",
-    "logo": "https://indogreennature.com/pwa-icon.png",
+    "url": "https://www.indogreennature.com",
+    "logo": "https://www.indogreennature.com/pwa-icon.png",
     "description": "Pabrik dan jasa maklon herbal terpercaya di Indonesia melayani formulasi minuman serbuk, kapsul herbal, teh herbal berstandar BPOM & Halal.",
     "sameAs": [
       "https://instagram.com/indogreennature",
