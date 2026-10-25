@@ -56,6 +56,11 @@ export default function PilihanPage() {
  <div className="relative w-full sm:max-w-xs ml-auto">
  <Search className="absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
  <Input
+ id="search-article"
+ name="search_article"
+ type="search"
+ autoComplete="off"
+ aria-label="Cari artikel"
  placeholder="Cari article..."
  value={searchQuery}
  onChange={(e) => setSearchQuery(e.target.value)}

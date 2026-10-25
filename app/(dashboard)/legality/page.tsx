@@ -14,7 +14,6 @@ import {
   Check,
   Eye,
   FileText,
-  MessageCircle,
   HelpCircle,
   Download,
   X,
@@ -24,6 +23,7 @@ import {
   ZoomIn,
   ZoomOut,
 } from "lucide-react"
+import { WhatsAppIcon } from "@/components/icons/whatsapp-icon"
 import { cn } from "@/lib/utils"
 import { poppins } from "@/lib/fonts"
 import { LegalitySettingsSidebar } from "@/components/legality-settings-sidebar"
@@ -446,8 +446,9 @@ export default function LegalityPage() {
                 target="_blank"
                 rel="noopener noreferrer"
                 style={{ color: accent }}
-                className="inline-flex items-center justify-center px-7 py-3.5 md:px-8 md:py-3.5 rounded-full bg-white hover:bg-emerald-50 text-sm md:text-base font-bold shadow-lg transition-transform hover:scale-105 active:scale-95 cursor-pointer"
+                className="inline-flex items-center justify-center gap-2 px-5 py-2.5 sm:px-6 sm:py-2.5 md:px-7 md:py-2.5 rounded-full bg-white hover:bg-emerald-50 text-xs sm:text-sm font-semibold shadow-md transition-all hover:scale-[1.02] active:scale-95 cursor-pointer"
               >
+                <WhatsAppIcon className="w-3.5 h-3.5 sm:w-4 sm:h-4 fill-current shrink-0" />
                 <span>{settings.ctaBtnText}</span>
               </a>
             </div>

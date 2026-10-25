@@ -3633,6 +3633,7 @@ export default function HomePage() {
                     fill
                     priority
                     loading="eager"
+                    fetchPriority="high"
                     unoptimized
                     sizes="(max-width: 640px) 100vw, 453px"
                     className={heroImageFit === 'contain' ? "object-contain" : "object-cover"}
@@ -4118,7 +4119,8 @@ export default function HomePage() {
                               fill
                               sizes="197px"
                               unoptimized
-                              loading="lazy"
+                              priority={imgUrl === heroImage || (!heroImage && i === 0)}
+                              loading={imgUrl === heroImage || (!heroImage && i === 0) ? "eager" : "lazy"}
                               suppressHydrationWarning
                               className="object-cover group-hover:scale-105 transition-transform duration-300"
                             />
@@ -4153,7 +4155,8 @@ export default function HomePage() {
                               fill
                               sizes="197px"
                               unoptimized
-                              loading="lazy"
+                              priority={imgUrl === heroImage || (!heroImage && i === 0)}
+                              loading={imgUrl === heroImage || (!heroImage && i === 0) ? "eager" : "lazy"}
                               suppressHydrationWarning
                               className="object-cover group-hover:scale-105 transition-transform duration-300"
                             />
@@ -5413,6 +5416,8 @@ export default function HomePage() {
                     alt="Banner 2"
                     fill
                     priority
+                    loading="eager"
+                    fetchPriority="high"
                     unoptimized
                     sizes="(max-width: 640px) 100vw, 453px"
                     className="object-cover"

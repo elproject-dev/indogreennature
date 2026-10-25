@@ -13,12 +13,12 @@ import {
 import { cn } from "@/lib/utils"
 
 const defaultMainLinks = [
-  { href: "/", label: "Beranda", icon: LayoutGrid },
+  { href: "/", label: "Home", icon: LayoutGrid },
   { href: "/our-products", label: "Products", icon: PackageCheck },
   { href: "/insight", label: "Insight", icon: BookOpen },
   { href: "/about", label: "About Us", icon: Info },
   { href: "/legality", label: "Legality", icon: ShieldCheck },
-  { href: "/contact", label: "Kontak", icon: PhoneCall },
+  { href: "/contact", label: "Contact", icon: PhoneCall },
 ]
 
 export function BottomNavigation() {

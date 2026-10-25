@@ -203,10 +203,10 @@ export function InsightViewer({ content, className }: InsightViewerProps) {
                 (child.tagName === "a" && child.properties?.href === "#clear-both")
             )
             if (hasBlockChild) {
-              return <div className="my-3.5 leading-relaxed text-[15px] sm:text-base">{children}</div>
+              return <div className="my-3 leading-relaxed text-xs sm:text-[13.5px] text-foreground/85 dark:text-zinc-300">{children}</div>
             }
             return (
-              <p className="text-foreground/85 my-3.5 leading-relaxed text-[15px] sm:text-base" {...props}>
+              <p className="text-foreground/85 dark:text-zinc-300 my-3 leading-relaxed text-xs sm:text-[13.5px]" {...props}>
                 {children}
               </p>
             )
@@ -423,7 +423,7 @@ export function InsightViewer({ content, className }: InsightViewerProps) {
             </td>
           ),
           ul: ({ children, ...props }) => (
-            <ul className="my-4 space-y-2 list-none pl-0 text-foreground/85 text-[15px]" {...props}>
+            <ul className="my-3 space-y-1.5 list-none pl-0 text-foreground/85 dark:text-zinc-300 text-xs sm:text-[13.5px]" {...props}>
               {React.Children.map(children, (child) => {
                 if (!React.isValidElement(child)) return child
                 const props = child.props as any
@@ -437,7 +437,7 @@ export function InsightViewer({ content, className }: InsightViewerProps) {
             </ul>
           ),
           ol: ({ children, ...props }) => (
-            <ol className="my-4 space-y-2 list-decimal pl-5 text-foreground/85 text-[15px]" {...props}>
+            <ol className="my-3 space-y-1.5 list-decimal pl-5 text-foreground/85 dark:text-zinc-300 text-xs sm:text-[13.5px]" {...props}>
               {children}
             </ol>
           ),

@@ -282,8 +282,8 @@ export default function InsightDetailPage() {
 
   if (loading) {
     return (
-      <div className="flex h-[70vh] items-center justify-center">
-        <LoadingSpinner text="Memuat artikel insight..." />
+      <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-background">
+        <LoadingSpinner text="Loading" />
       </div>
     )
   }
@@ -384,25 +384,25 @@ export default function InsightDetailPage() {
 
           <Link
             href="/insight"
-            className="inline-flex items-center gap-1.5 hover:text-[#15803d] transition-colors font-medium shrink-0 ml-4"
+            aria-label="Kembali ke Semua Insight"
+            title="Kembali ke Semua Insight"
+            className="inline-flex items-center justify-center p-1.5 rounded-[5px] hover:bg-muted/80 text-muted-foreground hover:text-[#15803d] transition-colors shrink-0 ml-2"
           >
-            <ArrowLeftIcon className="size-3.5" />
-            <span className="hidden sm:inline">Kembali ke Semua Insight</span>
-            <span className="sm:hidden">Kembali</span>
+            <ArrowLeftIcon className="size-4" />
           </Link>
         </div>
       </div>
 
       {/* Main Container - Full Width max-w-[1440px] */}
-      <main className="w-full max-w-[1440px] px-4 lg:px-[20px] pt-8 sm:pt-12 flex flex-col relative">
+      <main className="w-full max-w-[1440px] px-4 lg:px-[20px] pt-5 sm:pt-10 flex flex-col relative">
         {/* Article Header (Wide Hero Area) */}
-        <header className="space-y-4 mb-8">
-          <div className="flex flex-wrap items-center gap-2.5">
-            <Badge className="bg-[#15803d] text-white font-semibold text-xs px-3 py-0.5 shadow-xs rounded-[5px]">
+        <header className="space-y-3 sm:space-y-4 mb-6 sm:mb-8">
+          <div className="flex flex-wrap items-center gap-2 sm:gap-2.5">
+            <Badge className="bg-[#15803d] text-white font-semibold text-[11px] sm:text-xs px-2.5 sm:px-3 py-0.5 shadow-xs rounded-[5px]">
               {article.category}
             </Badge>
-            <span className="text-xs text-muted-foreground">•</span>
-            <span className="text-xs text-muted-foreground flex items-center gap-1">
+            <span className="text-[11px] sm:text-xs text-muted-foreground">•</span>
+            <span className="text-[11px] sm:text-xs text-muted-foreground flex items-center gap-1">
               <CalendarIcon className="size-3" />
               {article.created_at
                 ? new Date(article.created_at).toLocaleDateString("id-ID", {
@@ -412,28 +412,35 @@ export default function InsightDetailPage() {
                   })
                 : "Terbaru"}
             </span>
-            <span className="text-xs text-muted-foreground">•</span>
-            <span className="text-xs text-muted-foreground flex items-center gap-1 font-mono">
+            <span className="text-[11px] sm:text-xs text-muted-foreground">•</span>
+            <span className="text-[11px] sm:text-xs text-muted-foreground flex items-center gap-1 font-mono">
               <ClockIcon className="size-3" />
               {article.reading_time || "4 min baca"}
             </span>
           </div>
 
-          <h1 className="text-3xl sm:text-4xl md:text-5xl font-extrabold tracking-tight text-foreground leading-[1.18] max-w-5xl">
+          <h1 className="text-xl sm:text-3xl md:text-4xl lg:text-5xl font-extrabold tracking-tight text-foreground leading-[1.25] sm:leading-[1.18] max-w-5xl">
             {article.title}
           </h1>
 
+          {/* Deskripsi Singkat / Excerpt Artikel */}
+          {(article.description || article.excerpt) && (
+            <p className="text-xs sm:text-[13px] text-[#4B5563] dark:text-zinc-300 leading-relaxed max-w-4xl pt-0.5">
+              {article.description || article.excerpt}
+            </p>
+          )}
+
           {/* Author & Share Bar */}
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 py-4 border-y border-border/60">
-            <div className="flex items-center gap-3">
-              <div className="flex size-11 items-center justify-center rounded-full bg-gradient-to-br from-[#15803d] to-[#166534] text-white font-bold text-sm shadow-sm">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4 py-3 sm:py-4 border-y border-border/60">
+            <div className="flex items-center gap-2.5 sm:gap-3">
+              <div className="flex size-9 sm:size-11 items-center justify-center rounded-full bg-gradient-to-br from-[#15803d] to-[#166534] text-white font-bold text-xs sm:text-sm shadow-sm shrink-0">
                 IGN
               </div>
               <div>
-                <p className="text-sm font-bold text-foreground">
+                <p className="text-xs sm:text-sm font-bold text-foreground">
                   {article.author || "Tim R&D CV. Indo Green Nature"}
                 </p>
-                <p className="text-xs text-muted-foreground">
+                <p className="text-[10.5px] sm:text-xs text-muted-foreground">
                   Pakar Formulasi Herbal & Regulasi CPOTB
                 </p>
               </div>
@@ -445,7 +452,7 @@ export default function InsightDetailPage() {
                 variant="outline"
                 size="sm"
                 onClick={handleShareWhatsApp}
-                className="h-9 gap-1.5 text-xs text-[#15803d] dark:text-green-400 border-[#15803d]/30 hover:bg-[#15803d]/10 dark:hover:bg-green-950/30 font-medium rounded-[5px]"
+                className="h-8 sm:h-9 gap-1.5 text-xs text-[#15803d] dark:text-green-400 border-[#15803d]/30 hover:bg-[#15803d]/10 dark:hover:bg-green-950/30 font-medium rounded-[5px]"
               >
                 <WhatsAppIcon className="size-3.5" />
                 <span>Bagikan WA</span>
@@ -454,7 +461,7 @@ export default function InsightDetailPage() {
                 variant="outline"
                 size="sm"
                 onClick={handleCopyLink}
-                className="h-9 gap-1.5 text-xs font-medium rounded-[5px]"
+                className="h-8 sm:h-9 gap-1.5 text-xs font-medium rounded-[5px]"
               >
                 {copied ? (
                   <>
@@ -476,15 +483,14 @@ export default function InsightDetailPage() {
         <div className="grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_453px] gap-5 items-start">
           {/* Kolom Kiri: Main Article Content (rectangle: 927px x 467px Cover + Konten Artikel) */}
           <article className="min-w-0 w-full">
-            {/* Foto Frame Insight (rectangle: 927px x 467px) */}
+            {/* Foto Frame Insight (Rasio 16:9 di mobile, custom height / 467px di desktop) */}
             {article.cover_image && (
-              <div className="mb-8">
+              <div className="mb-6 sm:mb-8">
                 <div
                   style={{
-                    height: `${coverHeight}px`,
-                    maxHeight: `${coverHeight}px`,
+                    ["--cover-height" as any]: `${coverHeight}px`,
                   }}
-                  className="relative w-full overflow-hidden rounded-[5px] border border-border shadow-md bg-muted transition-all duration-300"
+                  className="relative w-full aspect-video sm:aspect-auto sm:h-[var(--cover-height)] sm:max-h-[var(--cover-height)] overflow-hidden rounded-[5px] border border-border shadow-md bg-muted transition-all duration-300"
                 >
                   <img
                     src={article.cover_image}
@@ -525,11 +531,11 @@ export default function InsightDetailPage() {
           <aside className="w-full lg:w-[453px] shrink-0 space-y-5 lg:sticky lg:top-24">
             {/* rectangle-2: Consultation Card Widget: Punya Ide Formulasi Serupa (height ~324px, sejajar dengan foto) */}
             {insightSettings.sidebarCtaShow !== false && (
-              <div className="overflow-hidden rounded-[5px] border border-[#15803d]/30 bg-gradient-to-br from-[#15803d] via-[#166534] to-[#14532d] text-white p-6 shadow-md space-y-3.5">
-                <div className="inline-flex items-center rounded-[5px] bg-white/15 px-3 py-1 text-xs font-semibold backdrop-blur-md">
+              <div className="overflow-hidden rounded-[5px] border border-[#15803d]/30 bg-gradient-to-br from-[#15803d] via-[#166534] to-[#14532d] text-white p-5 sm:p-6 shadow-md space-y-3 sm:space-y-3.5">
+                <div className="inline-flex items-center rounded-[5px] bg-white/15 px-2.5 sm:px-3 py-0.5 sm:py-1 text-xs font-semibold backdrop-blur-md">
                   <span>{insightSettings.sidebarCtaBadge || "Konsultasi Maklon Herbal"}</span>
                 </div>
-                <h3 className="text-lg sm:text-xl font-bold leading-snug whitespace-pre-line">
+                <h3 className="text-base sm:text-xl font-bold leading-snug whitespace-pre-line">
                   {insightSettings.sidebarCtaTitle || "Punya Ide Formulasi Serupa?"}
                 </h3>
                 <p className="text-green-100 text-xs sm:text-sm leading-relaxed whitespace-pre-line">
@@ -548,7 +554,7 @@ export default function InsightDetailPage() {
                       backgroundColor: insightSettings.sidebarCtaBtnBg || "#ffffff",
                       color: insightSettings.sidebarCtaBtnColor || "#15803d",
                     }}
-                    className="w-full inline-flex items-center justify-center gap-2 rounded-[5px] hover:opacity-90 px-4 py-2.5 text-xs sm:text-sm font-bold shadow-md transition-opacity"
+                    className="w-full inline-flex items-center justify-center gap-2 rounded-[5px] hover:opacity-90 px-4 py-2 sm:py-2.5 text-xs sm:text-sm font-bold shadow-md transition-opacity"
                   >
                     <WhatsAppIcon className="size-4" />
                     <span>{insightSettings.sidebarCtaBtnText || "Hubungi Tim R&D via WA"}</span>
@@ -566,7 +572,7 @@ export default function InsightDetailPage() {
             )}
 
             {/* rectangle-3: Quick Article Specs Widget: Detail Publikasi (height ~235px) */}
-            <div className="rounded-[5px] border border-border bg-card p-5 space-y-3 shadow-xs">
+            <div className="rounded-[5px] border border-border bg-card p-4 sm:p-5 space-y-2.5 sm:space-y-3 shadow-xs">
               <h4 className="text-xs font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-2">
                 <FolderIcon className="size-3.5 text-[#15803d]" />
                 Detail Publikasi
@@ -601,7 +607,7 @@ export default function InsightDetailPage() {
 
             {/* rectangle-4: Quick Related Widget: Insight Terkait (height ~392px) */}
             {relatedArticles.length > 0 && (
-              <div className="rounded-[5px] border border-border bg-card p-5 space-y-3.5 shadow-xs">
+              <div className="rounded-[5px] border border-border bg-card p-4 sm:p-5 space-y-3 sm:space-y-3.5 shadow-xs">
                 <h4 className="text-xs font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-2">
                   <BookmarkIcon className="size-3.5 text-[#15803d]" />
                   Insight Terkait
@@ -613,7 +619,7 @@ export default function InsightDetailPage() {
                       href={`/insight/${rel.slug}`}
                       className="group flex gap-3 items-center"
                     >
-                      <div className="size-14 rounded-[5px] overflow-hidden bg-muted shrink-0 border border-border">
+                      <div className="size-12 sm:size-14 rounded-[5px] overflow-hidden bg-muted shrink-0 border border-border">
                         <img
                           src={rel.cover_image || "/images/banner-default.jpg"}
                           alt={rel.title}
@@ -638,9 +644,9 @@ export default function InsightDetailPage() {
 
         {/* Bottom Full-Width CTA Section: Kembangkan Brand Herbal Anda */}
         {insightSettings.bottomCtaShow !== false && (
-          <section className="mt-16 w-full rounded-[5px] border border-border bg-gradient-to-r from-[#15803d]/10 via-[#15803d]/5 to-transparent p-6 sm:p-10 flex flex-col md:flex-row items-center justify-between gap-6">
+          <section className="mt-10 sm:mt-16 w-full rounded-[5px] border border-border bg-gradient-to-r from-[#15803d]/10 via-[#15803d]/5 to-transparent p-5 sm:p-10 flex flex-col md:flex-row items-center justify-between gap-5 sm:gap-6">
             <div className="space-y-2 max-w-2xl text-center md:text-left">
-              <h3 className="text-xl sm:text-2xl font-extrabold text-foreground tracking-tight whitespace-pre-line">
+              <h3 className="text-lg sm:text-2xl font-extrabold text-foreground tracking-tight whitespace-pre-line">
                 {insightSettings.bottomCtaTitle || "Kembangkan Brand Herbal Anda Bersama CV. Indo Green Nature"}
               </h3>
               <p className="text-muted-foreground text-xs sm:text-sm leading-relaxed whitespace-pre-line">
@@ -660,7 +666,7 @@ export default function InsightDetailPage() {
                   backgroundColor: insightSettings.bottomCtaBtnBg || "#15803d",
                   color: insightSettings.bottomCtaBtnColor || "#ffffff",
                 }}
-                className="inline-flex items-center gap-2 rounded-[5px] hover:opacity-90 px-5 py-3 text-xs sm:text-sm font-bold shadow-md transition-opacity"
+                className="inline-flex items-center gap-2 rounded-[5px] hover:opacity-90 px-4 sm:px-5 py-2.5 sm:py-3 text-xs sm:text-sm font-bold shadow-md transition-opacity"
               >
                 <WhatsAppIcon className="size-4" />
                 <span>{insightSettings.bottomCtaBtnText || "Konsultasi Maklon Sekarang"}</span>
@@ -671,9 +677,9 @@ export default function InsightDetailPage() {
 
         {/* Related Articles Bottom Grid */}
         {relatedArticles.length > 0 && (
-          <section className="mt-14 pt-10 border-t border-border w-full">
-            <div className="flex items-center justify-between mb-6">
-              <h3 className="text-xl font-bold tracking-tight text-foreground flex items-center gap-2">
+          <section className="mt-10 sm:mt-14 pt-6 sm:pt-10 border-t border-border w-full">
+            <div className="flex items-center justify-between mb-5 sm:mb-6">
+              <h3 className="text-base sm:text-xl font-bold tracking-tight text-foreground flex items-center gap-2">
                 <span className="w-2 h-2 rounded-full bg-[#15803d] inline-block" />
                 Riset & Artikel Lainnya
               </h3>

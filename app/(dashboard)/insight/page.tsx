@@ -326,8 +326,8 @@ export default function InsightIndexPage() {
 
   return (
     <>
-      {isSettingsLoading && (
-        <div className="fixed inset-0 z-[200] flex items-center justify-center bg-background">
+      {(isSettingsLoading || loading) && (
+        <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-background">
           <LoadingSpinner text="Loading" />
         </div>
       )}
@@ -335,7 +335,7 @@ export default function InsightIndexPage() {
     <div
       className={cn(
         "w-full min-h-screen bg-background flex flex-col items-center overflow-x-hidden font-sans transition-colors duration-300",
-        isSettingsLoading && "invisible"
+        (isSettingsLoading || loading) && "invisible"
       )}
     >
       {/* Banner Indikator Mode Pratinjau (preview=true) */}
@@ -365,7 +365,7 @@ export default function InsightIndexPage() {
         id="banner-utama"
         style={bannerBgStyle}
         suppressHydrationWarning
-        className="relative w-full overflow-hidden border-b border-border py-10 sm:py-14 flex justify-center transition-all duration-300"
+        className="relative w-full overflow-hidden border-b border-border py-6 sm:py-14 flex justify-center transition-all duration-300"
       >
         {/* Pola Titik Grid (Dot Matrix Texture) */}
         {insightSettings.bannerShowPattern && (
@@ -379,38 +379,9 @@ export default function InsightIndexPage() {
         )}
 
         <div className="relative w-full max-w-[1440px] px-4 lg:px-[20px]">
-          {/* Badge Sub-Judul Banner (Ditempatkan di bagian atas agar teks judul & frame logo sejajar sempurna) */}
-          {insightSettings.bannerBadgeShow && (
-            <div
-              className={cn(
-                "mb-4 sm:mb-5 flex",
-                insightSettings.bannerTitleAlign === "center"
-                  ? "justify-center"
-                  : insightSettings.bannerTitleAlign === "right"
-                  ? "justify-end"
-                  : "justify-start"
-              )}
-            >
-              <div
-                style={{
-                  color: insightSettings.bannerBadgeColor || undefined,
-                  backgroundColor: insightSettings.bannerBadgeBg || undefined,
-                  borderColor: insightSettings.bannerBadgeBorderColor || undefined,
-                  fontSize: insightSettings.bannerBadgeSize ? `${insightSettings.bannerBadgeSize}px` : undefined,
-                }}
-                className={cn(
-                  "inline-flex items-center rounded-[5px] border px-3.5 py-1 text-xs font-semibold shadow-2xs transition-colors",
-                  getHeroFontClass(insightSettings.bannerBadgeFont || "outfit")
-                )}
-              >
-                <span>{insightSettings.bannerBadgeText || "Riset, Regulasi & Tren Bisnis Herbal Terkini"}</span>
-              </div>
-            </div>
-          )}
-
           <div
             className={cn(
-              "flex flex-col lg:flex-row items-center justify-between gap-8 lg:gap-12",
+              "flex flex-col lg:flex-row items-center justify-between gap-6 lg:gap-12",
               insightSettings.bannerFrameAlign === "top"
                 ? "lg:items-start"
                 : insightSettings.bannerFrameAlign === "bottom"
@@ -418,65 +389,76 @@ export default function InsightIndexPage() {
                 : "lg:items-center"
             )}
           >
-            {/* Sisi Kiri: Teks & Informasi Utama Banner (Turun di Tengah Frame Foto agar Seimbang) */}
+            {/* Sisi Kiri: Teks & Informasi Utama Banner */}
             <div
               className={cn(
-                "flex-1 flex flex-col gap-6 w-full",
+                "order-2 lg:order-1 flex-1 flex flex-col gap-3.5 sm:gap-5 w-full items-center text-center",
                 insightSettings.bannerFrameAlign === "top"
                   ? "self-center lg:self-start"
                   : insightSettings.bannerFrameAlign === "bottom"
                   ? "self-center lg:self-end"
-                  : "self-center lg:self-center",
-                insightSettings.bannerTitleAlign === "center"
-                  ? "items-center text-center"
-                  : insightSettings.bannerTitleAlign === "right"
-                  ? "items-end text-right"
-                  : "items-start text-left"
+                  : "self-center lg:self-center"
               )}
             >
+              {/* Badge Sub-Judul Banner */}
+              {insightSettings.bannerBadgeShow && (
+                <div className="flex justify-center">
+                  <div
+                    style={{
+                      color: insightSettings.bannerBadgeColor || undefined,
+                      backgroundColor: insightSettings.bannerBadgeBg || undefined,
+                      borderColor: insightSettings.bannerBadgeBorderColor || undefined,
+                      fontSize: insightSettings.bannerBadgeSize ? `clamp(11px, 2.5vw, ${insightSettings.bannerBadgeSize}px)` : undefined,
+                    }}
+                    className={cn(
+                      "inline-flex items-center rounded-[5px] border px-3 sm:px-3.5 py-0.5 sm:py-1 text-xs font-semibold shadow-2xs transition-colors",
+                      getHeroFontClass(insightSettings.bannerBadgeFont || "outfit")
+                    )}
+                  >
+                    <span>{insightSettings.bannerBadgeText || "Riset, Regulasi & Tren Bisnis Herbal Terkini"}</span>
+                  </div>
+                </div>
+              )}
+
               <div
                 style={{
                   maxWidth: insightSettings.bannerDescMaxWidth ? `${insightSettings.bannerDescMaxWidth}px` : "896px",
                 }}
-                className="space-y-3.5 w-full"
+                className="space-y-2.5 sm:space-y-3.5 w-full flex flex-col items-center text-center mx-auto"
               >
                 {/* Judul Utama Banner */}
                 <h1
                   suppressHydrationWarning
                   style={{
                     color: insightSettings.bannerTitleColor || undefined,
-                    fontSize: insightSettings.bannerTitleSize ? `${insightSettings.bannerTitleSize}px` : undefined,
+                    fontSize: insightSettings.bannerTitleSize ? `clamp(22px, 5.5vw, ${insightSettings.bannerTitleSize}px)` : undefined,
                     fontWeight: insightSettings.bannerTitleWeight || "800",
-                    textAlign: insightSettings.bannerTitleAlign || "left",
+                    textAlign: "center",
                   }}
                   className={cn(
-                    "tracking-tight text-foreground leading-[1.15]",
+                    "tracking-tight text-foreground leading-[1.15] text-center",
                     getHeroFontClass(insightSettings.bannerTitleFont || "outfit")
                   )}
                 >
                   <span>{insightSettings.bannerTitleLine1 || "Insight & Riset Herbal"}</span>
                   {insightSettings.bannerTitleLine2 && (
-                    <>
-                      <br className="hidden sm:block" />{" "}
-                      {insightSettings.bannerTitleUseGradient ? (
-                        <span
-                          style={{
-                            backgroundImage: `linear-gradient(to right, ${insightSettings.bannerTitleGradientFrom || "#166534"}, ${insightSettings.bannerTitleGradientTo || "#15803d"})`,
-                          }}
-                          className="bg-clip-text text-transparent"
-                        >
-                          {insightSettings.bannerTitleLine2}
-                        </span>
-                      ) : (
-                        <span
-                          style={{
-                            color: insightSettings.bannerTitleHighlightColor || "#15803d",
-                          }}
-                        >
-                          {insightSettings.bannerTitleLine2}
-                        </span>
+                    <span
+                      style={{
+                        ...(insightSettings.bannerTitleUseGradient
+                          ? {
+                              backgroundImage: `linear-gradient(to right, ${insightSettings.bannerTitleGradientFrom || "#166534"}, ${insightSettings.bannerTitleGradientTo || "#15803d"})`,
+                            }
+                          : {
+                              color: insightSettings.bannerTitleHighlightColor || "#15803d",
+                            }),
+                      }}
+                      className={cn(
+                        "block mt-1 sm:mt-1.5",
+                        insightSettings.bannerTitleUseGradient && "bg-clip-text text-transparent"
                       )}
-                    </>
+                    >
+                      {insightSettings.bannerTitleLine2}
+                    </span>
                   )}
                 </h1>
 
@@ -485,11 +467,11 @@ export default function InsightIndexPage() {
                   <p
                     style={{
                       color: insightSettings.bannerDescColor || undefined,
-                      fontSize: insightSettings.bannerDescSize ? `${insightSettings.bannerDescSize}px` : undefined,
-                      textAlign: insightSettings.bannerTitleAlign || "left",
+                      fontSize: insightSettings.bannerDescSize ? `clamp(12.5px, 3.2vw, ${insightSettings.bannerDescSize}px)` : undefined,
+                      textAlign: "center",
                     }}
                     className={cn(
-                      "text-muted-foreground leading-relaxed",
+                      "text-muted-foreground leading-relaxed text-center mx-auto",
                       getHeroFontClass(insightSettings.bannerDescFont || "poppins")
                     )}
                   >
@@ -499,16 +481,7 @@ export default function InsightIndexPage() {
 
                 {/* Tombol CTA Banner (Opsional) */}
                 {insightSettings.bannerShowCta && (
-                  <div
-                    className={cn(
-                      "pt-2 flex items-center",
-                      insightSettings.bannerTitleAlign === "center"
-                        ? "justify-center"
-                        : insightSettings.bannerTitleAlign === "right"
-                        ? "justify-end"
-                        : "justify-start"
-                    )}
-                  >
+                  <div className="pt-1.5 sm:pt-2 flex items-center justify-center">
                     <a
                       href={insightSettings.bannerCtaLink || "/contact"}
                       target={insightSettings.bannerCtaLink?.startsWith("http") ? "_blank" : undefined}
@@ -517,7 +490,7 @@ export default function InsightIndexPage() {
                         backgroundColor: insightSettings.bannerCtaBg || "#15803d",
                         color: insightSettings.bannerCtaTextColor || "#ffffff",
                       }}
-                      className="inline-flex items-center gap-2 px-5 py-2.5 rounded-[5px] text-xs font-bold shadow-md hover:opacity-95 transition-all"
+                      className="inline-flex items-center gap-2 px-4 sm:px-5 py-2 sm:py-2.5 rounded-[5px] text-xs font-bold shadow-md hover:opacity-95 transition-all"
                     >
                       <span>{insightSettings.bannerCtaText || "Konsultasi Formulasi"}</span>
                       <ArrowRightIcon className="size-3.5" />
@@ -527,14 +500,14 @@ export default function InsightIndexPage() {
               </div>
             </div>
 
-            {/* Sisi Kanan: Logo Transparan di Pojok Kanan Banner (Sejajar Sempurna dengan Teks Judul) */}
+            {/* Sisi Kanan: Logo Transparan (Di atas judul pada mobile, pojok kanan pada desktop) */}
             {insightSettings.bannerFrameShow && (
               <div
                 style={{
                   ["--banner-frame-offset" as any]: `${insightSettings.bannerFrameOffsetY ?? 0}px`,
                 }}
                 className={cn(
-                  "shrink-0 w-full sm:w-auto flex justify-center lg:justify-end transition-all duration-300 lg:[transform:translateY(var(--banner-frame-offset))]",
+                  "order-1 lg:order-2 shrink-0 w-full sm:w-auto flex justify-center lg:justify-end transition-all duration-300 lg:[transform:translateY(var(--banner-frame-offset))]",
                   insightSettings.bannerFrameAlign === "top"
                     ? "self-center lg:self-start"
                     : insightSettings.bannerFrameAlign === "bottom"
@@ -546,7 +519,7 @@ export default function InsightIndexPage() {
                   {/* Container Logo Transparan 1:1 (Tanpa border, background, shadow, atau glow) */}
                   <div
                     style={{
-                      width: `${insightSettings.bannerFrameSize || 320}px`,
+                      width: `clamp(160px, 45vw, ${insightSettings.bannerFrameSize || 320}px)`,
                       maxWidth: "100%",
                       aspectRatio: "1 / 1",
                     }}
@@ -609,7 +582,7 @@ export default function InsightIndexPage() {
 
           {/* Search Bar & Categories Tabs */}
           {(insightSettings.bannerShowCategories || insightSettings.bannerShowSearch) && (
-            <div className="mt-8 pt-6 border-t border-border/60 flex flex-col sm:flex-row gap-3 items-stretch sm:items-center justify-between">
+            <div className="mt-6 sm:mt-8 pt-4 sm:pt-6 border-t border-border/60 flex flex-col sm:flex-row gap-3 items-stretch sm:items-center justify-between">
               {/* Category Pills */}
               {insightSettings.bannerShowCategories && (
                 <div suppressHydrationWarning className="flex items-center gap-1.5 overflow-x-auto pb-2 sm:pb-0 scrollbar-none">
@@ -679,6 +652,11 @@ export default function InsightIndexPage() {
                 <div className="relative w-full sm:w-80 shrink-0">
                   <SearchIcon className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
                   <Input
+                    id="search-insight"
+                    name="search_insight"
+                    type="search"
+                    autoComplete="off"
+                    aria-label="Cari insight, bahan, regulasi"
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                     placeholder={insightSettings.bannerSearchPlaceholder || "Cari insight, bahan, regulasi..."}
@@ -697,11 +675,31 @@ export default function InsightIndexPage() {
         className="w-full max-w-[1440px] px-4 lg:px-[20px] py-8 sm:py-12 flex flex-col relative scroll-mt-24"
       >
         {loading ? (
-          <div className="py-20 text-center">
-            <div className="inline-block size-8 animate-spin rounded-full border-3 border-[#15803d] border-t-transparent" />
-            <p className="mt-3 text-sm text-muted-foreground font-medium">
-              Memuat artikel insight...
-            </p>
+          <div className="space-y-12">
+            {/* Skeleton Featured Card (Mencegah flash lingkaran spinner) */}
+            <div className="rounded-[5px] border border-border bg-card p-0 overflow-hidden shadow-xs animate-pulse">
+              <div className="grid grid-cols-1 lg:grid-cols-12 gap-0">
+                <div className="lg:col-span-7 w-full aspect-video lg:aspect-auto lg:h-[340px] bg-muted/60" />
+                <div className="lg:col-span-5 p-6 sm:p-8 flex flex-col justify-between min-h-[300px] sm:min-h-[340px] space-y-4">
+                  <div className="space-y-3">
+                    <div className="h-4 w-28 bg-muted rounded-[4px]" />
+                    <div className="h-7 w-4/5 bg-muted rounded-[4px]" />
+                    <div className="h-4 w-full bg-muted/70 rounded-[4px]" />
+                    <div className="h-4 w-2/3 bg-muted/50 rounded-[4px]" />
+                  </div>
+                  <div className="pt-4 border-t border-border/40 flex items-center justify-between">
+                    <div className="flex items-center gap-2.5">
+                      <div className="size-8 rounded-full bg-muted" />
+                      <div className="space-y-1">
+                        <div className="h-3 w-24 bg-muted rounded-[3px]" />
+                        <div className="h-2.5 w-16 bg-muted/60 rounded-[3px]" />
+                      </div>
+                    </div>
+                    <div className="h-8 w-8 sm:w-28 bg-muted rounded-full sm:rounded-[5px]" />
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
         ) : filteredArticles.length === 0 ? (
           <div className="rounded-[5px] border border-dashed border-border bg-card/50 p-12 text-center">
@@ -729,10 +727,10 @@ export default function InsightIndexPage() {
           <div className="space-y-12">
             {/* Featured Article Spotlight (Hero Card) */}
             {featuredArticle && (
-              <div className="group relative overflow-hidden rounded-[5px] border border-border bg-card shadow-sm hover:shadow-md transition-all">
+              <div className="group relative overflow-hidden rounded-[5px] border border-border bg-card shadow-sm hover:shadow-md transition-shadow duration-200">
                 <div className="grid grid-cols-1 lg:grid-cols-12 gap-0">
-                  {/* Image Column */}
-                  <div className="relative lg:col-span-7 min-h-[260px] sm:min-h-[340px] overflow-hidden bg-muted">
+                  {/* Image Column (Rasio 16:9 di Mobile) */}
+                  <div className="relative lg:col-span-7 w-full aspect-video lg:aspect-auto lg:h-full lg:min-h-[340px] overflow-hidden bg-muted">
                     <img
                       src={
                         featuredArticle.cover_image ||
@@ -768,7 +766,7 @@ export default function InsightIndexPage() {
 
                     {/* Middle: Deskripsi Berada di Tengah-Tengah & Karakter Lebih Banyak */}
                     <div className="my-auto py-4 space-y-3">
-                      <p className="text-muted-foreground text-sm sm:text-[15px] leading-relaxed line-clamp-5 sm:line-clamp-6">
+                      <p className="text-xs sm:text-[13px] text-[#4B5563] dark:text-zinc-300 leading-relaxed line-clamp-4 sm:line-clamp-5">
                         {getArticleSnippet(featuredArticle)}
                       </p>
 
@@ -803,9 +801,17 @@ export default function InsightIndexPage() {
                         </div>
                       </div>
 
+                      {/* Tombol Lihat Selengkapnya: Mobile (Bulat Ikon Saja) & Desktop (Rounded [5px] dengan Teks) */}
                       <Link
                         href={`/insight/${featuredArticle.slug}`}
-                        className="inline-flex items-center gap-1.5 rounded-[5px] bg-[#15803d] hover:bg-[#166534] px-4 py-2 text-xs font-semibold text-white transition-colors shadow-xs shrink-0"
+                        title="Lihat Selengkapnya"
+                        className="sm:hidden inline-flex items-center justify-center size-8 rounded-full bg-[#15803d] hover:bg-[#166534] text-white shadow-xs shrink-0 transition-transform active:scale-95"
+                      >
+                        <ArrowRightIcon className="size-4" />
+                      </Link>
+                      <Link
+                        href={`/insight/${featuredArticle.slug}`}
+                        className="hidden sm:inline-flex items-center gap-1.5 rounded-[5px] bg-[#15803d] hover:bg-[#166534] px-4 py-2 text-xs font-semibold text-white shadow-xs shrink-0 transition-colors"
                       >
                         <span>Lihat Selengkapnya</span>
                         <ArrowRightIcon className="size-3.5" />
@@ -819,13 +825,14 @@ export default function InsightIndexPage() {
             {/* Other Articles Grid */}
             {otherArticles.length > 0 && (
               <div className="space-y-6">
-                <div className="flex items-center justify-between">
-                  <h3 className="text-xl font-bold tracking-tight text-foreground flex items-center gap-2">
-                    <span className="w-2 h-2 rounded-full bg-[#15803d] inline-block" />
-                    Artikel & Panduan Terbaru
+                <div className="flex items-center justify-between gap-3">
+                  <h3 className="text-base sm:text-lg font-bold tracking-tight text-foreground flex items-center gap-1.5 sm:gap-2">
+                    <span className="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-[#15803d] inline-block shrink-0" />
+                    <span>Artikel & Panduan Terbaru</span>
                   </h3>
-                  <span className="text-xs text-muted-foreground">
-                    Menampilkan {filteredArticles.length} artikel
+                  <span className="text-xs text-muted-foreground shrink-0">
+                    <span className="hidden sm:inline">Menampilkan </span>
+                    {filteredArticles.length} artikel
                   </span>
                 </div>
 
@@ -833,7 +840,7 @@ export default function InsightIndexPage() {
                   {otherArticles.map((art) => (
                     <article
                       key={art.id}
-                      className="group relative flex flex-col justify-between overflow-hidden rounded-[5px] border border-border bg-card shadow-xs hover:shadow-md transition-all hover:border-[#15803d]/30"
+                      className="group relative flex flex-col justify-between overflow-hidden rounded-[5px] border border-border bg-card shadow-xs hover:shadow-md transition-[box-shadow,border-color] duration-200 hover:border-[#15803d]/30"
                     >
                       <div>
                         {/* Cover image */}
@@ -894,16 +901,16 @@ export default function InsightIndexPage() {
 
                       {/* Card Footer */}
                       <div className="p-5 pt-3 flex items-center justify-between border-t border-border/50 mt-auto">
-                        <span className="text-[11px] text-muted-foreground font-medium truncate max-w-[130px]">
+                        <span className="text-[10.5px] sm:text-[11px] text-muted-foreground font-medium truncate max-w-[120px] sm:max-w-[130px]">
                           {art.author || "Tim Konsultan IGN"}
                         </span>
 
                         <Link
                           href={`/insight/${art.slug}`}
-                          className="inline-flex items-center gap-1 text-xs font-semibold text-[#15803d] hover:text-[#166534] transition-colors"
+                          className="inline-flex items-center gap-1 text-[10.5px] sm:text-xs font-semibold text-[#15803d] hover:text-[#166534] transition-colors shrink-0"
                         >
                           <span>Lihat Selengkapnya</span>
-                          <ArrowRightIcon className="size-3" />
+                          <ArrowRightIcon className="size-2.5 sm:size-3" />
                         </Link>
                       </div>
                     </article>

@@ -21,6 +21,9 @@ import {
   Zap,
   BadgeCheck,
   Flame,
+  ArrowUpDown,
+  ArrowDownNarrowWide,
+  ArrowDownWideNarrow,
 } from "lucide-react"
 import { poppins, getHeroFontFamily } from "@/lib/fonts"
 import { cn } from "@/lib/utils"
@@ -393,19 +396,19 @@ export default function OurProductsPage() {
           </div>
 
           {/* ─── FRAME BANNER OUR PRODUCTS ─── */}
-          <section className="relative w-full flex flex-col lg:flex-row items-start justify-between gap-8 lg:gap-10 pt-1">
+          <section className="relative w-full flex flex-col lg:flex-row items-center lg:items-start justify-between gap-8 lg:gap-10 pt-1">
             {/* Bagian Kiri: Teks Judul, Subtitle, dan 4 Kotak Kartu Store (177px x 177px) */}
-            <div className="flex-1 flex flex-col items-start w-full">
+            <div className="flex-1 flex flex-col items-center text-center lg:items-start lg:text-left w-full">
               {/* Judul Utama (layer- : 48px Poppins bold #15803D) */}
               <h1
                 className={cn(
-                  "font-bold leading-[1.15] tracking-tight",
+                  "font-bold leading-[1.15] tracking-tight text-center lg:text-left",
                   !settings.bannerTitleColor && "text-[#15803D]"
                 )}
                 style={{
                   fontFamily: getHeroFontFamily(settings.bannerTitleFont || "poppins"),
                   color: settings.bannerTitleColor || "#15803D",
-                  fontSize: settings.bannerTitleSize ? `${settings.bannerTitleSize}px` : undefined,
+                  fontSize: settings.bannerTitleSize ? `clamp(20px, 5vw, ${settings.bannerTitleSize}px)` : undefined,
                 }}
               >
                 {renderFormattedText(settings.bannerTitle || "Lebih Dari 10.000 + Produk Terjual")}
@@ -414,13 +417,13 @@ export default function OurProductsPage() {
               {/* Subtitle (layer--2 : 24px Poppins bold #15803D) */}
               <p
                 className={cn(
-                  "font-bold leading-snug mt-2.5 sm:mt-3 tracking-tight",
+                  "font-bold leading-snug mt-2 sm:mt-3 tracking-tight text-center lg:text-left",
                   !settings.bannerSubtitleColor && "text-[#15803D]"
                 )}
                 style={{
                   fontFamily: getHeroFontFamily(settings.bannerSubtitleFont || "poppins"),
                   color: settings.bannerSubtitleColor || "#15803D",
-                  fontSize: settings.bannerSubtitleSize ? `${settings.bannerSubtitleSize}px` : undefined,
+                  fontSize: settings.bannerSubtitleSize ? `clamp(14px, 3.2vw, ${settings.bannerSubtitleSize}px)` : undefined,
                 }}
               >
                 {renderFormattedText(settings.bannerSubtitle || "Mulai Belanja di Official Store Kami")}
@@ -429,11 +432,11 @@ export default function OurProductsPage() {
               {/* Deskripsi Tambahan Banner (Opsional) */}
               {settings.bannerDescription && (
                 <p
-                  className="mt-2 text-xs sm:text-sm max-w-[620px] leading-relaxed opacity-90"
+                  className="mt-2 text-xs sm:text-sm max-w-[620px] leading-relaxed opacity-90 text-center lg:text-left mx-auto lg:mx-0"
                   style={{
                     fontFamily: getHeroFontFamily(settings.bannerDescFont || "poppins"),
                     color: settings.bannerDescColor || undefined,
-                    fontSize: settings.bannerDescSize ? `${settings.bannerDescSize}px` : undefined,
+                    fontSize: settings.bannerDescSize ? `clamp(12px, 2.5vw, ${settings.bannerDescSize}px)` : undefined,
                   }}
                 >
                   {renderFormattedText(settings.bannerDescription)}
@@ -441,7 +444,7 @@ export default function OurProductsPage() {
               )}
 
               {/* 4 Kartu Official Store - Ukuran Dinamis (storeCardSize), Full Rounded, Polosan Gambar Saja Tanpa Stroke & Shadow */}
-              <div className="flex items-center flex-wrap gap-2.5 sm:gap-3.5 md:gap-4 mt-5 sm:mt-6 w-full max-w-[760px]">
+              <div className="flex items-center justify-center lg:justify-start flex-wrap gap-2.5 sm:gap-3.5 md:gap-4 mt-4 sm:mt-6 w-full max-w-[760px]">
                 {settings.storeCards.map((card, idx) => {
                   const cardSize = settings.storeCardSize || 125
                   return (
@@ -452,8 +455,8 @@ export default function OurProductsPage() {
                       rel="noopener noreferrer"
                       title={card.title || "Official Store"}
                       style={{
-                        width: `${cardSize}px`,
-                        height: `${cardSize}px`,
+                        width: `clamp(68px, 18vw, ${cardSize}px)`,
+                        height: `clamp(68px, 18vw, ${cardSize}px)`,
                       }}
                       className="aspect-square rounded-full overflow-hidden relative group shadow-none hover:shadow-none transition-transform duration-300 hover:scale-105 bg-transparent cursor-pointer select-none shrink-0 block"
                     >
@@ -462,6 +465,8 @@ export default function OurProductsPage() {
                         src={card.image}
                         alt={card.title || "Official Store"}
                         fill
+                        unoptimized
+                        loading={idx < 4 ? "eager" : "lazy"}
                         sizes={`${cardSize}px`}
                         className="object-cover group-hover:scale-105 transition-transform duration-300 rounded-full"
                       />
@@ -474,14 +479,14 @@ export default function OurProductsPage() {
             {/* Bagian Kanan: Frame Auto-Slide (453px x 329px) dengan Background Transparan */}
             <div className="w-full lg:w-[453px] shrink-0 flex justify-center lg:justify-end">
               <div
-                className="w-full max-w-[453px] h-[330px] rounded-[14px] bg-transparent border-0 shadow-none relative overflow-hidden flex justify-center gap-4 sm:gap-[20px] p-0"
+                className="w-full max-w-[453px] h-[260px] sm:h-[330px] rounded-[14px] bg-transparent border-0 shadow-none relative overflow-hidden flex justify-center gap-2.5 sm:gap-[20px] p-0"
               >
                 {/* Mask Fade Halus Atas & Bawah agar Foto Masuk & Keluar Terlihat Lembut */}
                 <div className="pointer-events-none absolute inset-x-0 top-0 h-10 bg-gradient-to-b from-background via-background/60 to-transparent z-10" />
                 <div className="pointer-events-none absolute inset-x-0 bottom-0 h-10 bg-gradient-to-t from-background via-background/60 to-transparent z-10" />
 
                 {/* ─── Kolom 1 (Kiri): AUTO SLIDE NAIK KE ATAS (rectangle-10, rectangle-6, rectangle-8: 197x197) ─── */}
-                <div className="w-[180px] sm:w-[197px] overflow-hidden flex flex-col">
+                <div className="w-[145px] sm:w-[197px] overflow-hidden flex flex-col">
                   <motion.div
                     animate={{ y: ["0%", "-50%"] }}
                     transition={{
@@ -492,27 +497,34 @@ export default function OurProductsPage() {
                         ease: "linear",
                       },
                     }}
-                    className="flex flex-col gap-3 sm:gap-[20px]"
+                    className="flex flex-col gap-2.5 sm:gap-[20px]"
                   >
-                    {duplicatedLeft.map((imgUrl, i) => (
-                      <div
-                        key={`left-${i}`}
-                        className="w-[180px] sm:w-[197px] h-[180px] sm:h-[197px] shrink-0 rounded-[10px] overflow-hidden shadow-sm border border-border/50 relative group bg-card"
-                      >
-                        <Image
-                          src={imgUrl}
-                          alt={`Produk IGN ${i + 1}`}
-                          fill
-                          sizes="197px"
-                          className="object-cover group-hover:scale-105 transition-transform duration-300"
-                        />
-                      </div>
-                    ))}
+                    {duplicatedLeft.map((imgUrl, i) => {
+                      const isAboveFold = imgUrl === leftColImages[0] || imgUrl === leftColImages[1] || i < 2;
+                      return (
+                        <div
+                          key={`left-${i}`}
+                          className="w-[145px] sm:w-[197px] h-[145px] sm:h-[197px] shrink-0 rounded-[10px] overflow-hidden shadow-sm border border-border/50 relative group bg-card"
+                        >
+                          <Image
+                            src={imgUrl}
+                            alt={`Produk IGN ${i + 1}`}
+                            fill
+                            sizes="(max-width: 640px) 145px, 197px"
+                            unoptimized
+                            priority={isAboveFold}
+                            loading={isAboveFold ? "eager" : "lazy"}
+                            fetchPriority={isAboveFold ? "high" : "auto"}
+                            className="object-cover group-hover:scale-105 transition-transform duration-300"
+                          />
+                        </div>
+                      );
+                    })}
                   </motion.div>
                 </div>
 
                 {/* ─── Kolom 2 (Kanan): AUTO SLIDE TURUN KE BAWAH (rectangle-11, rectangle-7, rectangle-9: 197x197) ─── */}
-                <div className="w-[180px] sm:w-[197px] overflow-hidden flex flex-col">
+                <div className="w-[145px] sm:w-[197px] overflow-hidden flex flex-col">
                   <motion.div
                     animate={{ y: ["-50%", "0%"] }}
                     transition={{
@@ -523,22 +535,29 @@ export default function OurProductsPage() {
                         ease: "linear",
                       },
                     }}
-                    className="flex flex-col gap-3 sm:gap-[20px]"
+                    className="flex flex-col gap-2.5 sm:gap-[20px]"
                   >
-                    {duplicatedRight.map((imgUrl, i) => (
-                      <div
-                        key={`right-${i}`}
-                        className="w-[180px] sm:w-[197px] h-[180px] sm:h-[197px] shrink-0 rounded-[10px] overflow-hidden shadow-sm border border-border/50 relative group bg-card"
-                      >
-                        <Image
-                          src={imgUrl}
-                          alt={`Produk IGN ${i + 1}`}
-                          fill
-                          sizes="197px"
-                          className="object-cover group-hover:scale-105 transition-transform duration-300"
-                        />
-                      </div>
-                    ))}
+                    {duplicatedRight.map((imgUrl, i) => {
+                      const isAboveFold = imgUrl === rightColImages[0] || imgUrl === rightColImages[1] || i < 2;
+                      return (
+                        <div
+                          key={`right-${i}`}
+                          className="w-[145px] sm:w-[197px] h-[145px] sm:h-[197px] shrink-0 rounded-[10px] overflow-hidden shadow-sm border border-border/50 relative group bg-card"
+                        >
+                          <Image
+                            src={imgUrl}
+                            alt={`Produk IGN ${i + 1}`}
+                            fill
+                            sizes="(max-width: 640px) 145px, 197px"
+                            unoptimized
+                            priority={isAboveFold}
+                            loading={isAboveFold ? "eager" : "lazy"}
+                            fetchPriority={isAboveFold ? "high" : "auto"}
+                            className="object-cover group-hover:scale-105 transition-transform duration-300"
+                          />
+                        </div>
+                      );
+                    })}
                   </motion.div>
                 </div>
               </div>
@@ -553,31 +572,31 @@ export default function OurProductsPage() {
             {/* Header Frame Produk */}
             {/* Header Frame Produk (Clean & Rapi) */}
             <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
-              <div>
+              <div className="text-center md:text-left">
                 <h2
                   className={cn(
-                    "font-extrabold tracking-tight",
-                    !settings.shopeeSectionTitleSize && "text-xl sm:text-2xl md:text-3xl",
+                    "font-extrabold tracking-tight text-center md:text-left",
+                    !settings.shopeeSectionTitleSize && "text-lg sm:text-2xl md:text-3xl",
                     !settings.shopeeSectionTitleColor && "text-[#15803D] dark:text-emerald-400"
                   )}
                   style={{
                     fontFamily: getHeroFontFamily(settings.shopeeSectionTitleFont || "poppins"),
                     color: settings.shopeeSectionTitleColor || undefined,
-                    fontSize: settings.shopeeSectionTitleSize ? `${settings.shopeeSectionTitleSize}px` : undefined,
+                    fontSize: settings.shopeeSectionTitleSize ? `clamp(16px, 3.8vw, ${settings.shopeeSectionTitleSize}px)` : undefined,
                   }}
                 >
                   {renderFormattedText(settings.shopeeSectionTitle || "DAFTAR PRODUK KAMI")}
                 </h2>
                 <p
                   className={cn(
-                    "mt-1 max-w-2xl",
+                    "mt-1 max-w-2xl text-center md:text-left mx-auto md:mx-0",
                     !settings.shopeeSectionSubtitleSize && "text-xs sm:text-sm",
                     !settings.shopeeSectionSubtitleColor && "text-muted-foreground"
                   )}
                   style={{
                     fontFamily: getHeroFontFamily(settings.shopeeSectionSubtitleFont || "poppins"),
                     color: settings.shopeeSectionSubtitleColor || undefined,
-                    fontSize: settings.shopeeSectionSubtitleSize ? `${settings.shopeeSectionSubtitleSize}px` : undefined,
+                    fontSize: settings.shopeeSectionSubtitleSize ? `clamp(11px, 2.5vw, ${settings.shopeeSectionSubtitleSize}px)` : undefined,
                   }}
                 >
                   {renderFormattedText(
@@ -591,10 +610,14 @@ export default function OurProductsPage() {
               <div className="relative w-full md:w-72 shrink-0">
                 <Search className="w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
                 <input
-                  type="text"
+                  id="search-product"
+                  name="search_product"
+                  type="search"
+                  autoComplete="off"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   placeholder="Cari produk herbal..."
+                  aria-label="Cari produk herbal"
                   className="w-full pl-8 pr-8 py-2 rounded-[6px] border border-border bg-card text-xs text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-[#15803D]"
                 />
                 {searchQuery && (
@@ -609,65 +632,83 @@ export default function OurProductsPage() {
               </div>
             </div>
 
-            {/* Bar Urutkan Ala Shopee (Clean & Rapi) */}
-            <div className="bg-card/70 border border-border/80 rounded-[6px] p-2.5 sm:px-4 sm:py-2.5 flex flex-wrap items-center justify-between gap-3 text-xs">
-              <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
-                <span className="text-muted-foreground text-[11px] font-medium flex items-center gap-1 mr-1">
+            {/* Bar Urutkan Ala Shopee (Clean & Rapi, 1 Baris di Mobile dengan Icon) */}
+            <div className="bg-card/70 border border-border/80 rounded-[6px] p-2 sm:px-4 sm:py-2.5 flex items-center justify-between gap-1.5 sm:gap-3 text-xs overflow-x-auto">
+              <div className="flex items-center gap-1 sm:gap-2 shrink-0">
+                <span className="hidden sm:flex items-center gap-1 text-muted-foreground text-[11px] font-medium mr-1 shrink-0">
                   <SlidersHorizontal className="w-3.5 h-3.5" />
                   Urutkan:
                 </span>
+
+                {/* Terkait */}
                 <button
                   type="button"
                   onClick={() => setSortOption("terkait")}
+                  title="Terkait"
                   className={cn(
-                    "px-3 py-1 rounded-[4px] font-medium transition-colors cursor-pointer",
+                    "flex items-center justify-center gap-1 px-2.5 sm:px-3 py-1.5 sm:py-1 rounded-[4px] font-medium transition-colors cursor-pointer shrink-0 text-xs",
                     sortOption === "terkait"
                       ? "bg-[#15803D] text-white font-semibold shadow-xs"
                       : "bg-muted hover:bg-muted/80 text-foreground"
                   )}
                 >
-                  Terkait
+                  <ArrowUpDown className="w-3.5 h-3.5 shrink-0" />
+                  <span className="hidden sm:inline">Terkait</span>
                 </button>
+
+                {/* Terlaris */}
                 <button
                   type="button"
                   onClick={() => setSortOption("terlaris")}
+                  title="Terlaris"
                   className={cn(
-                    "px-3 py-1 rounded-[4px] font-medium transition-colors cursor-pointer",
+                    "flex items-center justify-center gap-1 px-2.5 sm:px-3 py-1.5 sm:py-1 rounded-[4px] font-medium transition-colors cursor-pointer shrink-0 text-xs",
                     sortOption === "terlaris"
                       ? "bg-[#15803D] text-white font-semibold shadow-xs"
                       : "bg-muted hover:bg-muted/80 text-foreground"
                   )}
                 >
-                  Terlaris
+                  <Flame className="w-3.5 h-3.5 shrink-0" />
+                  <span className="hidden sm:inline">Terlaris</span>
                 </button>
+
+                {/* Harga: Rendah ke Tinggi */}
                 <button
                   type="button"
                   onClick={() => setSortOption("termurah")}
+                  title="Harga: Rendah ke Tinggi"
                   className={cn(
-                    "px-3 py-1 rounded-[4px] font-medium transition-colors cursor-pointer",
+                    "flex items-center justify-center gap-1 px-2.5 sm:px-3 py-1.5 sm:py-1 rounded-[4px] font-medium transition-colors cursor-pointer shrink-0 text-xs",
                     sortOption === "termurah"
                       ? "bg-[#15803D] text-white font-semibold shadow-xs"
                       : "bg-muted hover:bg-muted/80 text-foreground"
                   )}
                 >
-                  Harga: Rendah ke Tinggi
+                  <ArrowDownNarrowWide className="w-3.5 h-3.5 shrink-0" />
+                  <span className="hidden sm:inline">Harga: Rendah ke Tinggi</span>
                 </button>
+
+                {/* Harga: Tinggi ke Rendah */}
                 <button
                   type="button"
                   onClick={() => setSortOption("termahal")}
+                  title="Harga: Tinggi ke Rendah"
                   className={cn(
-                    "px-3 py-1 rounded-[4px] font-medium transition-colors cursor-pointer",
+                    "flex items-center justify-center gap-1 px-2.5 sm:px-3 py-1.5 sm:py-1 rounded-[4px] font-medium transition-colors cursor-pointer shrink-0 text-xs",
                     sortOption === "termahal"
                       ? "bg-[#15803D] text-white font-semibold shadow-xs"
                       : "bg-muted hover:bg-muted/80 text-foreground"
                   )}
                 >
-                  Harga: Tinggi ke Rendah
+                  <ArrowDownWideNarrow className="w-3.5 h-3.5 shrink-0" />
+                  <span className="hidden sm:inline">Harga: Tinggi ke Rendah</span>
                 </button>
               </div>
 
-              <div className="text-[11px] text-muted-foreground font-medium">
-                Menampilkan <span className="font-bold text-foreground">{sortedProducts.length}</span> produk
+              <div className="text-[11px] text-muted-foreground font-medium shrink-0 ml-auto whitespace-nowrap pl-1">
+                <span className="hidden sm:inline">Menampilkan </span>
+                <span className="font-bold text-foreground">{sortedProducts.length}</span>
+                <span className="text-[10px] sm:text-[11px]"> produk</span>
               </div>
             </div>
 
@@ -885,10 +926,10 @@ export default function OurProductsPage() {
                 </button>
 
                 {/* ─── SISI KIRI: WADAH FOTO 1:1 KOMPAK ALA SHOPEE ─── */}
-                <div className="w-full md:w-[350px] lg:w-[380px] xl:w-[400px] shrink-0 bg-muted/15 flex flex-col items-center justify-center p-4 sm:p-5.5 lg:p-6 border-b md:border-b-0 md:border-r border-border/60">
+                <div className="w-full md:w-[350px] lg:w-[380px] xl:w-[400px] shrink-0 bg-transparent flex flex-col items-center justify-center p-3 sm:p-5.5 lg:p-6 border-b md:border-b-0 md:border-r border-border/60">
                   {/* Foto Utama 1:1 Presisi (Square) */}
                   <div
-                    className="w-full aspect-square relative rounded-[12px] overflow-hidden bg-card border border-border/70 shadow-sm select-none group/slider"
+                    className="w-full aspect-square relative rounded-[12px] overflow-hidden bg-transparent select-none group/slider"
                     onMouseEnter={() => setIsModalHovered(true)}
                     onMouseLeave={() => setIsModalHovered(false)}
                   >
@@ -958,46 +999,70 @@ export default function OurProductsPage() {
                       </div>
                     )}
 
-                    {/* Navigasi Kiri / Kanan, Counter & Indikator Titik (Jika foto > 1) */}
+                    {/* Navigasi Kiri / Kanan & Indikator Titik (Jika foto > 1) */}
                     {modalPhotos.length > 1 && (
                       <>
-                        {/* Tombol Panah Kiri */}
+                        {/* Tombol Panah Kiri Transparan */}
                         <button
                           type="button"
                           onClick={(e) => {
                             e.stopPropagation()
                             setModalSlideIndex((prev) => (prev - 1 + modalPhotos.length) % modalPhotos.length)
                           }}
-                          className="absolute left-2.5 top-1/2 -translate-y-1/2 z-20 w-8 h-8 rounded-full bg-black/60 hover:bg-black/85 text-white flex items-center justify-center transition-all opacity-85 sm:opacity-0 group-hover/slider:opacity-100 cursor-pointer shadow-md hover:scale-105"
+                          className="absolute left-1.5 top-1/2 -translate-y-1/2 z-20 w-8 h-8 rounded-full bg-transparent hover:bg-black/20 text-white flex items-center justify-center transition-all opacity-90 sm:opacity-0 group-hover/slider:opacity-100 cursor-pointer drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)] hover:scale-110 active:scale-95"
                           title="Foto Sebelumnya"
                         >
-                          <ChevronLeft className="w-4 h-4" />
+                          <ChevronLeft className="w-5 h-5 drop-shadow-md" />
                         </button>
 
-                        {/* Tombol Panah Kanan */}
+                        {/* Tombol Panah Kanan Transparan */}
                         <button
                           type="button"
                           onClick={(e) => {
                             e.stopPropagation()
                             setModalSlideIndex((prev) => (prev + 1) % modalPhotos.length)
                           }}
-                          className="absolute right-2.5 top-1/2 -translate-y-1/2 z-20 w-8 h-8 rounded-full bg-black/60 hover:bg-black/85 text-white flex items-center justify-center transition-all opacity-85 sm:opacity-0 group-hover/slider:opacity-100 cursor-pointer shadow-md hover:scale-105"
+                          className="absolute right-1.5 top-1/2 -translate-y-1/2 z-20 w-8 h-8 rounded-full bg-transparent hover:bg-black/20 text-white flex items-center justify-center transition-all opacity-90 sm:opacity-0 group-hover/slider:opacity-100 cursor-pointer drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)] hover:scale-110 active:scale-95"
                           title="Foto Selanjutnya"
                         >
-                          <ChevronRight className="w-4 h-4" />
+                          <ChevronRight className="w-5 h-5 drop-shadow-md" />
                         </button>
 
-                        {/* Counter Nomor Foto (Ala Shopee: 1/4) */}
-                        <div className="absolute bottom-2.5 right-2.5 z-20 px-2.5 py-0.5 rounded-full bg-black/65 text-white text-[11px] font-semibold backdrop-blur-xs select-none shadow-sm">
-                          {modalSlideIndex + 1}/{modalPhotos.length}
+                        {/* Deretan Thumbnail Mini di Dalam Frame Bawah Kiri (Khusus Mobile agar Kompak) */}
+                        <div className="sm:hidden absolute bottom-2 left-2 z-20 flex items-center gap-1.5 p-0.5 rounded-[7px] max-w-[calc(100%-20px)] overflow-x-auto scrollbar-none">
+                          {modalPhotos.map((photo, i) => (
+                            <button
+                              key={i}
+                              type="button"
+                              onClick={(e) => {
+                                e.stopPropagation()
+                                setModalSlideIndex(i)
+                              }}
+                              className={cn(
+                                "w-7 h-7 rounded-[4px] overflow-hidden relative shrink-0 border transition-all cursor-pointer bg-card/60 shadow-xs",
+                                modalSlideIndex === i
+                                  ? "border-[#EE4D2D] ring-1.5 ring-[#EE4D2D] shadow-md scale-105"
+                                  : "border-white/60 opacity-75 hover:opacity-100"
+                              )}
+                              title={`Lihat foto ${i + 1}`}
+                            >
+                              <Image
+                                src={photo}
+                                alt={`Thumbnail ${i + 1}`}
+                                fill
+                                sizes="28px"
+                                className="object-cover"
+                              />
+                            </button>
+                          ))}
                         </div>
                       </>
                     )}
                   </div>
 
-                  {/* Deretan Thumbnail Foto Ala Shopee di Bawah Foto Utama */}
+                  {/* Deretan Thumbnail Foto Ala Shopee di Bawah Foto Utama (Tablet & Desktop) */}
                   {modalPhotos.length > 1 && (
-                    <div className="w-full flex items-center justify-center gap-2 sm:gap-2.5 mt-3.5 overflow-x-auto py-1.5 px-1.5 scrollbar-none">
+                    <div className="hidden sm:flex w-full items-center justify-center gap-2 sm:gap-2.5 mt-3.5 overflow-x-auto py-1.5 px-1.5 scrollbar-none">
                       {modalPhotos.map((photo, i) => (
                         <button
                           key={i}
@@ -1030,7 +1095,7 @@ export default function OurProductsPage() {
                     <div className="text-[11px] sm:text-xs font-bold uppercase tracking-wider text-[#15803D] dark:text-emerald-400">
                       {selectedProduct.category}
                     </div>
-                    <h2 className="text-lg sm:text-xl lg:text-2xl font-extrabold text-foreground mt-1 leading-snug">
+                    <h2 className="text-base sm:text-xl lg:text-2xl font-extrabold text-foreground mt-1 leading-snug">
                       {selectedProduct.name}
                     </h2>
 

@@ -126,6 +126,8 @@ export function AdminFAB() {
                                 (isProductsSettings && (pathname === "/our-products" || pathname === "/our-product"))
                             const isActive = isSpecialActive ? true : pathname === menu.url
 
+                            const isMobileAllowed = menu.name === "Analytics" || menu.name === "Broadcast"
+
                             return (
                                 <Link
                                     href={menu.url}
@@ -156,7 +158,10 @@ export function AdminFAB() {
                                         setIsOpen(false)
                                     }}
                                     title={menu.name}
-                                    className="group/item relative flex items-center"
+                                    className={cn(
+                                        "group/item relative flex items-center",
+                                        !isMobileAllowed && "hidden md:flex"
+                                    )}
                                 >
                                     <div
                                         className={cn(
@@ -171,7 +176,7 @@ export function AdminFAB() {
                                         <Icon className="w-5 h-5" />
                                     </div>
 
-                                    {/* Tooltip teks di sebelah kanan */}
+                                    {/* Tooltip teks di sebelah kanan (hanya muncul saat hover di desktop, tidak muncul di mobile) */}
                                     <span className="hidden md:block absolute left-14 px-2.5 py-1 rounded-md bg-zinc-900/90 dark:bg-zinc-800 text-white text-xs whitespace-nowrap opacity-0 group-hover/item:opacity-100 transition-opacity pointer-events-none shadow-md font-medium z-20">
                                         {menu.name}
                                     </span>

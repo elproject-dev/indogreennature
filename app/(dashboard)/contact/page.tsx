@@ -6,7 +6,6 @@ import Image from "next/image"
 import {
   ChevronRight,
   Mail,
-  MessageCircle,
   ChevronDown,
   Handshake,
   Package,
@@ -15,6 +14,7 @@ import {
   ExternalLink,
   Leaf,
 } from "lucide-react"
+import { WhatsAppIcon } from "@/components/icons/whatsapp-icon"
 import { poppins, getHeroFontFamily } from "@/lib/fonts"
 import { cn } from "@/lib/utils"
 import { LoadingSpinner } from "@/components/loading-spinner"
@@ -209,6 +209,7 @@ function ContactForm({
             id="contact-name"
             name="name"
             type="text"
+            autoComplete="name"
             required
             value={form.name}
             onChange={handleChange}
@@ -230,6 +231,7 @@ function ContactForm({
             id="contact-company"
             name="company"
             type="text"
+            autoComplete="organization"
             value={form.company}
             onChange={handleChange}
             placeholder="Opsional"
@@ -253,6 +255,7 @@ function ContactForm({
             id="contact-email"
             name="email"
             type="email"
+            autoComplete="email"
             required
             value={form.email}
             onChange={handleChange}
@@ -274,6 +277,7 @@ function ContactForm({
             id="contact-phone"
             name="phone"
             type="tel"
+            autoComplete="tel"
             value={form.phone}
             onChange={handleChange}
             placeholder="08xxxxxxxxxx (opsional)"
@@ -564,46 +568,51 @@ export default function ContactPage() {
           id="banner-utama"
           className="relative w-full flex flex-col md:flex-row items-center justify-between gap-6 sm:gap-8 md:gap-10 pt-2 scroll-mt-24"
         >
-          <div className="flex flex-col gap-3 flex-1 text-left">
-            <div className="flex flex-col gap-2">
+          <div className="flex flex-col gap-3 flex-1 items-center text-center md:items-start md:text-left">
+            <div className="flex flex-col gap-2 items-center md:items-start text-center md:text-left w-full">
               <h1
                 className={cn(
-                  "font-bold leading-tight tracking-tight",
+                  "text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold leading-tight tracking-tight text-center md:text-left",
                   !settings.bannerTitleColor && "text-primary"
                 )}
                 style={{
                   fontFamily: getHeroFontFamily(settings.bannerTitleFont),
                   color: settings.bannerTitleColor || undefined,
-                  fontSize: settings.bannerTitleSize ? `${settings.bannerTitleSize}px` : undefined,
+                  fontSize: settings.bannerTitleSize
+                    ? `clamp(20px, 4.5vw, ${settings.bannerTitleSize}px)`
+                    : undefined,
                 }}
               >
                 {renderFormattedText(settings.bannerTitle)}
               </h1>
               <p
                 className={cn(
-                  "leading-relaxed max-w-2xl whitespace-pre-line",
+                  "text-xs sm:text-[13px] md:text-sm leading-relaxed max-w-2xl whitespace-pre-line text-center md:text-left mx-auto md:mx-0",
                   !settings.bannerDescColor && "text-foreground/85"
                 )}
                 style={{
                   fontFamily: getHeroFontFamily(settings.bannerDescFont),
                   color: settings.bannerDescColor || undefined,
-                  fontSize: settings.bannerDescSize ? `${settings.bannerDescSize}px` : undefined,
+                  fontSize: settings.bannerDescSize
+                    ? `clamp(12px, 2.5vw, ${settings.bannerDescSize}px)`
+                    : undefined,
                 }}
               >
                 {renderFormattedText(settings.bannerDesc)}
               </p>
             </div>
-            <div className="flex flex-wrap gap-2 mt-1">
+            <div className="flex flex-wrap items-center justify-center md:justify-start gap-2 mt-1 w-full md:w-auto">
               <a
                 href={waConsultUrl}
                 target="_blank"
                 rel="noopener noreferrer"
                 className={cn(
-                  "inline-flex items-center justify-center px-4 py-2 rounded-full text-xs font-semibold bg-primary text-primary-foreground hover:bg-primary/90 transition-all shadow-sm active:scale-95 cursor-pointer",
+                  "inline-flex items-center justify-center gap-1.5 px-4 py-2 rounded-full text-xs font-semibold bg-primary text-primary-foreground hover:bg-primary/90 transition-all shadow-sm active:scale-95 cursor-pointer",
                   poppins.className
                 )}
               >
-                {settings.bannerBtn1Text || "WhatsApp Bisnis"}
+                <WhatsAppIcon className="w-3.5 h-3.5 fill-current shrink-0" />
+                <span>{settings.bannerBtn1Text || "WhatsApp Bisnis"}</span>
               </a>
               <a
                 href="#form-email"
@@ -908,8 +917,8 @@ export default function ContactPage() {
                       poppins.className
                     )}
                   >
-                    <MessageCircle className="w-4 h-4" />
-                    {card.btnText || "Konsultasi"}
+                    <WhatsAppIcon className="w-4 h-4 fill-current shrink-0" />
+                    <span>{card.btnText || "Konsultasi"}</span>
                   </a>
                 </div>
               )
@@ -971,7 +980,7 @@ export default function ContactPage() {
                 poppins.className
               )}
             >
-              <MessageCircle className="w-4 h-4" />
+              <WhatsAppIcon className="w-4 h-4 fill-current shrink-0" />
               <span>{settings.faqCtaBtnText || "Tanya Langsung"}</span>
             </a>
           </div>

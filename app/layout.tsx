@@ -138,7 +138,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           <PWAInstallPrompt />
           <PushNotificationManager />
         </ThemeProvider>
-        {process.env.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID && (
+        {process.env.NODE_ENV === "production" && process.env.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID && (
           <GoogleAnalytics gaId={process.env.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID} />
         )}
       </body>

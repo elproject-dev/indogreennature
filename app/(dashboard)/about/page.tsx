@@ -714,14 +714,14 @@ export default function AboutUsPage() {
                   {aboutSettings.bannerDesc}
                 </p>
 
-                {/* CTA Buttons inside Hero */}
-                <div className="flex flex-wrap items-center gap-3 pt-2">
+                {/* CTA Buttons inside Hero - 2 Kolom di Mobile, Flex di Desktop */}
+                <div className="grid grid-cols-2 sm:flex sm:flex-wrap items-center gap-2 sm:gap-3 pt-2 w-full sm:w-auto">
                   <a
                     href={aboutSettings.bannerBtn1Link || whatsappUrl}
                     target={(aboutSettings.bannerBtn1Link || whatsappUrl).startsWith("http") ? "_blank" : undefined}
                     rel={(aboutSettings.bannerBtn1Link || whatsappUrl).startsWith("http") ? "noopener noreferrer" : undefined}
                     className={cn(
-                      "inline-flex items-center justify-center gap-2 px-6 py-3 rounded-[5px] font-bold text-sm md:text-base shadow-sm hover:shadow-md transition-all cursor-pointer",
+                      "inline-flex items-center justify-center gap-1.5 px-2.5 sm:px-5 py-2 sm:py-2.5 rounded-[5px] font-bold text-[11px] sm:text-xs md:text-sm text-center shadow-xs hover:shadow-md transition-all cursor-pointer",
                       !aboutSettings.bannerBtn1BgColor && "bg-primary hover:bg-primary/90",
                       !aboutSettings.bannerBtn1TextColor && "text-primary-foreground"
                     )}
@@ -730,15 +730,15 @@ export default function AboutUsPage() {
                       color: aboutSettings.bannerBtn1TextColor || undefined,
                     }}
                   >
-                    <PhoneCall className="w-4 h-4" />
-                    <span>{aboutSettings.bannerBtn1Text || "Konsultasi Maklon Herbal"}</span>
+                    <PhoneCall className="size-3 sm:size-3.5 shrink-0" />
+                    <span className="truncate">{aboutSettings.bannerBtn1Text || "Konsultasi Maklon Herbal"}</span>
                   </a>
                   <a
                     href={aboutSettings.bannerBtn2Link || "#profil-perusahaan"}
                     target={(aboutSettings.bannerBtn2Link || "#profil-perusahaan").startsWith("http") ? "_blank" : undefined}
                     rel={(aboutSettings.bannerBtn2Link || "#profil-perusahaan").startsWith("http") ? "noopener noreferrer" : undefined}
                     className={cn(
-                      "inline-flex items-center justify-center gap-2 px-5 py-3 rounded-[5px] font-semibold text-sm md:text-base border transition-all cursor-pointer",
+                      "inline-flex items-center justify-center gap-1.5 px-2.5 sm:px-4 py-2 sm:py-2.5 rounded-[5px] font-semibold text-[11px] sm:text-xs md:text-sm text-center border transition-all cursor-pointer",
                       !aboutSettings.bannerBtn2BgColor && "bg-background hover:bg-muted border-border",
                       !aboutSettings.bannerBtn2TextColor && "text-foreground"
                     )}
@@ -748,8 +748,8 @@ export default function AboutUsPage() {
                       borderColor: aboutSettings.bannerBtn2BgColor ? "transparent" : undefined,
                     }}
                   >
-                    <span>{aboutSettings.bannerBtn2Text || "Jelajahi Profil Perusahaan"}</span>
-                    <ArrowRight className="w-4 h-4" />
+                    <span className="truncate">{aboutSettings.bannerBtn2Text || "Jelajahi Profil Perusahaan"}</span>
+                    <ArrowRight className="size-3 sm:size-3.5 shrink-0" />
                   </a>
                 </div>
               </div>
@@ -1427,8 +1427,8 @@ export default function AboutUsPage() {
                   {aboutSettings.rekamJejakCarouselTitle || "Tonggak Perjalanan CV. Indo Green Nature"}
                 </h3>
 
-                {/* Tombol Navigasi Manual Carousel */}
-                <div className="flex items-center gap-1.5">
+                {/* Tombol Navigasi Manual Carousel (Desktop: di Header) */}
+                <div className="hidden sm:flex items-center gap-1.5">
                   <button
                     type="button"
                     onClick={() => scrollTimeline("left")}
@@ -1504,6 +1504,26 @@ export default function AboutUsPage() {
                   ))}
                 </div>
               </div>
+
+              {/* Tombol Navigasi Manual Carousel (Mobile: di Bawah Carousel) */}
+              <div className="flex sm:hidden items-center justify-center gap-2 pt-1">
+                <button
+                  type="button"
+                  onClick={() => scrollTimeline("left")}
+                  aria-label="Geser ke kiri"
+                  className="w-8 h-8 rounded-[5px] bg-card-alt border border-primary/20 hover:border-primary text-foreground hover:text-primary flex items-center justify-center transition-colors cursor-pointer shadow-xs active:scale-95"
+                >
+                  <ChevronLeft className="w-4 h-4" />
+                </button>
+                <button
+                  type="button"
+                  onClick={() => scrollTimeline("right")}
+                  aria-label="Geser ke kanan"
+                  className="w-8 h-8 rounded-[5px] bg-card-alt border border-primary/20 hover:border-primary text-foreground hover:text-primary flex items-center justify-center transition-colors cursor-pointer shadow-xs active:scale-95"
+                >
+                  <ChevronRight className="w-4 h-4" />
+                </button>
+              </div>
             </div>
           </section>
 
@@ -1536,13 +1556,13 @@ export default function AboutUsPage() {
               </div>
               <h2
                 className={cn(
-                  "text-2xl md:text-3xl lg:text-4xl font-bold tracking-tight",
+                  "text-lg sm:text-2xl md:text-3xl font-bold tracking-tight",
                   !aboutSettings.prinsipKerjaTitleColor && "text-foreground",
                   getHeroFontClass(aboutSettings.prinsipKerjaTitleFont || "poppins")
                 )}
                 style={{
                   fontSize: aboutSettings.prinsipKerjaTitleSize
-                    ? `${aboutSettings.prinsipKerjaTitleSize}px`
+                    ? `clamp(18px, 4vw, ${aboutSettings.prinsipKerjaTitleSize}px)`
                     : undefined,
                   color: aboutSettings.prinsipKerjaTitleColor || undefined,
                 }}
@@ -1551,13 +1571,13 @@ export default function AboutUsPage() {
               </h2>
               <p
                 className={cn(
-                  "text-sm md:text-base w-full leading-relaxed font-normal",
+                  "text-xs sm:text-[13px] md:text-sm w-full leading-relaxed font-normal",
                   !aboutSettings.prinsipKerjaDescColor && "text-zinc-800 dark:text-zinc-200",
                   getHeroFontClass(aboutSettings.prinsipKerjaDescFont || "outfit")
                 )}
                 style={{
                   fontSize: aboutSettings.prinsipKerjaDescSize
-                    ? `${aboutSettings.prinsipKerjaDescSize}px`
+                    ? `clamp(12px, 2.5vw, ${aboutSettings.prinsipKerjaDescSize}px)`
                     : undefined,
                   color: aboutSettings.prinsipKerjaDescColor || undefined,
                 }}
@@ -1575,7 +1595,7 @@ export default function AboutUsPage() {
                 <div
                   key={`${val.title}-${idx}`}
                   className={cn(
-                    "flex flex-col p-5 rounded-[5px] shadow-xs hover:shadow-md transition-all group",
+                    "flex flex-col p-4 sm:p-5 rounded-[5px] shadow-xs hover:shadow-md transition-all group",
                     !aboutSettings.prinsipKerjaCardBg && "bg-card-alt",
                     !aboutSettings.prinsipKerjaCardBorderColor &&
                       "border border-primary/20 hover:border-primary/50"
@@ -1589,13 +1609,13 @@ export default function AboutUsPage() {
                 >
                   <h4
                     className={cn(
-                      "text-sm sm:text-base font-bold transition-colors",
+                      "text-xs sm:text-sm md:text-base font-bold transition-colors",
                       !aboutSettings.prinsipKerjaCardTitleColor && "text-foreground group-hover:text-primary",
                       getHeroFontClass(aboutSettings.prinsipKerjaCardTitleFont || "poppins")
                     )}
                     style={{
                       fontSize: aboutSettings.prinsipKerjaCardTitleSize
-                        ? `${aboutSettings.prinsipKerjaCardTitleSize}px`
+                        ? `clamp(13px, 2.8vw, ${aboutSettings.prinsipKerjaCardTitleSize}px)`
                         : undefined,
                       color: aboutSettings.prinsipKerjaCardTitleColor || undefined,
                     }}
@@ -1604,13 +1624,13 @@ export default function AboutUsPage() {
                   </h4>
                   <p
                     className={cn(
-                      "text-xs mt-2 leading-relaxed font-normal",
+                      "text-xs mt-1.5 sm:mt-2 leading-relaxed font-normal",
                       !aboutSettings.prinsipKerjaCardDescColor && "text-zinc-800 dark:text-zinc-200",
                       getHeroFontClass(aboutSettings.prinsipKerjaCardDescFont || "outfit")
                     )}
                     style={{
                       fontSize: aboutSettings.prinsipKerjaCardDescSize
-                        ? `${aboutSettings.prinsipKerjaCardDescSize}px`
+                        ? `clamp(12px, 2.5vw, ${aboutSettings.prinsipKerjaCardDescSize}px)`
                         : undefined,
                       color: aboutSettings.prinsipKerjaCardDescColor || undefined,
                     }}
@@ -1651,13 +1671,13 @@ export default function AboutUsPage() {
               </div>
               <h2
                 className={cn(
-                  "text-2xl md:text-3xl lg:text-4xl font-bold tracking-tight",
+                  "text-lg sm:text-2xl md:text-3xl font-bold tracking-tight",
                   !aboutSettings.distribusiTitleColor && "text-foreground",
                   getHeroFontClass(aboutSettings.distribusiTitleFont || "poppins")
                 )}
                 style={{
                   fontSize: aboutSettings.distribusiTitleSize
-                    ? `${aboutSettings.distribusiTitleSize}px`
+                    ? `clamp(18px, 4vw, ${aboutSettings.distribusiTitleSize}px)`
                     : undefined,
                   color: aboutSettings.distribusiTitleColor || undefined,
                 }}
@@ -1666,13 +1686,13 @@ export default function AboutUsPage() {
               </h2>
               <p
                 className={cn(
-                  "text-sm md:text-base w-full leading-relaxed font-normal",
+                  "text-xs sm:text-[13px] md:text-sm w-full leading-relaxed font-normal",
                   !aboutSettings.distribusiDescColor && "text-zinc-800 dark:text-zinc-200",
                   getHeroFontClass(aboutSettings.distribusiDescFont || "outfit")
                 )}
                 style={{
                   fontSize: aboutSettings.distribusiDescSize
-                    ? `${aboutSettings.distribusiDescSize}px`
+                    ? `clamp(12px, 2.5vw, ${aboutSettings.distribusiDescSize}px)`
                     : undefined,
                   color: aboutSettings.distribusiDescColor || undefined,
                 }}
@@ -1712,13 +1732,13 @@ export default function AboutUsPage() {
                     </span>
                     <h3
                       className={cn(
-                        "text-xl sm:text-2xl font-bold",
+                        "text-base sm:text-xl font-bold",
                         !aboutSettings.distribusiCardTitleColor && "text-foreground",
                         getHeroFontClass(aboutSettings.distribusiCardTitleFont || "poppins")
                       )}
                       style={{
                         fontSize: aboutSettings.distribusiCardTitleSize
-                          ? `${aboutSettings.distribusiCardTitleSize}px`
+                          ? `clamp(16px, 3.5vw, ${aboutSettings.distribusiCardTitleSize}px)`
                           : undefined,
                         color: aboutSettings.distribusiCardTitleColor || undefined,
                       }}
@@ -1729,13 +1749,13 @@ export default function AboutUsPage() {
 
                   <p
                     className={cn(
-                      "text-sm leading-relaxed font-normal",
+                      "text-xs sm:text-sm leading-relaxed font-normal",
                       !aboutSettings.distribusiCardDescColor && "text-zinc-800 dark:text-zinc-200",
                       getHeroFontClass(aboutSettings.distribusiCardDescFont || "outfit")
                     )}
                     style={{
                       fontSize: aboutSettings.distribusiCardDescSize
-                        ? `${aboutSettings.distribusiCardDescSize}px`
+                        ? `clamp(12px, 2.5vw, ${aboutSettings.distribusiCardDescSize}px)`
                         : undefined,
                       color: aboutSettings.distribusiCardDescColor || undefined,
                     }}
@@ -1807,13 +1827,13 @@ export default function AboutUsPage() {
                     </span>
                     <h3
                       className={cn(
-                        "text-xl sm:text-2xl font-bold",
+                        "text-base sm:text-xl font-bold",
                         !aboutSettings.distribusiCardTitleColor && "text-foreground",
                         getHeroFontClass(aboutSettings.distribusiCardTitleFont || "poppins")
                       )}
                       style={{
                         fontSize: aboutSettings.distribusiCardTitleSize
-                          ? `${aboutSettings.distribusiCardTitleSize}px`
+                          ? `clamp(16px, 3.5vw, ${aboutSettings.distribusiCardTitleSize}px)`
                           : undefined,
                         color: aboutSettings.distribusiCardTitleColor || undefined,
                       }}
@@ -1824,13 +1844,13 @@ export default function AboutUsPage() {
 
                   <p
                     className={cn(
-                      "text-sm leading-relaxed font-normal",
+                      "text-xs sm:text-sm leading-relaxed font-normal",
                       !aboutSettings.distribusiCardDescColor && "text-zinc-800 dark:text-zinc-200",
                       getHeroFontClass(aboutSettings.distribusiCardDescFont || "outfit")
                     )}
                     style={{
                       fontSize: aboutSettings.distribusiCardDescSize
-                        ? `${aboutSettings.distribusiCardDescSize}px`
+                        ? `clamp(12px, 2.5vw, ${aboutSettings.distribusiCardDescSize}px)`
                         : undefined,
                       color: aboutSettings.distribusiCardDescColor || undefined,
                     }}
@@ -1944,13 +1964,13 @@ export default function AboutUsPage() {
                   </span>
                   <h3
                     className={cn(
-                      "text-xl sm:text-2xl md:text-3xl font-bold tracking-tight max-w-4xl",
+                      "text-lg sm:text-2xl md:text-3xl font-bold tracking-tight max-w-4xl",
                       !aboutSettings.legalitasTitleColor && "text-foreground",
                       getHeroFontClass(aboutSettings.legalitasTitleFont || "poppins")
                     )}
                     style={{
                       fontSize: aboutSettings.legalitasTitleSize
-                        ? `${aboutSettings.legalitasTitleSize}px`
+                        ? `clamp(18px, 4vw, ${aboutSettings.legalitasTitleSize}px)`
                         : undefined,
                       color: aboutSettings.legalitasTitleColor || undefined,
                     }}
@@ -1959,13 +1979,13 @@ export default function AboutUsPage() {
                   </h3>
                   <p
                     className={cn(
-                      "text-xs sm:text-sm md:text-base font-normal max-w-4xl lg:max-w-5xl leading-relaxed",
+                      "text-xs sm:text-[13px] md:text-sm font-normal max-w-4xl lg:max-w-5xl leading-relaxed",
                       !aboutSettings.legalitasDescColor && "text-zinc-800 dark:text-zinc-200",
                       getHeroFontClass(aboutSettings.legalitasDescFont || "outfit")
                     )}
                     style={{
                       fontSize: aboutSettings.legalitasDescSize
-                        ? `${aboutSettings.legalitasDescSize}px`
+                        ? `clamp(12px, 2.5vw, ${aboutSettings.legalitasDescSize}px)`
                         : undefined,
                       color: aboutSettings.legalitasDescColor || undefined,
                     }}
@@ -1975,15 +1995,15 @@ export default function AboutUsPage() {
                   </p>
                 </div>
 
-                {/* Cards Container: Kotak 1:1, Tanpa Teks & Tanpa Deskripsi, Murni Foto Saja */}
+                {/* Cards Container: Kotak 1:1, Tanpa Teks & Tanpa Deskripsi, Murni Foto Saja (3 Kolom di Mobile) */}
                 {isCarousel ? (
                   <div className="relative w-full group">
-                    {/* Tombol Navigasi Carousel */}
-                    <div className="flex items-center justify-end gap-2 mb-3">
+                    {/* Tombol Navigasi Carousel (Rata Tengah / Center) */}
+                    <div className="flex items-center justify-center gap-2 mb-3 sm:mb-4">
                       <button
                         type="button"
                         onClick={() => scrollLegalitas("left")}
-                        className="w-8 h-8 rounded-[5px] border border-primary/20 bg-background/80 hover:bg-primary hover:text-white text-foreground flex items-center justify-center transition-all cursor-pointer shadow-xs"
+                        className="w-8 h-8 rounded-[5px] border border-primary/20 bg-background/80 hover:bg-primary hover:text-white text-foreground flex items-center justify-center transition-all cursor-pointer shadow-xs active:scale-95"
                         aria-label="Sebelumnya"
                       >
                         <ChevronLeft className="w-4 h-4" />
@@ -1991,7 +2011,7 @@ export default function AboutUsPage() {
                       <button
                         type="button"
                         onClick={() => scrollLegalitas("right")}
-                        className="w-8 h-8 rounded-[5px] border border-primary/20 bg-background/80 hover:bg-primary hover:text-white text-foreground flex items-center justify-center transition-all cursor-pointer shadow-xs"
+                        className="w-8 h-8 rounded-[5px] border border-primary/20 bg-background/80 hover:bg-primary hover:text-white text-foreground flex items-center justify-center transition-all cursor-pointer shadow-xs active:scale-95"
                         aria-label="Berikutnya"
                       >
                         <ChevronRight className="w-4 h-4" />
@@ -1999,14 +2019,14 @@ export default function AboutUsPage() {
                     </div>
 
                     <div className="overflow-hidden" ref={legalitasEmblaRef}>
-                      <div className="flex -ml-4">
+                      <div className="flex -ml-2 sm:-ml-4">
                         {displayItems.map((item, idx) => (
                           <div
                             key={`carousel-${idx}-${item.imageUrl}`}
-                            className="flex-[0_0_50%] sm:flex-[0_0_33.333%] md:flex-[0_0_25%] lg:flex-[0_0_20%] min-w-0 pl-4"
+                            className="flex-[0_0_33.3333%] sm:flex-[0_0_33.333%] md:flex-[0_0_25%] lg:flex-[0_0_20%] min-w-0 pl-2 sm:pl-4"
                           >
                             <div
-                              className="w-full aspect-square relative rounded-[8px] overflow-hidden p-3 sm:p-4 flex items-center justify-center transition-all hover:scale-[1.05] cursor-pointer"
+                              className="w-full aspect-square relative rounded-[8px] overflow-hidden p-2 sm:p-4 flex items-center justify-center transition-all hover:scale-[1.05] cursor-pointer"
                               style={{
                                 backgroundColor:
                                   aboutSettings.legalitasCardBg &&
@@ -2033,11 +2053,10 @@ export default function AboutUsPage() {
                                 src={item.imageUrl}
                                 alt="Sertifikat Legalitas"
                                 style={{
-                                  width: `${aboutSettings.legalitasImageScale ?? 65}%`,
-                                  height: `${aboutSettings.legalitasImageScale ?? 65}%`,
+                                  ["--admin-scale" as any]: `${aboutSettings.legalitasImageScale ?? 65}%`,
                                 }}
                                 className={cn(
-                                  "transition-all duration-200",
+                                  "transition-all duration-200 w-[80%] h-[80%] sm:w-[var(--admin-scale)] sm:h-[var(--admin-scale)] max-w-full max-h-full",
                                   aboutSettings.legalitasCardFit === "cover"
                                     ? "object-cover"
                                     : "object-contain"
@@ -2053,18 +2072,18 @@ export default function AboutUsPage() {
                 ) : (
                   <div
                     className={cn(
-                      "grid gap-3 sm:gap-4 w-full",
+                      "grid gap-2 sm:gap-4 w-full",
                       rawLegalitasItems.length === 1 && "grid-cols-1 max-w-xs mx-auto",
                       rawLegalitasItems.length === 2 && "grid-cols-2 max-w-md mx-auto",
                       rawLegalitasItems.length === 3 && "grid-cols-3 max-w-2xl mx-auto",
                       rawLegalitasItems.length === 4 && "grid-cols-2 sm:grid-cols-4 max-w-3xl mx-auto",
-                      rawLegalitasItems.length >= 5 && "grid-cols-2 sm:grid-cols-3 lg:grid-cols-5"
+                      rawLegalitasItems.length >= 5 && "grid-cols-3 sm:grid-cols-3 lg:grid-cols-5"
                     )}
                   >
                     {rawLegalitasItems.map((item, idx) => (
                       <div
                         key={`grid-${idx}-${item.imageUrl}`}
-                        className="w-full aspect-square relative rounded-[8px] overflow-hidden p-3 sm:p-4 flex items-center justify-center transition-all hover:scale-[1.05] cursor-pointer"
+                        className="w-full aspect-square relative rounded-[8px] overflow-hidden p-2 sm:p-4 flex items-center justify-center transition-all hover:scale-[1.05] cursor-pointer"
                         style={{
                           backgroundColor:
                             aboutSettings.legalitasCardBg &&
@@ -2091,11 +2110,10 @@ export default function AboutUsPage() {
                           src={item.imageUrl}
                           alt="Sertifikat Legalitas"
                           style={{
-                            width: `${aboutSettings.legalitasImageScale ?? 65}%`,
-                            height: `${aboutSettings.legalitasImageScale ?? 65}%`,
+                            ["--admin-scale" as any]: `${aboutSettings.legalitasImageScale ?? 65}%`,
                           }}
                           className={cn(
-                            "transition-all duration-200",
+                            "transition-all duration-200 w-[80%] h-[80%] sm:w-[var(--admin-scale)] sm:h-[var(--admin-scale)] max-w-full max-h-full",
                             aboutSettings.legalitasCardFit === "cover"
                               ? "object-cover"
                               : "object-contain"
@@ -2114,7 +2132,7 @@ export default function AboutUsPage() {
           <section
             id="konsultasi-brand"
             className={cn(
-              "relative w-full rounded-[5px] overflow-hidden p-8 sm:p-12 text-white shadow-xl flex flex-col md:flex-row items-center justify-between gap-6",
+              "relative w-full rounded-[5px] overflow-hidden p-5 sm:p-10 md:p-12 text-white shadow-xl flex flex-col md:flex-row items-center justify-between gap-5 sm:gap-6",
               !aboutSettings.ctaCardBg && "bg-gradient-to-r from-[#143d23] via-[#1e5631] to-[#0e2a18]",
               !aboutSettings.ctaCardBorderColor && "border border-primary/40"
             )}
@@ -2128,13 +2146,13 @@ export default function AboutUsPage() {
             <div className="flex flex-col gap-2 text-center md:text-left max-w-2xl">
               <h3
                 className={cn(
-                  "text-2xl sm:text-3xl font-bold",
+                  "text-lg sm:text-2xl md:text-3xl font-bold",
                   !aboutSettings.ctaTitleColor && "text-white",
                   getHeroFontClass(aboutSettings.ctaTitleFont || "poppins")
                 )}
                 style={{
                   fontSize: aboutSettings.ctaTitleSize
-                    ? `${aboutSettings.ctaTitleSize}px`
+                    ? `clamp(18px, 4vw, ${aboutSettings.ctaTitleSize}px)`
                     : undefined,
                   color: aboutSettings.ctaTitleColor || undefined,
                 }}
@@ -2143,13 +2161,13 @@ export default function AboutUsPage() {
               </h3>
               <p
                 className={cn(
-                  "text-sm sm:text-base leading-relaxed font-normal",
+                  "text-xs sm:text-[13px] md:text-sm leading-relaxed font-normal",
                   !aboutSettings.ctaDescColor && "text-emerald-100/90",
                   getHeroFontClass(aboutSettings.ctaDescFont || "outfit")
                 )}
                 style={{
                   fontSize: aboutSettings.ctaDescSize
-                    ? `${aboutSettings.ctaDescSize}px`
+                    ? `clamp(12px, 2.5vw, ${aboutSettings.ctaDescSize}px)`
                     : undefined,
                   color: aboutSettings.ctaDescColor || undefined,
                 }}
@@ -2159,13 +2177,13 @@ export default function AboutUsPage() {
               </p>
             </div>
 
-            <div className="flex flex-wrap items-center justify-center gap-3 shrink-0">
+            <div className="grid grid-cols-2 sm:flex sm:flex-wrap items-center justify-center gap-2 sm:gap-3 w-full sm:w-auto shrink-0">
               <a
                 href={aboutSettings.ctaWhatsappUrl || whatsappUrl}
                 target="_blank"
                 rel="noopener noreferrer"
                 className={cn(
-                  "inline-flex items-center justify-center gap-2 px-6 py-3.5 font-bold text-sm md:text-base shadow-lg transition-all cursor-pointer",
+                  "inline-flex items-center justify-center gap-1.5 sm:gap-2 px-2.5 sm:px-6 py-2.5 sm:py-3.5 font-bold text-xs sm:text-sm md:text-base shadow-lg transition-all cursor-pointer w-full sm:w-auto text-center",
                   aboutSettings.ctaButtonFullRounded ? "rounded-full" : "rounded-[5px]",
                   !aboutSettings.ctaButtonBg && "bg-white hover:bg-emerald-50",
                   !aboutSettings.ctaButtonTextColor && "text-[#1e5631]"
@@ -2175,17 +2193,17 @@ export default function AboutUsPage() {
                   color: aboutSettings.ctaButtonTextColor || undefined,
                 }}
               >
-                <PhoneCall className="w-4 h-4" />
-                <span>{aboutSettings.ctaWhatsappText || "WhatsApp Kami"}</span>
+                <PhoneCall className="w-3.5 h-3.5 sm:w-4 sm:h-4 shrink-0" />
+                <span className="truncate">{aboutSettings.ctaWhatsappText || "WhatsApp Kami"}</span>
               </a>
               <Link
                 href={aboutSettings.ctaSecondaryUrl || "/"}
                 className={cn(
-                  "inline-flex items-center justify-center gap-2 px-5 py-3.5 bg-white/10 hover:bg-white/20 text-white font-semibold text-sm md:text-base border border-white/20 transition-all cursor-pointer",
+                  "inline-flex items-center justify-center gap-1.5 sm:gap-2 px-2.5 sm:px-5 py-2.5 sm:py-3.5 bg-white/10 hover:bg-white/20 text-white font-semibold text-xs sm:text-sm md:text-base border border-white/20 transition-all cursor-pointer w-full sm:w-auto text-center",
                   aboutSettings.ctaButtonFullRounded ? "rounded-full" : "rounded-[5px]"
                 )}
               >
-                <span>{aboutSettings.ctaSecondaryText || "Kembali ke Beranda"}</span>
+                <span className="truncate">{aboutSettings.ctaSecondaryText || "Kembali ke Beranda"}</span>
               </Link>
             </div>
           </section>
