@@ -132,7 +132,7 @@ export async function uploadMedia(file: File, folder: string = 'images', forBroa
   const { data, error } = await supabase.storage
     .from('media')
     .upload(fileName, finalBlob, {
-      cacheControl: '3600',
+      cacheControl: '31536000',
       upsert: true,
       contentType: contentType
     })
@@ -176,7 +176,7 @@ export async function uploadLogoMedia(file: File): Promise<string | null> {
   const { data, error } = await supabase.storage
     .from('media')
     .upload(fileName, finalBlob, {
-      cacheControl: '3600',
+      cacheControl: '31536000',
       upsert: true,
       contentType: contentType,
     })
@@ -203,7 +203,7 @@ export async function uploadAvatar(file: Blob, userId: string): Promise<string |
   const { data, error } = await supabase.storage
     .from('media')
     .upload(fileName, file, {
-      cacheControl: '3600',
+      cacheControl: '31536000',
       upsert: true,
       contentType: 'image/webp'
     })
@@ -321,7 +321,7 @@ export async function uploadLandingBgMedia(file: File, type: 'desktop' | 'mobile
   const { data, error } = await supabase.storage
     .from('media')
     .upload(fileName, finalBlob, {
-      cacheControl: '3600',
+      cacheControl: '31536000',
       upsert: true,
       contentType: contentType,
     })
@@ -363,7 +363,7 @@ export async function uploadOurProductsMedia(
   const { data, error } = await supabase.storage
     .from('media')
     .upload(fileName, finalBlob, {
-      cacheControl: '3600',
+      cacheControl: '31536000',
       upsert: false,
       contentType: contentType,
     })
