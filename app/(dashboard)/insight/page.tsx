@@ -392,17 +392,31 @@ export default function InsightIndexPage() {
             {/* Sisi Kiri: Teks & Informasi Utama Banner */}
             <div
               className={cn(
-                "order-2 lg:order-1 flex-1 flex flex-col gap-3.5 sm:gap-5 w-full items-center text-center",
+                "order-2 lg:order-1 flex-1 flex flex-col gap-3.5 sm:gap-5 w-full",
                 insightSettings.bannerFrameAlign === "top"
                   ? "self-center lg:self-start"
                   : insightSettings.bannerFrameAlign === "bottom"
                   ? "self-center lg:self-end"
-                  : "self-center lg:self-center"
+                  : "self-center lg:self-center",
+                insightSettings.bannerTitleAlign === "center"
+                  ? "items-center text-center"
+                  : insightSettings.bannerTitleAlign === "right"
+                  ? "items-end text-right"
+                  : "items-start text-left"
               )}
             >
               {/* Badge Sub-Judul Banner */}
               {insightSettings.bannerBadgeShow && (
-                <div className="flex justify-center">
+                <div
+                  className={cn(
+                    "flex",
+                    insightSettings.bannerTitleAlign === "center"
+                      ? "justify-center"
+                      : insightSettings.bannerTitleAlign === "right"
+                      ? "justify-end"
+                      : "justify-start"
+                  )}
+                >
                   <div
                     style={{
                       color: insightSettings.bannerBadgeColor || undefined,
@@ -424,7 +438,14 @@ export default function InsightIndexPage() {
                 style={{
                   maxWidth: insightSettings.bannerDescMaxWidth ? `${insightSettings.bannerDescMaxWidth}px` : "896px",
                 }}
-                className="space-y-2.5 sm:space-y-3.5 w-full flex flex-col items-center text-center mx-auto"
+                className={cn(
+                  "space-y-2.5 sm:space-y-3.5 w-full flex flex-col",
+                  insightSettings.bannerTitleAlign === "center"
+                    ? "items-center text-center mx-auto"
+                    : insightSettings.bannerTitleAlign === "right"
+                    ? "items-end text-right ml-auto"
+                    : "items-start text-left"
+                )}
               >
                 {/* Judul Utama Banner */}
                 <h1
@@ -433,10 +454,15 @@ export default function InsightIndexPage() {
                     color: insightSettings.bannerTitleColor || undefined,
                     fontSize: insightSettings.bannerTitleSize ? `clamp(22px, 5.5vw, ${insightSettings.bannerTitleSize}px)` : undefined,
                     fontWeight: insightSettings.bannerTitleWeight || "800",
-                    textAlign: "center",
+                    textAlign: insightSettings.bannerTitleAlign || "left",
                   }}
                   className={cn(
-                    "tracking-tight text-foreground leading-[1.15] text-center",
+                    "tracking-tight text-foreground leading-[1.15]",
+                    insightSettings.bannerTitleAlign === "center"
+                      ? "text-center"
+                      : insightSettings.bannerTitleAlign === "right"
+                      ? "text-right"
+                      : "text-left",
                     getHeroFontClass(insightSettings.bannerTitleFont || "outfit")
                   )}
                 >
@@ -468,10 +494,15 @@ export default function InsightIndexPage() {
                     style={{
                       color: insightSettings.bannerDescColor || undefined,
                       fontSize: insightSettings.bannerDescSize ? `clamp(12.5px, 3.2vw, ${insightSettings.bannerDescSize}px)` : undefined,
-                      textAlign: "center",
+                      textAlign: insightSettings.bannerTitleAlign || "left",
                     }}
                     className={cn(
-                      "text-muted-foreground leading-relaxed text-center mx-auto",
+                      "text-muted-foreground leading-relaxed",
+                      insightSettings.bannerTitleAlign === "center"
+                        ? "text-center mx-auto"
+                        : insightSettings.bannerTitleAlign === "right"
+                        ? "text-right ml-auto"
+                        : "text-left",
                       getHeroFontClass(insightSettings.bannerDescFont || "poppins")
                     )}
                   >
@@ -481,7 +512,16 @@ export default function InsightIndexPage() {
 
                 {/* Tombol CTA Banner (Opsional) */}
                 {insightSettings.bannerShowCta && (
-                  <div className="pt-1.5 sm:pt-2 flex items-center justify-center">
+                  <div
+                    className={cn(
+                      "pt-1.5 sm:pt-2 flex items-center",
+                      insightSettings.bannerTitleAlign === "center"
+                        ? "justify-center"
+                        : insightSettings.bannerTitleAlign === "right"
+                        ? "justify-end"
+                        : "justify-start"
+                    )}
+                  >
                     <a
                       href={insightSettings.bannerCtaLink || "/contact"}
                       target={insightSettings.bannerCtaLink?.startsWith("http") ? "_blank" : undefined}
