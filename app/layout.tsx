@@ -126,18 +126,16 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   return (
     <html
       lang="id"
-      className={cn("h-full", "antialiased", geistSans.variable, geistMono.variable, "font-sans", outfit.variable, moderustic.variable, poiretOne.variable)}
+      className={cn("light", "h-full", "antialiased", geistSans.variable, geistMono.variable, "font-sans", outfit.variable, moderustic.variable, poiretOne.variable)}
+      style={{ colorScheme: "light" }}
       suppressHydrationWarning
     >
       <body className="min-h-full flex flex-col" suppressHydrationWarning>
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
-        />
         <ThemeProvider
           attribute="class"
           defaultTheme="light"
           forcedTheme="light"
+          enableColorScheme={false}
           enableSystem={false}
           disableTransitionOnChange
         >
@@ -148,6 +146,10 @@ export default async function RootLayout({ children }: { children: React.ReactNo
           <PWAInstallPrompt />
           <PushNotificationManager />
         </ThemeProvider>
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        />
         {process.env.NODE_ENV === "production" && process.env.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID && (
           <GoogleAnalytics gaId={process.env.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID} />
         )}
