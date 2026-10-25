@@ -254,7 +254,8 @@ export function TopBar() {
                         {logoConfig.mode !== "text_only" && Boolean(logoConfig.logoUrl) && (
                             <img
                                 src={logoConfig.logoUrl}
-                                alt={logoConfig.companyName || "CV. Indo Green Nature"}
+                                alt={(logoConfig.mode === "logo_and_text" || logoConfig.mode === "text_only" || !logoConfig.logoUrl) ? "" : (logoConfig.companyName || "CV. Indo Green Nature")}
+                                aria-hidden={(logoConfig.mode === "logo_and_text" || logoConfig.mode === "text_only" || !logoConfig.logoUrl) ? "true" : undefined}
                                 width={160}
                                 height={logoConfig.logoSize || 32}
                                 loading="eager"
