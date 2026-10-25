@@ -142,7 +142,7 @@ export function SeoSettingsModal({ isOpen, onClose }: SeoSettingsModalProps) {
   return (
     <AnimatePresence>
       {isOpen && (
-        <div className="fixed inset-0 z-[110] flex items-center justify-center p-3 sm:p-4 md:p-6">
+        <div className="fixed inset-0 z-[110] flex items-center justify-center p-2 sm:p-3 md:p-5">
           {/* Backdrop Blur */}
           <motion.div
             initial={{ opacity: 0 }}
@@ -152,13 +152,13 @@ export function SeoSettingsModal({ isOpen, onClose }: SeoSettingsModalProps) {
             className="fixed inset-0 bg-black/60 backdrop-blur-xs"
           />
 
-          {/* Modal Container */}
+          {/* Modal Container: Diperlebar full (96vw) agar baris teks panjang dan leluasa */}
           <motion.div
-            initial={{ opacity: 0, scale: 0.95, y: 15 }}
+            initial={{ opacity: 0, scale: 0.96, y: 15 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.95, y: 15 }}
+            exit={{ opacity: 0, scale: 0.96, y: 15 }}
             transition={{ duration: 0.2 }}
-            className="relative w-full max-w-5xl xl:max-w-6xl max-h-[94vh] bg-card text-card-foreground border border-border shadow-2xl rounded-xl flex flex-col overflow-hidden z-10"
+            className="relative w-full max-w-[96vw] 2xl:max-w-[94vw] h-[95vh] max-h-[96vh] bg-card text-card-foreground border border-border shadow-2xl rounded-xl flex flex-col overflow-hidden z-10"
           >
             {/* Modal Header */}
             <div className="px-6 py-4 border-b border-border/80 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 bg-muted/40 shrink-0">
@@ -294,8 +294,8 @@ export function SeoSettingsModal({ isOpen, onClose }: SeoSettingsModalProps) {
               {/* TAB 1: META TAGS & KONTEN */}
               {activeTab === "meta" && (
                 <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-                  {/* Kolom Kiri: Form Input */}
-                  <div className="lg:col-span-7 space-y-5">
+                  {/* Kolom Kiri: Form Input Lebih Luas */}
+                  <div className="lg:col-span-7 xl:col-span-8 space-y-5">
                     {/* Judul Situs */}
                     <div className="space-y-2">
                       <div className="flex items-center justify-between">
@@ -317,7 +317,7 @@ export function SeoSettingsModal({ isOpen, onClose }: SeoSettingsModalProps) {
                         value={config.siteTitle}
                         onChange={(e) => setConfig({ ...config, siteTitle: e.target.value })}
                         placeholder="Contoh: CV. Indo Green Nature | Jasa Maklon Herbal BPOM & Halal Resmi"
-                        className="text-sm"
+                        className="text-sm h-10 w-full"
                       />
                       <p className="text-[11px] text-muted-foreground">
                         Tampil sebagai baris judul utama berwarna biru di halaman hasil pencarian Google.
@@ -342,11 +342,11 @@ export function SeoSettingsModal({ isOpen, onClose }: SeoSettingsModalProps) {
                       </div>
                       <Textarea
                         id="siteDescription"
-                        rows={3}
+                        rows={4}
                         value={config.siteDescription}
                         onChange={(e) => setConfig({ ...config, siteDescription: e.target.value })}
                         placeholder="Jelaskan ringkasan keunggulan jasa maklon herbal Anda secara persuasif..."
-                        className="text-sm leading-relaxed"
+                        className="text-sm leading-relaxed w-full resize-y"
                       />
                       <p className="text-[11px] text-muted-foreground">
                         Teks ringkasan penjelas yang dibaca pengunjung sebelum mengklik tautan website Anda di Google.
@@ -412,7 +412,7 @@ export function SeoSettingsModal({ isOpen, onClose }: SeoSettingsModalProps) {
                   </div>
 
                   {/* Kolom Kanan: Live Preview & Quick Audit */}
-                  <div className="lg:col-span-5 space-y-4 lg:sticky lg:top-0">
+                  <div className="lg:col-span-5 xl:col-span-4 space-y-4 lg:sticky lg:top-0">
                     <div className="p-4 rounded-xl border border-border/80 bg-card shadow-sm space-y-3">
                       <div className="flex items-center justify-between pb-2 border-b border-border/60">
                         <span className="text-xs font-semibold text-foreground flex items-center gap-1.5">
@@ -430,7 +430,7 @@ export function SeoSettingsModal({ isOpen, onClose }: SeoSettingsModalProps) {
                           <div className="flex flex-col leading-none">
                             <span className="text-[11px] font-semibold text-foreground">CV. Indo Green Nature</span>
                             <span className="text-[10px] text-muted-foreground font-mono truncate max-w-[200px]">
-                              {config.canonicalUrl || "https://indogreennature.com"}
+                              {config.canonicalUrl || "https://www.indogreennature.com"}
                             </span>
                           </div>
                         </div>
@@ -474,9 +474,9 @@ export function SeoSettingsModal({ isOpen, onClose }: SeoSettingsModalProps) {
                 </div>
               )}
 
-              {/* TAB 2: SIMULASI PRATINJAU GOOGLE */}
+              {/* TAB 2: SIMULASI PRATINJAU GOOGLE LEBAR */}
               {activeTab === "preview" && (
-                <div className="space-y-4 max-w-3xl mx-auto">
+                <div className="space-y-4 max-w-5xl mx-auto">
                   <div className="flex items-center justify-between pb-2 border-b border-border/60">
                     <div className="flex items-center gap-2">
                       <span className="text-xs font-semibold">Simulasi Hasil Pencarian Google</span>
@@ -654,9 +654,9 @@ export function SeoSettingsModal({ isOpen, onClose }: SeoSettingsModalProps) {
                     <span className="text-xs font-semibold text-muted-foreground block">
                       Simulasi Preview Link di WhatsApp:
                     </span>
-                    <div className="w-full max-w-md rounded-xl overflow-hidden border border-border/80 bg-card shadow-sm">
+                    <div className="w-full max-w-xl rounded-xl overflow-hidden border border-border/80 bg-card shadow-sm">
                       {config.ogImageUrl && (
-                        <div className="w-full h-48 bg-zinc-800 overflow-hidden relative">
+                        <div className="w-full h-56 bg-zinc-800 overflow-hidden relative">
                           <img
                             src={config.ogImageUrl}
                             alt="Social Share Thumbnail"
