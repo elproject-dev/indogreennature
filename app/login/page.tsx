@@ -22,27 +22,21 @@ export default function LoginPage() {
  const [isCheckingSession, setIsCheckingSession] = useState(true)
  const router = useRouter()
 
- // Inisialisasi background dari localStorage agar sama dan instan dengan landing page
- const [bgDesktop, setBgDesktop] = useState<string>(() => {
-  if (typeof window !== "undefined") {
-   return localStorage.getItem("landing_bg_desktop") || "/images/about_hero_banner.jpg"
-  }
-  return "/images/about_hero_banner.jpg"
- })
- const [bgMobile, setBgMobile] = useState<string>(() => {
-  if (typeof window !== "undefined") {
-   return localStorage.getItem("landing_bg_mobile") || "/images/about_hero_banner.jpg"
-  }
-  return "/images/about_hero_banner.jpg"
- })
- const [bgFit, setBgFit] = useState<string>(() => {
-  if (typeof window !== "undefined") {
-   return localStorage.getItem("landing_bg_fit") || "fill"
-  }
-  return "fill"
- })
+ // Inisialisasi background secara aman untuk SSR & hidrasi
+ const [bgDesktop, setBgDesktop] = useState<string>("/images/about_hero_banner.jpg")
+ const [bgMobile, setBgMobile] = useState<string>("/images/about_hero_banner.jpg")
+ const [bgFit, setBgFit] = useState<string>("fill")
 
  React.useEffect(() => {
+  try {
+   const cachedDesktop = localStorage.getItem("landing_bg_desktop")
+   if (cachedDesktop) setBgDesktop(cachedDesktop)
+   const cachedMobile = localStorage.getItem("landing_bg_mobile")
+   if (cachedMobile) setBgMobile(cachedMobile)
+   const cachedFit = localStorage.getItem("landing_bg_fit")
+   if (cachedFit) setBgFit(cachedFit)
+  } catch (e) {}
+
   const fetchBackgrounds = async () => {
    try {
     const { data } = await supabase

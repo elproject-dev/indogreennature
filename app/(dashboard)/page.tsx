@@ -264,16 +264,7 @@ export default function HomePage() {
   const [heroSubtextFontWeight, setHeroSubtextFontWeight] = useState(DEFAULT_HERO_SUBTEXT_FONT_WEIGHT);
   const [heroDesc, setHeroDesc] = useState(DEFAULT_HERO_DESC);
   const [heroDescColor, setHeroDescColor] = useState(DEFAULT_HERO_DESC_COLOR);
-  const [heroDescSize, setHeroDescSize] = useState<number | null>(() => {
-    if (typeof window !== "undefined") {
-      const stored = localStorage.getItem("hero_banner_desc_size");
-      if (stored) {
-        const num = parseInt(stored, 10);
-        if (!isNaN(num)) return num;
-      }
-    }
-    return null;
-  });
+  const [heroDescSize, setHeroDescSize] = useState<number | null>(null);
   const [heroPoints, setHeroPoints] = useState<string[]>(DEFAULT_HERO_POINTS);
   const [heroPointsFontWeight, setHeroPointsFontWeight] = useState(DEFAULT_HERO_POINTS_FONT_WEIGHT);
   const [heroPointsColor, setHeroPointsColor] = useState(DEFAULT_HERO_POINTS_COLOR);
@@ -285,16 +276,7 @@ export default function HomePage() {
   const [heroImageFit, setHeroImageFit] = useState<"cover" | "contain">(DEFAULT_HERO_IMAGE_FIT);
   const [hero2Text, setHero2Text] = useState("Nikmati Kualitas Herbal Pilihan Premium \nCV. Indo Green Nature \n100 % Alami & Terpercaya");
   const [hero2Font, setHero2Font] = useState("jockey");
-  const [hero2FontSize, setHero2FontSize] = useState<number | null>(() => {
-    if (typeof window !== "undefined") {
-      const stored = localStorage.getItem("hero_banner2_font_size");
-      if (stored) {
-        const num = parseInt(stored, 10);
-        if (!isNaN(num)) return num;
-      }
-    }
-    return null;
-  });
+  const [hero2FontSize, setHero2FontSize] = useState<number | null>(null);
   const [hero2Image, setHero2Image] = useState("");
   // Pengenalan (Mengenal Indo Green Nature) states
   const [pengenalanTitle, setPengenalanTitle] = useState(DEFAULT_PENGENALAN_TITLE);

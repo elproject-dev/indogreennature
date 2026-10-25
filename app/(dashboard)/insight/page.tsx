@@ -905,7 +905,7 @@ export default function InsightIndexPage() {
                         {/* Article meta info */}
                         <div className="p-5 space-y-2.5">
                           <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                            <span>
+                            <span suppressHydrationWarning>
                               {art.created_at
                                 ? new Date(art.created_at).toLocaleDateString(
                                     "id-ID",

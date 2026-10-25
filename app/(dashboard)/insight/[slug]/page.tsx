@@ -402,7 +402,7 @@ export default function InsightDetailPage() {
               {article.category}
             </Badge>
             <span className="text-[11px] sm:text-xs text-muted-foreground">•</span>
-            <span className="text-[11px] sm:text-xs text-muted-foreground flex items-center gap-1">
+            <span suppressHydrationWarning className="text-[11px] sm:text-xs text-muted-foreground flex items-center gap-1">
               <CalendarIcon className="size-3" />
               {article.created_at
                 ? new Date(article.created_at).toLocaleDateString("id-ID", {
