@@ -188,7 +188,9 @@ export function AdminFAB() {
             </AnimatePresence>
 
             <button
+                type="button"
                 onClick={() => setIsOpen(!isOpen)}
+                aria-label={isOpen ? "Tutup Menu Pengaturan Admin" : "Buka Menu Pengaturan Admin"}
                 className="w-14 h-14 bg-primary-soft dark:bg-background text-primary rounded-full flex items-center justify-center shadow-lg hover:shadow-xl hover:scale-105 active:scale-95 transition-all duration-200"
             >
                 <motion.div
@@ -198,6 +200,7 @@ export function AdminFAB() {
                 >
                     {isOpen ? <X className="w-6 h-6" /> : <Settings className="w-6 h-6" />}
                 </motion.div>
+                <span className="sr-only">{isOpen ? "Tutup Menu Pengaturan Admin" : "Buka Menu Pengaturan Admin"}</span>
             </button>
 
             {/* Modal Pengaturan SEO */}

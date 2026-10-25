@@ -73,9 +73,14 @@ export function SiteHeader() {
         {/* Mobile: Profile avatar dropdown */}
         <div className="lg:hidden -ml-1">
           <DropdownMenu>
-            <DropdownMenuTrigger className="flex items-center justify-center outline-none">
+            <DropdownMenuTrigger
+              className="flex items-center justify-center outline-none cursor-pointer"
+              aria-label={user?.name ? `Menu Profil ${user.name}` : "Menu Profil Pengguna"}
+            >
               {isCheckingUser ? (
-                <div className="size-8 rounded-full bg-muted animate-pulse" />
+                <div className="size-8 rounded-full bg-muted animate-pulse">
+                  <span className="sr-only">Memeriksa Pengguna</span>
+                </div>
               ) : (
                 <Avatar className="size-8 rounded-full">
                   <AvatarImage src={user?.avatar || undefined} alt={user?.name || "User"} referrerPolicy="no-referrer" />

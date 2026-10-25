@@ -337,7 +337,10 @@ export function TopBar() {
                 {/* Right side: Avatar & User Dropdown */}
                 <div className="flex items-center gap-2.5 sm:gap-3 lg:gap-[16px]" suppressHydrationWarning>
                     <DropdownMenu>
-                        <DropdownMenuTrigger className="flex items-center justify-center outline-none">
+                        <DropdownMenuTrigger
+                            className="flex items-center justify-center outline-none cursor-pointer"
+                            aria-label={user.name && user.name !== "Belum Login" ? `Menu Akun ${user.name}` : "Menu Akun Pengguna"}
+                        >
                             {user.name !== "Belum Login" && Boolean(user.name) ? (
                                 <Avatar className="w-[36px] h-[36px] rounded-full border-2 border-primary/30 cursor-pointer hover:opacity-90 transition-opacity bg-card-alt">
                                     <AvatarImage src={user.avatar || undefined} alt={user.name || "User"} referrerPolicy="no-referrer" />
@@ -348,6 +351,7 @@ export function TopBar() {
                             ) : (
                                 <div className="w-[36px] h-[36px] rounded-full border-2 border-primary/30 cursor-pointer hover:opacity-90 transition-opacity flex items-center justify-center bg-card-alt text-primary">
                                     <CircleUser className="w-[20px] h-[20px] stroke-[1.5]" />
+                                    <span className="sr-only">Menu Akun Pengguna</span>
                                 </div>
                             )}
                         </DropdownMenuTrigger>
