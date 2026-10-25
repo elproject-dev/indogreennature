@@ -534,9 +534,12 @@ export default function HomePage() {
   
   // Selalu aktif saat halaman home dimuat/direfresh agar spinner selalu muncul
   const [isLoading, setIsLoading] = useState(true);
-  const [articles, setArticles] = useState<any[]>([]);
-  const [runningTexts, setRunningTexts] = useState<any[]>([]);
-  const [rtConfig, setRtConfig] = useState({ is_enabled: false, speed: 'normal' });
+  const [runningTexts, setRunningTexts] = useState<any[]>([
+    { id: 1, text: "Selamat datang di CV. Indo Green Nature!", is_active: true },
+    { id: 4, text: "Kami buka setiap hari pukul 07.00 – 22.00 WIB. Terima kasih telah berbelanja bersama kami!", is_active: true },
+    { id: 5, text: "Promo akhir pekan! Dapatkan diskon hingga 50% untuk produk pilihan setiap Sabtu & Minggu.", is_active: true }
+  ]);
+  const [rtConfig, setRtConfig] = useState({ is_enabled: true, speed: 'slow' });
   const [homeBlocks, setHomeBlocks] = useState<HomeBlock[]>(DEFAULT_HOME_BLOCKS);
   const [selectedProduct, setSelectedProduct] = useState<any | null>(null);
   const [extLinks, setExtLinks] = useState<Record<string, string>>({});
@@ -3891,7 +3894,7 @@ export default function HomePage() {
                 {/* layer-: Deskripsi Frame */}
                 <p
                   style={{ color: cardTextColor }}
-                  className="mt-8 sm:mt-12 lg:mt-16 max-w-[295px] text-[13px] sm:text-[14px] font-normal leading-relaxed text-center opacity-95 line-clamp-6 drop-shadow-xs"
+                  className="mt-8 sm:mt-12 lg:mt-16 max-w-[295px] text-[13px] sm:text-[14px] font-medium leading-relaxed text-center line-clamp-6 drop-shadow-xs"
                 >
                   {cardDesc}
                 </p>
@@ -4617,6 +4620,7 @@ export default function HomePage() {
             >
               {/* Watermark Angka Langkah di Pojok Kanan Atas */}
               <span
+                role="presentation"
                 aria-hidden="true"
                 className="absolute top-3 right-4 sm:top-4 sm:right-5 text-[32px] sm:text-[40px] font-bold leading-none select-none pointer-events-none transition-opacity"
                 style={{
@@ -4638,7 +4642,7 @@ export default function HomePage() {
 
               {/* Deskripsi Langkah */}
               <p
-                className="text-sm sm:text-[16px] font-normal leading-relaxed opacity-95"
+                className="text-sm sm:text-[16px] font-medium leading-relaxed"
                 style={{ color: cardText }}
               >
                 {renderFormattedText(item.desc)}
@@ -5019,11 +5023,11 @@ export default function HomePage() {
                                       {ulasan.name}
                                     </p>
                                     {ulasan.role && (
-                                      <p className="text-[11px] text-gray-400 mt-0.5 truncate leading-tight">
+                                      <p className="text-[11px] text-gray-600 font-medium mt-0.5 truncate leading-tight">
                                         {ulasan.role}
                                       </p>
                                     )}
-                                    <p className="text-[10px] text-gray-400 mt-0.5">{ulasan.date}</p>
+                                    <p className="text-[10px] text-gray-600 mt-0.5">{ulasan.date}</p>
                                   </div>
                                 </div>
 
@@ -5045,17 +5049,17 @@ export default function HomePage() {
                               </div>
 
                               {/* Teks ulasan */}
-                              <p className="text-xs sm:text-[13px] text-gray-600 leading-relaxed line-clamp-4">
+                              <p className="text-xs sm:text-[13px] text-gray-700 leading-relaxed line-clamp-4">
                                 "{ulasan.text}"
                               </p>
                             </div>
 
                             {/* Footer kartu */}
                             <div className="mt-4 pt-3 border-t border-gray-100 flex items-center justify-between">
-                              <span className="text-[11px] text-gray-400 italic">ulasan terverifikasi</span>
+                              <span className="text-[11px] text-gray-600 font-medium italic">ulasan terverifikasi</span>
                               <div className="inline-flex items-center gap-1">
-                                <span className="text-xs font-bold text-yellow-500 leading-none">{ulasan.rating}.0</span>
-                                <Star className="w-3.5 h-3.5 fill-yellow-400 text-yellow-400 shrink-0" />
+                                <span className="text-xs font-bold text-amber-700 leading-none">{ulasan.rating}.0</span>
+                                <Star className="w-3.5 h-3.5 fill-amber-500 text-amber-500 shrink-0" />
                               </div>
                             </div>
                           </div>

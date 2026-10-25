@@ -184,7 +184,7 @@ export const DEFAULT_SOLUSI_BISNIS_TITLE_FONT_WEIGHT = "bold"
 export const DEFAULT_SOLUSI_BISNIS_DESC_ALIGN: "center" | "left" | "justify" = "left"
 export const DEFAULT_SOLUSI_BISNIS_VALIGN: "center" | "top" = "center"
 
-export const DEFAULT_SOLUSI_BISNIS_CARD_TITLE_COLOR = "#E58C05"
+export const DEFAULT_SOLUSI_BISNIS_CARD_TITLE_COLOR = "#B45309"
 export const DEFAULT_SOLUSI_BISNIS_CARD_TITLE_SIZE = 20
 export const DEFAULT_SOLUSI_BISNIS_CARD_TITLE_FONT_WEIGHT = "bold"
 export const DEFAULT_SOLUSI_BISNIS_CARD_TITLE_FONT = "poppins"

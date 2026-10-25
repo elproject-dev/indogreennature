@@ -272,19 +272,24 @@ function CarouselDots({
   if (count <= 1) return null
 
   return (
-    <div className={cn("flex justify-center gap-1.5", className)} {...props}>
+    <div className={cn("flex justify-center items-center gap-1", className)} {...props}>
       {Array.from({ length: count }).map((_, index) => {
         const isActive = selectedIndex % count === index
         return (
           <button
             key={index}
-            className={cn(
-              "h-2 w-2 rounded-full transition-all",
-              isActive ? "bg-primary w-4" : "bg-primary/20"
-            )}
+            type="button"
+            className="flex items-center justify-center min-w-[28px] min-h-[28px] p-1 rounded-full cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-primary"
             onClick={() => api?.scrollTo(index)}
             aria-label={`Go to slide ${index + 1}`}
-          />
+          >
+            <span
+              className={cn(
+                "h-2 rounded-full transition-all block",
+                isActive ? "bg-primary w-5" : "bg-primary/20 w-2 hover:bg-primary/40"
+              )}
+            />
+          </button>
         )
       })}
     </div>

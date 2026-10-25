@@ -255,7 +255,9 @@ export function TopBar() {
                             <img
                                 src={logoConfig.logoUrl}
                                 alt={logoConfig.companyName || "CV. Indo Green Nature"}
-                                loading="lazy"
+                                width={160}
+                                height={logoConfig.logoSize || 32}
+                                loading="eager"
                                 decoding="async"
                                 style={{
                                     height: `${logoConfig.logoSize}px`,
@@ -302,14 +304,16 @@ export function TopBar() {
                             ? (pathname === "/" || pathname?.startsWith('/home'))
                             : pathname?.startsWith(item.href);
 
+                        const resolvedActiveColor = (!logoConfig.menuActiveColor || logoConfig.menuActiveColor === "default" || logoConfig.menuActiveColor.toLowerCase() === "#32e24f")
+                            ? "#ffffff"
+                            : logoConfig.menuActiveColor;
+
                         const itemStyle: React.CSSProperties = {
                             fontSize: `${logoConfig.menuTextSize || 20}px`,
                             lineHeight: `${(logoConfig.menuTextSize || 20) + 5}px`,
                             fontFamily: getHeroFontFamily(logoConfig.menuFont),
                             ...(isActive
-                                ? (logoConfig.menuActiveColor && logoConfig.menuActiveColor !== "default"
-                                    ? { color: logoConfig.menuActiveColor }
-                                    : {})
+                                ? { color: resolvedActiveColor }
                                 : (logoConfig.menuTextColor && logoConfig.menuTextColor !== "default"
                                     ? { color: logoConfig.menuTextColor }
                                     : {})),
@@ -323,9 +327,9 @@ export function TopBar() {
                                 className={cn(
                                     "transition-colors",
                                     getHeroFontClass(logoConfig.menuFont),
-                                    isActive ? "font-[700] hover:opacity-80" : "font-[300] hover:opacity-80",
-                                    isActive && (!logoConfig.menuActiveColor || logoConfig.menuActiveColor === "default") && "text-primary-soft",
-                                    !isActive && (!logoConfig.menuTextColor || logoConfig.menuTextColor === "default") && "text-primary-foreground hover:text-primary-soft"
+                                    isActive ? "font-[700] hover:opacity-90 underline underline-offset-4 decoration-2" : "font-[300] hover:opacity-80",
+                                    isActive && (!logoConfig.menuActiveColor || logoConfig.menuActiveColor === "default") && "text-white",
+                                    !isActive && (!logoConfig.menuTextColor || logoConfig.menuTextColor === "default") && "text-primary-foreground hover:text-white"
                                 )}
                             >
                                 {item.label}
