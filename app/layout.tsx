@@ -27,86 +27,95 @@ const geistMono = Geist_Mono({
   preload: false,
 });
 
-export const metadata: Metadata = {
-  title: {
-    default: "CV. Indo Green Nature | Jasa Maklon Herbal BPOM & Halal Resmi",
-    template: "%s | CV. Indo Green Nature",
-  },
-  description: "Pabrik dan jasa maklon herbal terpercaya di Indonesia. Melayani formulasi minuman serbuk, kapsul herbal, teh herbal berstandar BPOM & Halal dengan legalitas lengkap.",
-  keywords: [
-    "maklon herbal",
-    "jasa maklon herbal",
-    "maklon herbal bpom",
-    "pabrik herbal indonesia",
-    "maklon minuman serbuk",
-    "maklon kapsul herbal",
-    "maklon teh herbal",
-    "cv indo green nature",
-  ],
-  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || "https://www.indogreennature.com"),
-  alternates: {
-    canonical: "/",
-  },
-  openGraph: {
-    title: "CV. Indo Green Nature | Jasa Maklon Herbal BPOM & Halal Resmi",
-    description: "Pabrik dan jasa maklon herbal terpercaya di Indonesia. Melayani formulasi minuman serbuk, kapsul herbal, teh herbal berstandar BPOM & Halal dengan legalitas lengkap.",
-    url: "https://www.indogreennature.com",
-    siteName: "CV. Indo Green Nature",
-    images: [
-      {
-        url: "https://ivtpcjwwenjdatxxtjqm.supabase.co/storage/v1/object/public/media/hero_banner/1792330129667-hsobqa.webp",
-        width: 1200,
-        height: 630,
-        alt: "CV. Indo Green Nature - Jasa Maklon Herbal",
-      },
-    ],
-    locale: "id_ID",
-    type: "website",
-  },
-  twitter: {
-    card: "summary_large_image",
-    title: "CV. Indo Green Nature | Jasa Maklon Herbal BPOM & Halal Resmi",
-    description: "Pabrik dan jasa maklon herbal terpercaya di Indonesia. Melayani formulasi minuman serbuk, kapsul herbal, teh herbal berstandar BPOM & Halal dengan legalitas lengkap.",
-    images: ["https://ivtpcjwwenjdatxxtjqm.supabase.co/storage/v1/object/public/media/hero_banner/1792330129667-hsobqa.webp"],
-  },
-  robots: {
-    index: true,
-    follow: true,
-    googleBot: {
-      index: true,
-      follow: true,
-      "max-video-preview": -1,
-      "max-image-preview": "large",
-      "max-snippet": -1,
+import { fetchSeoConfig, DEFAULT_SEO_CONFIG } from "@/lib/seo-settings";
+
+export const revalidate = 60; // Refresh cache server setiap 60 detik
+
+export async function generateMetadata(): Promise<Metadata> {
+  const seo = await fetchSeoConfig();
+  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || seo.canonicalUrl || "https://www.indogreennature.com";
+  const siteTitle = seo.siteTitle || DEFAULT_SEO_CONFIG.siteTitle;
+  const siteDescription = seo.siteDescription || DEFAULT_SEO_CONFIG.siteDescription;
+  const ogImage = seo.ogImageUrl || DEFAULT_SEO_CONFIG.ogImageUrl;
+  const keywords = seo.siteKeywords
+    ? seo.siteKeywords.split(",").map((k) => k.trim()).filter(Boolean)
+    : DEFAULT_SEO_CONFIG.siteKeywords.split(",").map((k) => k.trim());
+
+  return {
+    title: {
+      default: siteTitle,
+      template: `%s | ${seo.companyName || "CV. Indo Green Nature"}`,
     },
-  },
-  icons: {
-    icon: [{ url: "/pwa-icon.png", type: "image/png" }],
-    shortcut: "/pwa-icon.png",
-    apple: "/pwa-icon.png",
-  },
-  appleWebApp: {
-    capable: true,
-    statusBarStyle: "default",
-    title: "CV. Indo Green Nature",
-  },
-  verification: {
-    google: "LGVKTK0moSrDgV9sOu-cy4n5hK3bPya07IQ_rB-WT50",
-  },
-};
+    description: siteDescription,
+    keywords: keywords,
+    metadataBase: new URL(baseUrl),
+    alternates: {
+      canonical: "/",
+    },
+    openGraph: {
+      title: siteTitle,
+      description: siteDescription,
+      url: baseUrl,
+      siteName: seo.companyName || "CV. Indo Green Nature",
+      images: [
+        {
+          url: ogImage,
+          width: 1200,
+          height: 630,
+          alt: siteTitle,
+        },
+      ],
+      locale: "id_ID",
+      type: "website",
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: siteTitle,
+      description: siteDescription,
+      images: [ogImage],
+    },
+    robots: {
+      index: seo.robotsIndex !== false,
+      follow: seo.robotsIndex !== false,
+      googleBot: {
+        index: seo.robotsIndex !== false,
+        follow: seo.robotsIndex !== false,
+        "max-video-preview": -1,
+        "max-image-preview": "large",
+        "max-snippet": -1,
+      },
+    },
+    icons: {
+      icon: [{ url: "/pwa-icon.png", type: "image/png" }],
+      shortcut: "/pwa-icon.png",
+      apple: "/pwa-icon.png",
+    },
+    appleWebApp: {
+      capable: true,
+      statusBarStyle: "default",
+      title: seo.companyName || "CV. Indo Green Nature",
+    },
+    verification: {
+      google: seo.googleVerification || "LGVKTK0moSrDgV9sOu-cy4n5hK3bPya07IQ_rB-WT50",
+    },
+  };
+}
 
 export const viewport: Viewport = {
   themeColor: "#000000",
 };
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default async function RootLayout({ children }: { children: React.ReactNode }) {
+  const seo = await fetchSeoConfig();
+  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || seo.canonicalUrl || "https://www.indogreennature.com";
+
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "Organization",
-    "name": "CV. Indo Green Nature",
-    "url": "https://www.indogreennature.com",
-    "logo": "https://www.indogreennature.com/pwa-icon.png",
-    "description": "Pabrik dan jasa maklon herbal terpercaya di Indonesia melayani formulasi minuman serbuk, kapsul herbal, teh herbal berstandar BPOM & Halal.",
+    "name": seo.companyName || "CV. Indo Green Nature",
+    "url": baseUrl,
+    "logo": `${baseUrl}/pwa-icon.png`,
+    "description": seo.siteDescription,
     "sameAs": [
       "https://instagram.com/indogreennature",
       "https://facebook.com/indogreennature",
