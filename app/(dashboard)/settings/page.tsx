@@ -10548,7 +10548,7 @@ export default function SettingsPage() {
                                                                     }}
                                                                     className={cn(
                                                                         "w-full h-full transition-transform duration-150",
-                                                                        pengenalanImageFit === "contain" ? "object-contain" : pengenalanImageFit === "fill" ? "object-fill" : "object-cover"
+                                                                        pengenalanImageFit === "contain" ? "object-contain" : "object-cover"
                                                                     )}
                                                                 />
                                                             ) : (

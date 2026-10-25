@@ -3722,15 +3722,17 @@ export default function HomePage() {
                     <img
                       src={pengenalanImage}
                       alt={pengenalanTitle || "Mengenal Indo Green Nature"}
+                      width={pengenalanImageSize || 800}
+                      height={Math.round((pengenalanImageSize || 800) / (16 / 9))}
+                      loading="lazy"
+                      decoding="async"
                       style={{
                         transform: pengenalanImageScale !== 100 ? `scale(${pengenalanImageScale / 100})` : undefined,
                         transformOrigin: 'center center'
                       }}
                       className={cn(
                         "w-full h-full transition-transform duration-150",
-                        pengenalanImageFit === 'contain' && "object-contain",
-                        pengenalanImageFit === 'fill' && "object-fill",
-                        (pengenalanImageFit === 'cover' || !pengenalanImageFit) && "object-cover"
+                        pengenalanImageFit === 'contain' ? "object-contain" : "object-cover"
                       )}
                     />
                   ) : (
