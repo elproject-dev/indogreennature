@@ -532,8 +532,8 @@ export default function HomePage() {
   const [activeVideoModalUrl, setActiveVideoModalUrl] = useState<string | null>(null);
   const [activeVideoModalTitle, setActiveVideoModalTitle] = useState<string>("Video Profil");
   
-  // Selalu aktif saat halaman home dimuat/direfresh agar spinner selalu muncul
-  const [isLoading, setIsLoading] = useState(true);
+  // State loading tidak lagi memblokir layar awal agar SSR langsung tampil instan (menghilangkan CLS & delay)
+  const [isLoading, setIsLoading] = useState(false);
   const [articles, setArticles] = useState<any[]>([]);
   const [runningTexts, setRunningTexts] = useState<any[]>([
     { id: 1, text: "Selamat datang di CV. Indo Green Nature!", is_active: true },
@@ -3433,11 +3433,7 @@ export default function HomePage() {
       } catch (error) {
         console.error("Error fetching data:", error);
       } finally {
-        const elapsed = Date.now() - startTime;
-        const delay = Math.max(0, 350 - elapsed);
-        setTimeout(() => {
-          setIsLoading(false);
-        }, delay);
+        setIsLoading(false);
       }
     }
     fetchData();

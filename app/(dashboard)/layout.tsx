@@ -112,7 +112,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     return (
         <>
             <div className="flex flex-col min-h-screen w-full bg-card-alt dark:bg-background transition-colors">
-                <div className="w-full h-[60px] shrink-0 z-50 sticky top-0 relative">
+                <div className="w-full h-[50px] shrink-0 z-50 sticky top-0 relative">
                     <TopBar />
                 </div>
                 <div className="flex flex-1 flex-col pb-16 lg:pb-0">
