@@ -9,6 +9,21 @@ const withPWA = withPWAInit({
     navigateFallbackDenylist: [/^\/api\/.*/, /^\/auth\/.*/, /^\/login(\/.*)?$/],
     runtimeCaching: [
       {
+        urlPattern: /^https:\/\/(www\.)?(googletagmanager|google-analytics)\.com\/.*/i,
+        handler: "NetworkOnly",
+        options: {
+          plugins: [
+            {
+              handlerDidError: async () =>
+                new Response("/* gtm offline or blocked */", {
+                  status: 200,
+                  headers: { "Content-Type": "application/javascript" },
+                }),
+            },
+          ],
+        },
+      },
+      {
         urlPattern: ({ url }: { url: URL }) =>
           url.hostname.includes("supabase.co") ||
           url.pathname.startsWith("/auth") ||
