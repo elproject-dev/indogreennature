@@ -28,8 +28,20 @@ export function PWAInstallPrompt() {
         } else {
           navigator.serviceWorker
             .register("/sw.js")
-            .then((reg) => console.log("Service Worker registered successfully", reg))
+            .then((reg) => {
+              console.log("Service Worker registered successfully", reg);
+              // Segera periksa pembaruan Service Worker jika ada versi baru yang dideploy
+              reg.update().catch(() => {});
+            })
             .catch((err) => console.log("Service Worker registration failed: ", err));
+
+          let refreshing = false;
+          navigator.serviceWorker.addEventListener("controllerchange", () => {
+            if (!refreshing) {
+              refreshing = true;
+              window.location.reload();
+            }
+          });
         }
       }
 

@@ -9,13 +9,13 @@ const withPWA = withPWAInit({
     navigateFallbackDenylist: [/^\/api\/.*/, /^\/auth\/.*/, /^\/login(\/.*)?$/],
     runtimeCaching: [
       {
-        urlPattern: /^https:\/\/(www\.)?(googletagmanager|google-analytics)\.com\/.*/i,
+        urlPattern: /^https:\/\/([a-zA-Z0-9-]+\.)*(googletagmanager\.com|google-analytics\.com|analytics\.google\.com|doubleclick\.net)\/.*/i,
         handler: "NetworkOnly",
         options: {
           plugins: [
             {
               handlerDidError: async () =>
-                new Response("/* gtm offline or blocked */", {
+                new Response("/* analytics offline or blocked */", {
                   status: 200,
                   headers: { "Content-Type": "application/javascript" },
                 }),
@@ -30,6 +30,23 @@ const withPWA = withPWAInit({
           url.pathname.startsWith("/login") ||
           url.pathname.startsWith("/api"),
         handler: "NetworkOnly",
+      },
+      {
+        urlPattern: ({ sameOrigin }: { sameOrigin: boolean }) => !sameOrigin,
+        handler: "NetworkFirst",
+        options: {
+          cacheName: "cross-origin",
+          networkTimeoutSeconds: 10,
+          plugins: [
+            {
+              handlerDidError: async () =>
+                new Response("/* cross-origin offline */", {
+                  status: 200,
+                  headers: { "Content-Type": "text/plain" },
+                }),
+            },
+          ],
+        },
       },
     ],
   },
