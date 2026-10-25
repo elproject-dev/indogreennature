@@ -534,6 +534,7 @@ export default function HomePage() {
   
   // Selalu aktif saat halaman home dimuat/direfresh agar spinner selalu muncul
   const [isLoading, setIsLoading] = useState(true);
+  const [articles, setArticles] = useState<any[]>([]);
   const [runningTexts, setRunningTexts] = useState<any[]>([
     { id: 1, text: "Selamat datang di CV. Indo Green Nature!", is_active: true },
     { id: 4, text: "Kami buka setiap hari pukul 07.00 – 22.00 WIB. Terima kasih telah berbelanja bersama kami!", is_active: true },
