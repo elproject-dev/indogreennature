@@ -29,6 +29,7 @@ import {
   Loader2,
   Trash2,
   Image as ImageIcon,
+  ClipboardCheck,
 } from "lucide-react"
 import { toast } from "sonner"
 import { Button } from "@/components/ui/button"
@@ -457,7 +458,7 @@ export function SeoSettingsModal({ isOpen, onClose }: SeoSettingsModalProps) {
                     {/* Status Audit Checklist */}
                     <div className="p-3.5 rounded-xl bg-muted/40 border border-border/60 space-y-2.5 text-xs">
                       <span className="font-semibold text-foreground flex items-center gap-1.5">
-                        <Sparkles className="w-4 h-4 text-amber-500" />
+                        <ClipboardCheck className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
                         <span>Audit Skor Teks SEO:</span>
                       </span>
                       <div className="space-y-2 text-[11px]">
@@ -541,7 +542,7 @@ export function SeoSettingsModal({ isOpen, onClose }: SeoSettingsModalProps) {
                   {/* Checklist Rekomendasi */}
                   <div className="p-4 rounded-xl bg-muted/40 border border-border/60 space-y-2 text-xs">
                     <span className="font-semibold text-foreground flex items-center gap-1.5">
-                      <Sparkles className="w-4 h-4 text-amber-500" />
+                      <ClipboardCheck className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
                       <span>Audit Cepat SEO Anda:</span>
                     </span>
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 text-[11px]">
