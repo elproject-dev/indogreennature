@@ -25,6 +25,10 @@ import {
   Bot,
   Activity,
   Send,
+  Upload,
+  Loader2,
+  Trash2,
+  Image as ImageIcon,
 } from "lucide-react"
 import { toast } from "sonner"
 import { Button } from "@/components/ui/button"
@@ -39,6 +43,7 @@ import {
   fetchSeoConfig,
   saveSeoConfig,
 } from "@/lib/seo-settings"
+import { uploadMedia } from "@/lib/storage"
 import { cn } from "@/lib/utils"
 
 interface SeoSettingsModalProps {
@@ -51,12 +56,49 @@ export function SeoSettingsModal({ isOpen, onClose }: SeoSettingsModalProps) {
   const [isSaving, setIsSaving] = useState(false)
   const [activeTab, setActiveTab] = useState<"meta" | "social" | "google" | "pagespeed" | "preview">("meta")
   const [previewDevice, setPreviewDevice] = useState<"desktop" | "mobile">("desktop")
+  const [isUploadingOg, setIsUploadingOg] = useState(false)
+  const fileInputRef = React.useRef<HTMLInputElement>(null)
 
   useEffect(() => {
     if (isOpen) {
       fetchSeoConfig().then((data) => setConfig(data))
     }
   }, [isOpen])
+
+  const handleOgFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+
+    if (!file.type.startsWith("image/")) {
+      toast.error("File harus berupa gambar (JPG, PNG, atau WebP)")
+      return
+    }
+
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error("Ukuran file maksimal 5MB")
+      return
+    }
+
+    setIsUploadingOg(true)
+    const toastId = toast.loading("Mengunggah dan mengompresi gambar media sosial...")
+
+    try {
+      const url = await uploadMedia(file, "seo")
+      if (url) {
+        setConfig((prev) => ({ ...prev, ogImageUrl: url }))
+        toast.success("Gambar media sosial berhasil diunggah!", { id: toastId })
+      } else {
+        toast.error("Gagal mengunggah gambar ke storage", { id: toastId })
+      }
+    } catch (err) {
+      console.error("Upload error:", err)
+      toast.error("Terjadi kesalahan saat mengunggah gambar", { id: toastId })
+    } finally {
+      setIsUploadingOg(false)
+      if (fileInputRef.current) fileInputRef.current.value = ""
+    }
+  }
+
 
   const handleSave = async () => {
     setIsSaving(true)
@@ -519,19 +561,81 @@ export function SeoSettingsModal({ isOpen, onClose }: SeoSettingsModalProps) {
               {activeTab === "social" && (
                 <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
                   <div className="lg:col-span-6 space-y-4">
-                    <div className="space-y-2">
-                      <Label htmlFor="ogImageUrl" className="text-xs font-semibold">
-                        URL Gambar Berbagi / Open Graph Image (1200 x 630 px)
-                      </Label>
-                      <Input
-                        id="ogImageUrl"
-                        value={config.ogImageUrl}
-                        onChange={(e) => setConfig({ ...config, ogImageUrl: e.target.value })}
-                        placeholder="https://ivtpcjwwenjdatxxtjqm.supabase.co/..."
-                        className="text-xs font-mono"
-                      />
-                      <p className="text-[11px] text-muted-foreground">
-                        Gambar ini akan muncul saat link website Anda dibagikan di WhatsApp, Telegram, Facebook, dan Twitter/X.
+                    {/* Input File Tersembunyi */}
+                    <input
+                      type="file"
+                      ref={fileInputRef}
+                      accept="image/png,image/jpeg,image/webp"
+                      className="hidden"
+                      onChange={handleOgFileChange}
+                      disabled={isUploadingOg}
+                    />
+
+                    {/* Kontrol Upload Gambar */}
+                    <div className="space-y-3 p-4 rounded-xl border border-border/80 bg-card">
+                      <div className="flex items-center justify-between">
+                        <Label className="text-xs font-semibold flex items-center gap-1.5">
+                          <ImageIcon className="w-4 h-4 text-primary" />
+                          <span>Gambar Berbagi Media Sosial (Open Graph)</span>
+                        </Label>
+                        <span className="text-[10px] text-muted-foreground font-mono">1200 x 630 px</span>
+                      </div>
+
+                      {/* Tombol Aksi Upload & Hapus */}
+                      <div className="flex items-center gap-2">
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          disabled={isUploadingOg}
+                          onClick={() => fileInputRef.current?.click()}
+                          className="flex-1 h-9 text-xs font-semibold gap-1.5 border-primary/30 text-primary hover:bg-primary/10 hover:text-primary cursor-pointer"
+                        >
+                          {isUploadingOg ? (
+                            <>
+                              <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                              <span>Mengompres & Mengunggah...</span>
+                            </>
+                          ) : (
+                            <>
+                              <Upload className="w-3.5 h-3.5" />
+                              <span>Unggah Gambar dari Perangkat</span>
+                            </>
+                          )}
+                        </Button>
+
+                        {config.ogImageUrl && (
+                          <Button
+                            type="button"
+                            variant="outline"
+                            size="sm"
+                            disabled={isUploadingOg}
+                            onClick={() => setConfig({ ...config, ogImageUrl: "" })}
+                            className="h-9 px-2.5 text-xs text-destructive hover:bg-destructive/10 hover:text-destructive border-destructive/20 cursor-pointer"
+                            title="Hapus gambar"
+                          >
+                            <Trash2 className="w-3.5 h-3.5" />
+                          </Button>
+                        )}
+                      </div>
+
+                      {/* Input URL Manual (Opsional) */}
+                      <div className="space-y-1 pt-1">
+                        <span className="text-[10px] text-muted-foreground block">
+                          Atau tempel URL gambar secara langsung:
+                        </span>
+                        <Input
+                          id="ogImageUrl"
+                          value={config.ogImageUrl}
+                          onChange={(e) => setConfig({ ...config, ogImageUrl: e.target.value })}
+                          placeholder="https://ivtpcjwwenjdatxxtjqm.supabase.co/storage/..."
+                          className="text-xs font-mono h-8"
+                          disabled={isUploadingOg}
+                        />
+                      </div>
+
+                      <p className="text-[11px] text-muted-foreground leading-relaxed pt-1">
+                        Gambar ini otomatis muncul saat link website Anda dibagikan di <strong>WhatsApp, Telegram, Facebook, dan Twitter/X</strong>.
                       </p>
                     </div>
 
@@ -540,7 +644,7 @@ export function SeoSettingsModal({ isOpen, onClose }: SeoSettingsModalProps) {
                       <ul className="list-disc list-inside space-y-1 text-[11px] text-muted-foreground">
                         <li>Rasio aspek ideal: <strong>1.91 : 1</strong> (standar resmi Facebook & WhatsApp)</li>
                         <li>Ukuran piksel ideal: <strong>1200 x 630 px</strong> (minimal 600 x 315 px)</li>
-                        <li>Format file: <strong>JPG, PNG, atau WebP</strong> berukuran di bawah 1MB</li>
+                        <li>Format file didukung: <strong>JPG, PNG, atau WebP</strong> (otomatis dikompres)</li>
                       </ul>
                     </div>
                   </div>
