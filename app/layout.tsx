@@ -127,18 +127,10 @@ export default async function RootLayout({ children }: { children: React.ReactNo
     <html
       lang="id"
       className={cn("light", "h-full", "antialiased", geistSans.variable, geistMono.variable, "font-sans", outfit.variable, moderustic.variable, poiretOne.variable)}
-      style={{ colorScheme: "light" }}
       suppressHydrationWarning
     >
       <body className="min-h-full flex flex-col" suppressHydrationWarning>
-        <ThemeProvider
-          attribute="class"
-          defaultTheme="light"
-          forcedTheme="light"
-          enableColorScheme={false}
-          enableSystem={false}
-          disableTransitionOnChange
-        >
+        <ThemeProvider>
           <GlobalThemeApplier />
           {children}
           <Toaster />
