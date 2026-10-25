@@ -1,14 +1,12 @@
 "use client"
 
-import { useEffect, useLayoutEffect } from "react"
+import { useEffect } from "react"
 import { supabase } from "@/lib/supabase"
 import { applyGlobalTheme, getStoredTheme, saveStoredTheme } from "@/lib/theme"
 
-const useIsomorphicLayoutEffect = typeof window !== "undefined" ? useLayoutEffect : useEffect
-
 export function GlobalThemeApplier() {
-  // Terapkan konfigurasi tersimpan dari localStorage secara sinkron sebelum paint
-  useIsomorphicLayoutEffect(() => {
+  // Terapkan konfigurasi setelah hidrasi selesai agar tidak memicu React error #418 pada elemen <html>
+  useEffect(() => {
     const cached = getStoredTheme()
     applyGlobalTheme(cached)
   }, [])
