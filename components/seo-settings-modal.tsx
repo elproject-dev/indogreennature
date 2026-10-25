@@ -194,14 +194,14 @@ export function SeoSettingsModal({ isOpen, onClose }: SeoSettingsModalProps) {
                 </a>
 
                 <a
-                  href={gscInspectUrl}
+                  href={gscUrl}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-blue-600/10 text-blue-700 dark:text-blue-400 hover:bg-blue-600/20 text-xs font-semibold transition-colors border border-blue-600/20"
-                  title="Minta Googlebot Crawl & Inspeksi URL di Google Search Console"
+                  title="Buka Google Search Console untuk Inspeksi URL & Minta Googlebot Crawl"
                 >
                   <Bot className="w-3.5 h-3.5" />
-                  <span>Google Crawl</span>
+                  <span>Google Console</span>
                   <ExternalLink className="w-3 h-3 opacity-70" />
                 </a>
 
@@ -698,32 +698,42 @@ export function SeoSettingsModal({ isOpen, onClose }: SeoSettingsModalProps) {
                           </h4>
                         </div>
                         <p className="text-xs text-muted-foreground leading-relaxed">
-                          Ketika Anda baru saja mengubah deskripsi SEO, menerbitkan artikel baru di menu Insight, atau memperbarui produk, gunakan fitur <strong>URL Inspection</strong> untuk meminta robot Googlebot segera meng-crawl dan mengupdate indeks Google tanpa harus menunggu berminggu-minggu.
+                          Gunakan fitur <strong>Inspeksi URL (URL Inspection)</strong> di Google Search Console untuk meminta Googlebot mengindeks halaman utama atau artikel baru dalam 24 jam.
                         </p>
                       </div>
 
                       <div className="flex flex-wrap gap-2.5 pt-1">
                         <a
-                          href={gscInspectUrl}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="inline-flex items-center gap-2 px-3.5 py-2 rounded-lg bg-blue-600 text-white hover:bg-blue-700 text-xs font-medium shadow-sm transition-colors"
-                        >
-                          <Bot className="w-4 h-4" />
-                          <span>Minta Googlebot Crawl URL Ini</span>
-                          <ExternalLink className="w-3.5 h-3.5 opacity-80" />
-                        </a>
-
-                        <a
                           href={gscUrl}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="inline-flex items-center gap-2 px-3.5 py-2 rounded-lg border border-border bg-card hover:bg-muted text-xs font-medium text-foreground transition-colors"
+                          className="inline-flex items-center gap-2 px-3.5 py-2 rounded-lg bg-blue-600 text-white hover:bg-blue-700 text-xs font-semibold shadow-sm transition-colors"
                         >
-                          <Search className="w-4 h-4 text-muted-foreground" />
-                          <span>Buka Search Console</span>
+                          <Search className="w-4 h-4" />
+                          <span>Buka Google Search Console</span>
                           <ExternalLink className="w-3.5 h-3.5 opacity-80" />
                         </a>
+
+                        <button
+                          type="button"
+                          onClick={() => {
+                            navigator.clipboard.writeText(targetUrl + "/")
+                            toast.success("URL Berhasil Disalin!", {
+                              description: "Tempelkan di kotak pencarian paling atas Google Search Console lalu tekan Enter."
+                            })
+                          }}
+                          className="inline-flex items-center gap-2 px-3.5 py-2 rounded-lg border border-border bg-card hover:bg-muted text-xs font-medium text-foreground transition-colors cursor-pointer"
+                        >
+                          <Copy className="w-3.5 h-3.5 text-muted-foreground" />
+                          <span>Salin URL: {targetDomain}</span>
+                        </button>
+                      </div>
+
+                      <div className="p-3 rounded-lg bg-blue-100/60 dark:bg-blue-900/30 border border-blue-200 dark:border-blue-800/40 text-[11px] text-blue-950 dark:text-blue-200 space-y-1">
+                        <span className="font-semibold block">Cara Minta Googlebot Crawl (3 Langkah):</span>
+                        <p>1. Klik <strong>Salin URL</strong> di atas ➔ Buka <strong>Google Search Console</strong>.</p>
+                        <p>2. Tempelkan URL pada kolom pencarian di bagian atas: <em>&quot;Periksa URL apa pun di {targetDomain}&quot;</em> lalu tekan <strong>Enter</strong>.</p>
+                        <p>3. Klik tombol <strong>Minta Pengindeksan (Request Indexing)</strong>.</p>
                       </div>
                     </div>
 
