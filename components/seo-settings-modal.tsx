@@ -159,18 +159,18 @@ export function SeoSettingsModal({ isOpen, onClose }: SeoSettingsModalProps) {
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.96, y: 15 }}
             transition={{ duration: 0.2 }}
-            className="relative w-full max-w-[96vw] 2xl:max-w-[94vw] h-[95vh] max-h-[96vh] bg-card text-card-foreground border border-border shadow-2xl rounded-xl flex flex-col overflow-hidden z-10"
+            className="relative w-full max-w-[96vw] 2xl:max-w-[94vw] h-[95vh] max-h-[96vh] bg-card text-card-foreground border border-border shadow-2xl rounded-[5px] flex flex-col overflow-hidden z-10"
           >
             {/* Modal Header */}
             <div className="px-6 py-4 border-b border-border/80 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 bg-muted/40 shrink-0">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-lg bg-primary/10 text-primary flex items-center justify-center shrink-0">
+                <div className="w-10 h-10 rounded-[5px] bg-primary/10 text-primary flex items-center justify-center shrink-0">
                   <Globe className="w-5 h-5" />
                 </div>
                 <div>
                   <h3 className="font-semibold text-base text-foreground flex items-center gap-2">
                     <span>Pengaturan SEO & Mesin Pencari</span>
-                    <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-primary/15 text-primary font-semibold">
+                    <span className="text-[10px] font-mono px-2 py-0.5 rounded-[5px] bg-primary/15 text-primary font-semibold">
                       Best Practice
                     </span>
                   </h3>
@@ -186,7 +186,7 @@ export function SeoSettingsModal({ isOpen, onClose }: SeoSettingsModalProps) {
                   href={pagespeedUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-600/10 text-emerald-700 dark:text-emerald-400 hover:bg-emerald-600/20 text-xs font-semibold transition-colors border border-emerald-600/20"
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-[5px] bg-emerald-600/10 text-emerald-700 dark:text-emerald-400 hover:bg-emerald-600/20 text-xs font-semibold transition-colors border border-emerald-600/20"
                   title="Cek Skor Performa & SEO di Google PageSpeed Insights"
                 >
                   <Gauge className="w-3.5 h-3.5" />
@@ -198,7 +198,7 @@ export function SeoSettingsModal({ isOpen, onClose }: SeoSettingsModalProps) {
                   href={gscUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-blue-600/10 text-blue-700 dark:text-blue-400 hover:bg-blue-600/20 text-xs font-semibold transition-colors border border-blue-600/20"
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-[5px] bg-blue-600/10 text-blue-700 dark:text-blue-400 hover:bg-blue-600/20 text-xs font-semibold transition-colors border border-blue-600/20"
                   title="Buka Google Search Console untuk Inspeksi URL & Minta Googlebot Crawl"
                 >
                   <Bot className="w-3.5 h-3.5" />
@@ -209,7 +209,7 @@ export function SeoSettingsModal({ isOpen, onClose }: SeoSettingsModalProps) {
                 <button
                   type="button"
                   onClick={onClose}
-                  className="w-8 h-8 rounded-lg flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted transition-colors cursor-pointer ml-1"
+                  className="w-8 h-8 rounded-[5px] flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted transition-colors cursor-pointer ml-1"
                   title="Tutup"
                 >
                   <X className="w-5 h-5" />
@@ -383,7 +383,7 @@ export function SeoSettingsModal({ isOpen, onClose }: SeoSettingsModalProps) {
                           .map((kw, i) => (
                             <span
                               key={i}
-                              className="text-[11px] px-2.5 py-0.5 rounded-full bg-secondary text-secondary-foreground font-medium"
+                              className="text-[11px] px-2.5 py-0.5 rounded-[5px] bg-secondary text-secondary-foreground font-medium"
                             >
                               #{kw}
                             </span>
@@ -406,7 +406,7 @@ export function SeoSettingsModal({ isOpen, onClose }: SeoSettingsModalProps) {
                         />
                       </div>
 
-                      <div className="p-3 rounded-lg border border-border/80 bg-muted/20 flex items-center justify-between">
+                      <div className="p-3 rounded-[5px] border border-border/80 bg-muted/20 flex items-center justify-between">
                         <div className="space-y-0.5">
                           <span className="text-xs font-semibold block">Izinkan Mesin Pencari Mengindeks</span>
                           <span className="text-[10px] text-muted-foreground">
@@ -423,7 +423,7 @@ export function SeoSettingsModal({ isOpen, onClose }: SeoSettingsModalProps) {
 
                   {/* Kolom Kanan: Live Preview & Quick Audit */}
                   <div className="lg:col-span-5 xl:col-span-4 space-y-4 lg:sticky lg:top-0">
-                    <div className="p-4 rounded-xl border border-border/80 bg-card shadow-sm space-y-3">
+                    <div className="p-4 rounded-[5px] border border-border/80 bg-card shadow-sm space-y-3">
                       <div className="flex items-center justify-between pb-2 border-b border-border/60">
                         <span className="text-xs font-semibold text-foreground flex items-center gap-1.5">
                           <Monitor className="w-3.5 h-3.5 text-primary" />
@@ -434,7 +434,7 @@ export function SeoSettingsModal({ isOpen, onClose }: SeoSettingsModalProps) {
 
                       <div className="space-y-1.5">
                         <div className="flex items-center gap-2">
-                          <div className="w-6 h-6 rounded-full bg-emerald-600 text-white flex items-center justify-center text-[10px] font-bold">
+                          <div className="w-6 h-6 rounded-[5px] bg-emerald-600 text-white flex items-center justify-center text-[10px] font-bold">
                             IGN
                           </div>
                           <div className="flex flex-col leading-none">
@@ -456,7 +456,7 @@ export function SeoSettingsModal({ isOpen, onClose }: SeoSettingsModalProps) {
                     </div>
 
                     {/* Status Audit Checklist */}
-                    <div className="p-3.5 rounded-xl bg-muted/40 border border-border/60 space-y-2.5 text-xs">
+                    <div className="p-3.5 rounded-[5px] bg-muted/40 border border-border/60 space-y-2.5 text-xs">
                       <span className="font-semibold text-foreground flex items-center gap-1.5">
                         <ClipboardCheck className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
                         <span>Audit Skor Teks SEO:</span>
@@ -492,12 +492,12 @@ export function SeoSettingsModal({ isOpen, onClose }: SeoSettingsModalProps) {
                       <span className="text-xs font-semibold">Simulasi Hasil Pencarian Google</span>
                       <span className="text-[10px] text-muted-foreground">Real-time simulator</span>
                     </div>
-                    <div className="flex items-center gap-1 bg-muted p-0.5 rounded-md text-xs">
+                    <div className="flex items-center gap-1 bg-muted p-0.5 rounded-[5px] text-xs">
                       <button
                         type="button"
                         onClick={() => setPreviewDevice("desktop")}
                         className={cn(
-                          "px-2.5 py-1 rounded transition-colors flex items-center gap-1",
+                          "px-2.5 py-1 rounded-[5px] transition-colors flex items-center gap-1",
                           previewDevice === "desktop" ? "bg-card shadow-xs font-semibold text-foreground" : "text-muted-foreground hover:text-foreground"
                         )}
                       >
@@ -508,7 +508,7 @@ export function SeoSettingsModal({ isOpen, onClose }: SeoSettingsModalProps) {
                         type="button"
                         onClick={() => setPreviewDevice("mobile")}
                         className={cn(
-                          "px-2.5 py-1 rounded transition-colors flex items-center gap-1",
+                          "px-2.5 py-1 rounded-[5px] transition-colors flex items-center gap-1",
                           previewDevice === "mobile" ? "bg-card shadow-xs font-semibold text-foreground" : "text-muted-foreground hover:text-foreground"
                         )}
                       >
@@ -519,14 +519,14 @@ export function SeoSettingsModal({ isOpen, onClose }: SeoSettingsModalProps) {
                   </div>
 
                   {/* Google Snippet Card */}
-                  <div className={cn("p-5 rounded-xl border border-border/80 bg-card shadow-sm transition-all", previewDevice === "mobile" ? "max-w-[400px] mx-auto" : "w-full")}>
+                  <div className={cn("p-5 rounded-[5px] border border-border/80 bg-card shadow-sm transition-all", previewDevice === "mobile" ? "max-w-[400px] mx-auto" : "w-full")}>
                     <div className="flex items-center gap-2 mb-1">
-                      <div className="w-6 h-6 rounded-full bg-emerald-600 text-white flex items-center justify-center text-[10px] font-bold">
+                      <div className="w-6 h-6 rounded-[5px] bg-emerald-600 text-white flex items-center justify-center text-[10px] font-bold">
                         IGN
                       </div>
                       <div className="flex flex-col leading-none">
                         <span className="text-[12px] font-semibold text-foreground">CV. Indo Green Nature</span>
-                        <span className="text-[10px] text-muted-foreground font-mono">{config.canonicalUrl || "https://indogreennature.com"}</span>
+                        <span className="text-[10px] text-muted-foreground font-mono">{config.canonicalUrl || "https://www.indogreennature.com"}</span>
                       </div>
                     </div>
 
@@ -540,7 +540,7 @@ export function SeoSettingsModal({ isOpen, onClose }: SeoSettingsModalProps) {
                   </div>
 
                   {/* Checklist Rekomendasi */}
-                  <div className="p-4 rounded-xl bg-muted/40 border border-border/60 space-y-2 text-xs">
+                  <div className="p-4 rounded-[5px] bg-muted/40 border border-border/60 space-y-2 text-xs">
                     <span className="font-semibold text-foreground flex items-center gap-1.5">
                       <ClipboardCheck className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
                       <span>Audit Cepat SEO Anda:</span>
@@ -582,7 +582,7 @@ export function SeoSettingsModal({ isOpen, onClose }: SeoSettingsModalProps) {
                     />
 
                     {/* Kontrol Upload Gambar */}
-                    <div className="space-y-3 p-4 rounded-xl border border-border/80 bg-card">
+                    <div className="space-y-3 p-4 rounded-[5px] border border-border/80 bg-card">
                       <div className="flex items-center justify-between">
                         <Label className="text-xs font-semibold flex items-center gap-1.5">
                           <ImageIcon className="w-4 h-4 text-primary" />
@@ -599,7 +599,7 @@ export function SeoSettingsModal({ isOpen, onClose }: SeoSettingsModalProps) {
                           size="sm"
                           disabled={isUploadingOg}
                           onClick={() => fileInputRef.current?.click()}
-                          className="flex-1 h-9 text-xs font-semibold gap-1.5 border-primary/30 text-primary hover:bg-primary/10 hover:text-primary cursor-pointer"
+                          className="flex-1 h-9 text-xs font-semibold gap-1.5 border-primary/30 text-primary hover:bg-primary/10 hover:text-primary cursor-pointer rounded-[5px]"
                         >
                           {isUploadingOg ? (
                             <>
@@ -621,7 +621,7 @@ export function SeoSettingsModal({ isOpen, onClose }: SeoSettingsModalProps) {
                             size="sm"
                             disabled={isUploadingOg}
                             onClick={() => setConfig({ ...config, ogImageUrl: "" })}
-                            className="h-9 px-2.5 text-xs text-destructive hover:bg-destructive/10 hover:text-destructive border-destructive/20 cursor-pointer"
+                            className="h-9 px-2.5 text-xs text-destructive hover:bg-destructive/10 hover:text-destructive border-destructive/20 cursor-pointer rounded-[5px]"
                             title="Hapus gambar"
                           >
                             <Trash2 className="w-3.5 h-3.5" />
@@ -639,7 +639,7 @@ export function SeoSettingsModal({ isOpen, onClose }: SeoSettingsModalProps) {
                           value={config.ogImageUrl}
                           onChange={(e) => setConfig({ ...config, ogImageUrl: e.target.value })}
                           placeholder="https://ivtpcjwwenjdatxxtjqm.supabase.co/storage/..."
-                          className="text-xs font-mono h-8"
+                          className="text-xs font-mono h-8 rounded-[5px]"
                           disabled={isUploadingOg}
                         />
                       </div>
@@ -649,7 +649,7 @@ export function SeoSettingsModal({ isOpen, onClose }: SeoSettingsModalProps) {
                       </p>
                     </div>
 
-                    <div className="p-4 rounded-xl border border-border/80 bg-muted/20 space-y-2 text-xs">
+                    <div className="p-4 rounded-[5px] border border-border/80 bg-muted/20 space-y-2 text-xs">
                       <span className="font-semibold text-foreground block">Ketentuan Gambar Rekomendasi:</span>
                       <ul className="list-disc list-inside space-y-1 text-[11px] text-muted-foreground">
                         <li>Rasio aspek ideal: <strong>1.91 : 1</strong> (standar resmi Facebook & WhatsApp)</li>
@@ -664,7 +664,7 @@ export function SeoSettingsModal({ isOpen, onClose }: SeoSettingsModalProps) {
                     <span className="text-xs font-semibold text-muted-foreground block">
                       Simulasi Preview Link di WhatsApp:
                     </span>
-                    <div className="w-full max-w-xl rounded-xl overflow-hidden border border-border/80 bg-card shadow-sm">
+                    <div className="w-full max-w-xl rounded-[5px] overflow-hidden border border-border/80 bg-card shadow-sm">
                       {config.ogImageUrl && (
                         <div className="w-full h-56 bg-zinc-800 overflow-hidden relative">
                           <img
@@ -699,7 +699,7 @@ export function SeoSettingsModal({ isOpen, onClose }: SeoSettingsModalProps) {
                   {/* Kolom Kiri: Re-Crawl & Verifikasi */}
                   <div className="space-y-5">
                     {/* Card 1: Googlebot Re-Crawl & URL Inspection */}
-                    <div className="p-5 rounded-xl border border-blue-500/30 bg-blue-50/50 dark:bg-blue-950/20 space-y-3">
+                    <div className="p-5 rounded-[5px] border border-blue-500/30 bg-blue-50/50 dark:bg-blue-950/20 space-y-3">
                       <div className="space-y-1">
                         <div className="flex items-center gap-2">
                           <Bot className="w-5 h-5 text-blue-600 dark:text-blue-400" />
@@ -717,7 +717,7 @@ export function SeoSettingsModal({ isOpen, onClose }: SeoSettingsModalProps) {
                           href={gscUrl}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="inline-flex items-center gap-2 px-3.5 py-2 rounded-lg bg-blue-600 text-white hover:bg-blue-700 text-xs font-semibold shadow-sm transition-colors"
+                          className="inline-flex items-center gap-2 px-3.5 py-2 rounded-[5px] bg-blue-600 text-white hover:bg-blue-700 text-xs font-semibold shadow-sm transition-colors"
                         >
                           <Search className="w-4 h-4" />
                           <span>Buka Google Search Console</span>
@@ -732,14 +732,14 @@ export function SeoSettingsModal({ isOpen, onClose }: SeoSettingsModalProps) {
                               description: "Tempelkan di kotak pencarian paling atas Google Search Console lalu tekan Enter."
                             })
                           }}
-                          className="inline-flex items-center gap-2 px-3.5 py-2 rounded-lg border border-border bg-card hover:bg-muted text-xs font-medium text-foreground transition-colors cursor-pointer"
+                          className="inline-flex items-center gap-2 px-3.5 py-2 rounded-[5px] border border-border bg-card hover:bg-muted text-xs font-medium text-foreground transition-colors cursor-pointer"
                         >
                           <Copy className="w-3.5 h-3.5 text-muted-foreground" />
                           <span>Salin URL: {targetDomain}</span>
                         </button>
                       </div>
 
-                      <div className="p-3 rounded-lg bg-blue-100/60 dark:bg-blue-900/30 border border-blue-200 dark:border-blue-800/40 text-[11px] text-blue-950 dark:text-blue-200 space-y-1">
+                      <div className="p-3 rounded-[5px] bg-blue-100/60 dark:bg-blue-900/30 border border-blue-200 dark:border-blue-800/40 text-[11px] text-blue-950 dark:text-blue-200 space-y-1">
                         <span className="font-semibold block">Cara Minta Googlebot Crawl (3 Langkah):</span>
                         <p>1. Klik <strong>Salin URL</strong> di atas ➔ Buka <strong>Google Search Console</strong>.</p>
                         <p>2. Tempelkan URL pada kolom pencarian di bagian atas: <em>&quot;Periksa URL apa pun di {targetDomain}&quot;</em> lalu tekan <strong>Enter</strong>.</p>
@@ -748,7 +748,7 @@ export function SeoSettingsModal({ isOpen, onClose }: SeoSettingsModalProps) {
                     </div>
 
                     {/* Card 2: Kode Verifikasi Google Search Console */}
-                    <div className="space-y-2 p-5 rounded-xl border border-border/80 bg-card">
+                    <div className="space-y-2 p-5 rounded-[5px] border border-border/80 bg-card">
                       <div className="flex items-center justify-between">
                         <Label htmlFor="googleVerification" className="text-xs font-semibold flex items-center gap-1.5">
                           <ShieldCheck className="w-4 h-4 text-primary" />
@@ -769,7 +769,7 @@ export function SeoSettingsModal({ isOpen, onClose }: SeoSettingsModalProps) {
                         value={config.googleVerification}
                         onChange={(e) => setConfig({ ...config, googleVerification: e.target.value })}
                         placeholder="Contoh: google-site-verification=abc123xyz... atau kode uniknya saja"
-                        className="text-xs font-mono"
+                        className="text-xs font-mono rounded-[5px]"
                       />
                       <p className="text-[11px] text-muted-foreground leading-relaxed">
                         Langkah cepat verifikasi: Pilih metode <strong>&quot;HTML Tag&quot;</strong> di Google Search Console, salin kode atribut content, tempel di sini, dan klik tombol <strong>Simpan Pengaturan SEO</strong> di bawah. Website Anda akan otomatis terverifikasi!
@@ -779,7 +779,7 @@ export function SeoSettingsModal({ isOpen, onClose }: SeoSettingsModalProps) {
 
                   {/* Kolom Kanan: Peta Situs Dinamis & Submit */}
                   <div className="space-y-5">
-                    <div className="p-5 rounded-xl border border-border/80 bg-card space-y-3">
+                    <div className="p-5 rounded-[5px] border border-border/80 bg-card space-y-3">
                       <div className="flex items-center justify-between">
                         <div>
                           <h4 className="text-xs font-semibold text-foreground flex items-center gap-1.5">
@@ -807,7 +807,7 @@ export function SeoSettingsModal({ isOpen, onClose }: SeoSettingsModalProps) {
                           href="/sitemap.xml"
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="p-3 rounded-lg border border-border/70 bg-muted/20 hover:bg-muted/50 transition-colors flex items-center justify-between group"
+                          className="p-3 rounded-[5px] border border-border/70 bg-muted/20 hover:bg-muted/50 transition-colors flex items-center justify-between group"
                         >
                           <div className="space-y-0.5">
                             <span className="text-xs font-semibold block group-hover:text-primary transition-colors">
@@ -824,7 +824,7 @@ export function SeoSettingsModal({ isOpen, onClose }: SeoSettingsModalProps) {
                           href="/robots.txt"
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="p-3 rounded-lg border border-border/70 bg-muted/20 hover:bg-muted/50 transition-colors flex items-center justify-between group"
+                          className="p-3 rounded-[5px] border border-border/70 bg-muted/20 hover:bg-muted/50 transition-colors flex items-center justify-between group"
                         >
                           <div className="space-y-0.5">
                             <span className="text-xs font-semibold block group-hover:text-primary transition-colors">
@@ -840,7 +840,7 @@ export function SeoSettingsModal({ isOpen, onClose }: SeoSettingsModalProps) {
                     </div>
 
                     {/* Panduan Singkat */}
-                    <div className="p-4 rounded-xl border border-border/70 bg-muted/20 space-y-2 text-xs">
+                    <div className="p-4 rounded-[5px] border border-border/70 bg-muted/20 space-y-2 text-xs">
                       <span className="font-semibold text-foreground block">3 Langkah Agar Cepat Terindeks Google:</span>
                       <ol className="list-decimal list-inside space-y-1.5 text-[11px] text-muted-foreground">
                         <li>Pastikan izin indeks aktif di tab <strong>Meta Tags</strong>.</li>
@@ -856,16 +856,16 @@ export function SeoSettingsModal({ isOpen, onClose }: SeoSettingsModalProps) {
               {activeTab === "pagespeed" && (
                 <div className="space-y-5">
                   {/* Card 1: Google PageSpeed Insights Hero Tester */}
-                  <div className="p-5 sm:p-6 rounded-xl border border-emerald-500/30 bg-emerald-50/50 dark:bg-emerald-950/20 space-y-4">
+                  <div className="p-5 sm:p-6 rounded-[5px] border border-emerald-500/30 bg-emerald-50/50 dark:bg-emerald-950/20 space-y-4">
                     <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
                       <div className="flex items-center gap-3">
-                        <div className="w-11 h-11 rounded-xl bg-emerald-600 text-white flex items-center justify-center shrink-0 shadow-sm">
+                        <div className="w-11 h-11 rounded-[5px] bg-emerald-600 text-white flex items-center justify-center shrink-0 shadow-sm">
                           <Gauge className="w-6 h-6" />
                         </div>
                         <div>
                           <h4 className="text-sm font-semibold text-foreground flex items-center gap-2">
                             <span>Google PageSpeed Insights & Core Web Vitals</span>
-                            <span className="text-[10px] px-2 py-0.5 rounded-full bg-emerald-600/20 text-emerald-700 dark:text-emerald-300 font-bold">
+                            <span className="text-[10px] px-2 py-0.5 rounded-[5px] bg-emerald-600/20 text-emerald-700 dark:text-emerald-300 font-bold">
                               Google Official
                             </span>
                           </h4>
@@ -879,7 +879,7 @@ export function SeoSettingsModal({ isOpen, onClose }: SeoSettingsModalProps) {
                         href={pagespeedUrl}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg bg-emerald-600 text-white hover:bg-emerald-700 text-xs font-semibold shadow-sm transition-all hover:scale-[1.02] active:scale-[0.98] shrink-0"
+                        className="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-[5px] bg-emerald-600 text-white hover:bg-emerald-700 text-xs font-semibold shadow-sm transition-all hover:scale-[1.02] active:scale-[0.98] shrink-0"
                       >
                         <Zap className="w-4 h-4" />
                         <span>Jalankan Cek PageSpeed & SEO</span>
@@ -888,22 +888,22 @@ export function SeoSettingsModal({ isOpen, onClose }: SeoSettingsModalProps) {
                     </div>
 
                     <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-2 text-center">
-                      <div className="p-3 rounded-lg bg-card border border-border/80 shadow-xs">
+                      <div className="p-3 rounded-[5px] bg-card border border-border/80 shadow-xs">
                         <span className="text-[10px] font-medium text-muted-foreground uppercase block">Performa</span>
                         <span className="text-xl font-bold text-emerald-600">90 - 100</span>
                         <span className="text-[10px] text-muted-foreground block">Target Cepat</span>
                       </div>
-                      <div className="p-3 rounded-lg bg-card border border-border/80 shadow-xs">
+                      <div className="p-3 rounded-[5px] bg-card border border-border/80 shadow-xs">
                         <span className="text-[10px] font-medium text-muted-foreground uppercase block">Aksesibilitas</span>
                         <span className="text-xl font-bold text-emerald-600">95 - 100</span>
                         <span className="text-[10px] text-muted-foreground block">Sesuai Standar</span>
                       </div>
-                      <div className="p-3 rounded-lg bg-card border border-border/80 shadow-xs">
+                      <div className="p-3 rounded-[5px] bg-card border border-border/80 shadow-xs">
                         <span className="text-[10px] font-medium text-muted-foreground uppercase block">Praktik Terbaik</span>
                         <span className="text-xl font-bold text-emerald-600">100</span>
                         <span className="text-[10px] text-muted-foreground block">Modern Web</span>
                       </div>
-                      <div className="p-3 rounded-lg bg-card border border-border/80 shadow-xs">
+                      <div className="p-3 rounded-[5px] bg-card border border-border/80 shadow-xs">
                         <span className="text-[10px] font-medium text-muted-foreground uppercase block">SEO Google</span>
                         <span className="text-xl font-bold text-emerald-600">100</span>
                         <span className="text-[10px] text-muted-foreground block">Terindeks Penuh</span>
@@ -914,7 +914,7 @@ export function SeoSettingsModal({ isOpen, onClose }: SeoSettingsModalProps) {
                   {/* 2 Kolom: Rich Results & Audit Status */}
                   <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 items-start">
                     {/* Card 2: Google Rich Results Test */}
-                    <div className="p-5 rounded-xl border border-border/80 bg-card space-y-3">
+                    <div className="p-5 rounded-[5px] border border-border/80 bg-card space-y-3">
                       <div>
                         <h4 className="text-xs font-semibold text-foreground flex items-center gap-1.5">
                           <Sparkles className="w-4 h-4 text-amber-500" />
@@ -929,7 +929,7 @@ export function SeoSettingsModal({ isOpen, onClose }: SeoSettingsModalProps) {
                         href={richResultsUrl}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="inline-flex items-center gap-2 px-3.5 py-2 rounded-lg border border-border bg-card hover:bg-muted text-xs font-medium text-foreground transition-colors shrink-0"
+                        className="inline-flex items-center gap-2 px-3.5 py-2 rounded-[5px] border border-border bg-card hover:bg-muted text-xs font-medium text-foreground transition-colors shrink-0"
                       >
                         <Search className="w-3.5 h-3.5 text-muted-foreground" />
                         <span>Uji Cuplikan Kaya Google</span>
@@ -938,7 +938,7 @@ export function SeoSettingsModal({ isOpen, onClose }: SeoSettingsModalProps) {
                     </div>
 
                     {/* Card 3: Audit Optimasi yang Sudah Aktif di Website */}
-                    <div className="p-5 rounded-xl border border-border/80 bg-muted/30 space-y-3 text-xs">
+                    <div className="p-5 rounded-[5px] border border-border/80 bg-muted/30 space-y-3 text-xs">
                       <div className="flex items-center gap-2">
                         <Activity className="w-4 h-4 text-primary" />
                         <span className="font-semibold text-foreground">Status Optimasi Kecepatan & SEO di Website:</span>
@@ -975,7 +975,7 @@ export function SeoSettingsModal({ isOpen, onClose }: SeoSettingsModalProps) {
                 variant="outline"
                 size="sm"
                 onClick={handleReset}
-                className="text-xs h-8 gap-1.5 text-muted-foreground hover:text-foreground"
+                className="text-xs h-8 gap-1.5 text-muted-foreground hover:text-foreground rounded-[5px]"
               >
                 <RotateCcw className="w-3.5 h-3.5" />
                 <span>Reset Rekomendasi</span>
@@ -987,7 +987,7 @@ export function SeoSettingsModal({ isOpen, onClose }: SeoSettingsModalProps) {
                   variant="outline"
                   size="sm"
                   onClick={onClose}
-                  className="text-xs h-8"
+                  className="text-xs h-8 rounded-[5px]"
                 >
                   Batal
                 </Button>
@@ -996,7 +996,7 @@ export function SeoSettingsModal({ isOpen, onClose }: SeoSettingsModalProps) {
                   size="sm"
                   disabled={isSaving}
                   onClick={handleSave}
-                  className="text-xs h-8 px-4 bg-primary text-white hover:bg-primary/90 gap-1.5 shadow-sm"
+                  className="text-xs h-8 px-4 bg-primary text-white hover:bg-primary/90 gap-1.5 shadow-sm rounded-[5px]"
                 >
                   {isSaving ? (
                     <span>Menyimpan...</span>
