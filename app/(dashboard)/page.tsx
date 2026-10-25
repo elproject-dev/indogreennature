@@ -532,8 +532,8 @@ export default function HomePage() {
   const [activeVideoModalUrl, setActiveVideoModalUrl] = useState<string | null>(null);
   const [activeVideoModalTitle, setActiveVideoModalTitle] = useState<string>("Video Profil");
   
-  // State loading tidak lagi memblokir layar awal agar SSR langsung tampil instan (menghilangkan CLS & delay)
-  const [isLoading, setIsLoading] = useState(false);
+  // State loading menutup layar penuh z-[200] agar transisi reload mulus tanpa flashback top bar (sama seperti About & Contact)
+  const [isLoading, setIsLoading] = useState(true);
   const [articles, setArticles] = useState<any[]>([]);
   const [runningTexts, setRunningTexts] = useState<any[]>([
     { id: 1, text: "Selamat datang di CV. Indo Green Nature!", is_active: true },
@@ -3433,7 +3433,21 @@ export default function HomePage() {
       } catch (error) {
         console.error("Error fetching data:", error);
       } finally {
-        setIsLoading(false);
+        const elapsed = Date.now() - startTime;
+        const remaining = Math.max(0, 250 - elapsed);
+        setTimeout(() => {
+          if (typeof document !== "undefined" && document.fonts) {
+            try {
+              document.fonts.ready.then(() => {
+                requestAnimationFrame(() => setIsLoading(false));
+              }).catch(() => {
+                requestAnimationFrame(() => setIsLoading(false));
+              });
+              return;
+            } catch {}
+          }
+          requestAnimationFrame(() => setIsLoading(false));
+        }, remaining);
       }
     }
     fetchData();
@@ -5644,7 +5658,12 @@ export default function HomePage() {
         </div>
       )}
 
-      <div className="w-full min-h-screen bg-background flex flex-col items-center overflow-x-hidden font-sans transition-colors duration-300">
+      <div
+        className={cn(
+          "w-full min-h-screen bg-background flex flex-col items-center overflow-x-hidden font-sans transition-colors duration-300",
+          isLoading && "invisible"
+        )}
+      >
         {isPreviewMode && (
           <div className="sticky top-0 z-50 w-full bg-amber-500 text-amber-950 px-4 py-2 text-xs md:text-sm font-semibold flex items-center justify-between shadow-md border-b border-amber-600">
             <div className="flex items-center gap-2">

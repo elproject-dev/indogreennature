@@ -47,7 +47,8 @@ import { renderFormattedText } from "@/lib/home-blocks"
 
 export default function OurProductsPage() {
   const [isClientMounted, setIsClientMounted] = useState(false)
-  const [isLoading, setIsLoading] = useState(false)
+  // State loading menutup layar penuh z-[200] agar transisi reload mulus tanpa flashback top bar (sama seperti About & Contact)
+  const [isLoading, setIsLoading] = useState(true)
   // Inisialisasi SSR stabil dengan DEFAULT_OUR_PRODUCTS_SETTINGS untuk mencegah Hydration Mismatch
   const [settings, setSettings] = useState<OurProductsSettingsData>(DEFAULT_OUR_PRODUCTS_SETTINGS)
   const [isSettingsOpen, setIsSettingsOpen] = useState(false)
@@ -95,6 +96,7 @@ export default function OurProductsPage() {
     }
 
     const initData = async () => {
+      const minTimer = new Promise((resolve) => setTimeout(resolve, 250))
       try {
         const remoteData = await fetchOurProductsSettings()
         if (isMounted) {
@@ -117,6 +119,18 @@ export default function OurProductsPage() {
         }
       } catch (err) {
         console.warn("Gagal memuat pengaturan our products:", err)
+      } finally {
+        await minTimer
+        if (typeof document !== "undefined" && document.fonts) {
+          try {
+            await document.fonts.ready
+          } catch {}
+        }
+        requestAnimationFrame(() => {
+          if (isMounted) {
+            setIsLoading(false)
+          }
+        })
       }
     }
     initData()
@@ -314,10 +328,17 @@ export default function OurProductsPage() {
 
   return (
     <>
+      {isLoading && (
+        <div className="fixed inset-0 z-[200] flex items-center justify-center bg-background">
+          <LoadingSpinner text="Loading" />
+        </div>
+      )}
+
       <div
         suppressHydrationWarning
         className={cn(
           "w-full min-h-screen bg-background flex flex-col items-center overflow-x-hidden font-sans transition-colors duration-300",
+          isLoading && "invisible",
           poppins.className
         )}
       >
