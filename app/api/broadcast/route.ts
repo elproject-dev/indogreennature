@@ -58,8 +58,10 @@ export async function POST(req: Request) {
 
     let directSuccessCount = 0;
     let directFailureCount = 0;
+    let topicMessageId: string | null = null;
 
-    // 2. Kirim pesan langsung ke setiap token perangkat (Multicast) untuk pengiriman instan tanpa delay topik
+    // 2. Kirim pesan: jika ada token tersimpan, kirim via Direct Multicast
+    // JANGAN kirim ke topik jika directTokens ada, agar perangkat tidak menerima pesan ganda!
     if (directTokens.length > 0) {
       try {
         const multicastResponse = await adminMessaging.sendEachForMulticast({
@@ -101,22 +103,21 @@ export async function POST(req: Request) {
       } catch (multiErr) {
         console.warn('Multicast direct send error:', multiErr);
       }
-    }
-
-    // 3. Kirim juga ke topik 'sbagiamu_all_users' sebagai fallback distribusi massal
-    let topicMessageId: string | null = null;
-    try {
-      topicMessageId = await adminMessaging.send({
-        topic: 'sbagiamu_all_users',
-        notification: payloadNotification,
-        webpush: webpushConfig,
-        data: dataPayload,
-        android: {
-          priority: 'high',
-        },
-      });
-    } catch (topicErr: any) {
-      console.warn('Error sending to FCM topic:', topicErr?.message || topicErr);
+    } else {
+      // 3. Hanya gunakan topik sebagai fallback jika belum ada token di database
+      try {
+        topicMessageId = await adminMessaging.send({
+          topic: 'sbagiamu_all_users',
+          notification: payloadNotification,
+          webpush: webpushConfig,
+          data: dataPayload,
+          android: {
+            priority: 'high',
+          },
+        });
+      } catch (topicErr: any) {
+        console.warn('Error sending to FCM topic:', topicErr?.message || topicErr);
+      }
     }
 
     return NextResponse.json({

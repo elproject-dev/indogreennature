@@ -16,12 +16,18 @@ const messaging = firebase.messaging();
 messaging.onBackgroundMessage((payload) => {
   console.log('[firebase-messaging-sw.js] Received background message ', payload);
 
-  const notificationTitle = payload.notification?.title || payload.data?.title || "CV. Indo Green Nature";
+  // Jika payload sudah memiliki notification dari FCM, Firebase Web SDK sudah otomatis
+  // menampilkannya di background. Jangan panggil showNotification lagi agar tidak muncul 2x/3x!
+  if (payload.notification) {
+    return;
+  }
+
+  const notificationTitle = payload.data?.title || "CV. Indo Green Nature";
   const notificationOptions = {
-    body: payload.notification?.body || payload.data?.body || "",
-    icon: payload.notification?.icon || '/pwa-icon.png',
+    body: payload.data?.body || "",
+    icon: payload.data?.icon || '/pwa-icon.png',
     badge: '/badge-icon.png',
-    image: payload.notification?.image || payload.data?.image,
+    image: payload.data?.image,
     vibrate: [200, 100, 200],
     tag: 'ign-broadcast',
     renotify: true,

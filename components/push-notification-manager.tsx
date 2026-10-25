@@ -58,11 +58,14 @@ export function PushNotificationManager() {
       }
 
       onMessageListener((payload: any) => {
-        const title = payload?.notification?.title || 'Notifikasi Baru';
+        const title = payload?.notification?.title || payload?.data?.title || 'Notifikasi Baru';
+        const body = payload?.notification?.body || payload?.data?.body || '';
         const options = {
-          body: payload?.notification?.body,
+          body,
           icon: '/pwa-icon.png',
-          badge: '/badge-icon.png'
+          badge: '/badge-icon.png',
+          tag: 'ign-broadcast',
+          renotify: true,
         };
 
         // Mainkan suara custom saat aplikasi sedang terbuka
@@ -74,15 +77,18 @@ export function PushNotificationManager() {
           console.error("Gagal memutar suara:", error);
         }
 
-        if (Notification.permission === 'granted') {
-          navigator.serviceWorker.ready.then((registration) => {
-            registration.showNotification(title, options);
-          });
+        // Jika halaman sedang tidak terlihat (background tab), munculkan system notification
+        if (typeof document !== 'undefined' && document.visibilityState !== 'visible') {
+          if (Notification.permission === 'granted') {
+            navigator.serviceWorker.ready.then((registration) => {
+              registration.showNotification(title, options);
+            });
+          }
         }
 
         // Selalu tampilkan toast di dalam web
         toast(title, {
-          description: options.body,
+          description: body,
           duration: 10000,
         });
       });
