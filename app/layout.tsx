@@ -90,6 +90,9 @@ export const metadata: Metadata = {
     statusBarStyle: "default",
     title: "CV. Indo Green Nature",
   },
+  verification: {
+    google: "LGVKTK0moSrDgV9sOu-cy4n5hK3bPya07IQ_rB-WT50",
+  },
 };
 
 export const viewport: Viewport = {
