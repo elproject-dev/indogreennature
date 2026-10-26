@@ -8,7 +8,7 @@ import { Toaster } from "@/components/ui/sonner"
 import { Toaster as ToastUiToaster } from "@/components/ui/toast"
 import { PWAInstallPrompt } from "@/components/pwa-install-prompt"
 import { GoogleAnalytics } from "@/components/google-analytics"
-import { PushNotificationManager } from "@/components/push-notification-manager"
+import { DeferredPushNotificationManager } from "@/components/deferred-widgets"
 import { GlobalThemeApplier } from "@/components/global-theme-applier"
 
 
@@ -152,7 +152,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
           <Toaster />
           <ToastUiToaster />
           <PWAInstallPrompt />
-          <PushNotificationManager />
+          <DeferredPushNotificationManager />
           <GoogleAnalytics gaId={process.env.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID} />
         </ThemeProvider>
       </body>

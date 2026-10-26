@@ -56,8 +56,17 @@ const withPWA = withPWAInit({
 
 const nextConfig: NextConfig = {
   turbopack: {},
+  compress: true,
+  poweredByHeader: false,
+  experimental: {
+    optimizePackageImports: ["lucide-react", "react-icons", "date-fns", "recharts"],
+  },
   images: {
     formats: ['image/avif', 'image/webp'],
+    // Hasil resize di-cache 1 tahun (override Cache-Control 1 jam dari Supabase storage lama)
+    minimumCacheTTL: 31536000,
+    deviceSizes: [360, 414, 640, 768, 1024, 1280, 1536, 1920],
+    imageSizes: [48, 64, 96, 128, 160, 216, 256, 384],
     remotePatterns: [
       {
         protocol: 'https',

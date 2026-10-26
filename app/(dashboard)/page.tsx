@@ -247,6 +247,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } f
 import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
 import { LoadingSpinner } from "@/components/loading-spinner";
+import { SmartImage } from "@/components/smart-image";
 
 export default function HomePage() {
   const router = useRouter();
@@ -3713,13 +3714,10 @@ export default function HomePage() {
                   title={`Frame 16:9 (${pengenalanImageSize} × ${Math.round(pengenalanImageSize / (16 / 9))} px)`}
                 >
                   {pengenalanImage ? (
-                    <img
+                    <SmartImage
                       src={pengenalanImage}
                       alt={pengenalanTitle || "Mengenal Indo Green Nature"}
-                      width={pengenalanImageSize || 800}
-                      height={Math.round((pengenalanImageSize || 800) / (16 / 9))}
-                      loading="lazy"
-                      decoding="async"
+                      sizes={`(max-width: 768px) 100vw, ${pengenalanImageSize || 800}px`}
                       style={{
                         transform: pengenalanImageScale !== 100 ? `scale(${pengenalanImageScale / 100})` : undefined,
                         transformOrigin: 'center center'
@@ -3783,11 +3781,10 @@ export default function HomePage() {
                     {/* rectangle-5 / 6 / 7 / 8: Square 216x216px Photo/Image */}
                     <div className="w-[216px] h-[216px] shrink-0 aspect-square overflow-hidden bg-[#D9D9D9] dark:bg-muted/80 relative shadow-xs mx-auto sm:mx-0">
                       {card.image ? (
-                        <img
+                        <SmartImage
                           src={card.image}
                           alt={card.title || "Solusi Maklon"}
-                          loading="lazy"
-                          decoding="async"
+                          sizes="216px"
                           className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                         />
                       ) : (
@@ -3862,9 +3859,10 @@ export default function HomePage() {
             >
               {/* Foto Latar Belakang: tersembunyi (opacity-0) pada kondisi normal, MUNCUL (opacity-100) saat di-hover */}
               {card.image && (
-                <img
+                <SmartImage
                   src={card.image}
                   alt={cardTitle}
+                  sizes="(min-width: 1024px) 25vw, (min-width: 640px) 50vw, 85vw"
                   className="absolute inset-0 w-full h-full object-cover opacity-0 group-hover:opacity-100 scale-100 group-hover:scale-105 transition-all duration-500 ease-out z-0"
                 />
               )}
@@ -3872,25 +3870,27 @@ export default function HomePage() {
               {/* Konten Frame: Judul & Deskripsi (tampil di atas warna kartu, disembunyikan saat kursor di-hover jika ada foto) */}
               <div
                 className={cn(
-                  "relative z-10 w-full h-full flex flex-col items-center justify-start pt-6 sm:pt-[28px] lg:pt-[35px] px-[20px]",
+                  "relative z-10 w-full h-full flex flex-col items-center p-4 sm:p-5 lg:p-3.5 xl:p-5",
                   card.image && "transition-all duration-500 group-hover:opacity-0 group-hover:scale-95 group-hover:translate-y-2 pointer-events-none"
                 )}
               >
                 {/* layer--2: Judul Frame */}
                 <h3
                   style={{ color: cardTextColor }}
-                  className="font-bold text-[18px] sm:text-[20px] leading-snug line-clamp-2 drop-shadow-xs"
+                  className="font-bold text-[16px] sm:text-[18px] lg:text-[15px] xl:text-[18px] leading-snug line-clamp-2 drop-shadow-xs shrink-0"
                 >
                   {cardTitle}
                 </h3>
 
-                {/* layer-: Deskripsi Frame */}
-                <p
-                  style={{ color: cardTextColor }}
-                  className="mt-8 sm:mt-12 lg:mt-16 max-w-[295px] text-[13px] sm:text-[14px] font-medium leading-relaxed text-center line-clamp-6 drop-shadow-xs"
-                >
-                  {cardDesc}
-                </p>
+                {/* layer-: Deskripsi Frame persis di tengah vertikal (tidak naik dan tidak turun) */}
+                <div className="flex-1 flex items-center justify-center w-full min-h-0">
+                  <p
+                    style={{ color: cardTextColor }}
+                    className="max-w-[295px] text-[12px] sm:text-[13px] md:text-[14px] lg:text-[11.5px] xl:text-[13px] 2xl:text-[14px] font-medium leading-relaxed text-center line-clamp-6 drop-shadow-xs break-words"
+                  >
+                    {cardDesc}
+                  </p>
+                </div>
               </div>
             </div>
           );
@@ -3997,7 +3997,7 @@ export default function HomePage() {
                       <CarouselItem key={item.id || idx} className="md:basis-1/2 lg:basis-1/3">
                         <div className="w-full aspect-[2/1] lg:h-[226.5px] bg-primary/15 relative flex items-center justify-center text-gray-500 text-sm overflow-hidden rounded-sm">
                           {item.src ? (
-                            <img src={item.src} alt={item.title} className="w-full h-full object-cover absolute inset-0" />
+                            <SmartImage src={item.src} alt={item.title} sizes="(min-width: 1024px) 33vw, (min-width: 768px) 50vw, 100vw" priority={idx === 0} className="w-full h-full object-cover absolute inset-0" />
                           ) : (
                             item.title
                           )}
@@ -4429,9 +4429,10 @@ export default function HomePage() {
                       }}
                       className="w-[calc((100%-1.5rem)/3)] max-w-[135px] aspect-[135/138] sm:aspect-auto sm:w-[145px] sm:h-[148px] md:w-[148px] md:h-[151px] lg:w-[150px] lg:h-[153px] xl:w-[158px] xl:h-[161px] rounded-[5px] border-0 border-transparent flex items-center justify-center p-2 sm:p-3 text-center transition-all duration-200 hover:-translate-y-1 relative overflow-hidden shrink min-w-0 group"
                     >
-                      <img
+                      <SmartImage
                         src={item.image}
                         alt={item.title || `Sertifikasi ${idx + 1}`}
+                        sizes="(min-width: 640px) 160px, 33vw"
                         className="w-full h-full object-contain"
                       />
                     </div>
@@ -4576,9 +4577,10 @@ export default function HomePage() {
                       }}
                       className="w-[calc((100%-1.5rem)/3)] max-w-[135px] aspect-[135/138] sm:aspect-auto sm:w-[145px] sm:h-[148px] md:w-[148px] md:h-[151px] lg:w-[150px] lg:h-[153px] xl:w-[158px] xl:h-[161px] rounded-[5px] border-0 border-transparent flex items-center justify-center p-2 sm:p-3 text-center transition-all duration-200 hover:-translate-y-1 relative overflow-hidden shrink min-w-0 group"
                     >
-                      <img
+                      <SmartImage
                         src={item.image}
                         alt={item.title || `Brand Mitra ${idx + 1}`}
+                        sizes="(min-width: 640px) 160px, 33vw"
                         className="w-full h-full object-contain"
                       />
                     </div>
@@ -4782,7 +4784,11 @@ export default function HomePage() {
                     target={konsultasiBannerOpenNewTab ? "_blank" : undefined}
                     rel={konsultasiBannerOpenNewTab ? "noopener noreferrer" : undefined}
                     style={{
-                      backgroundColor: konsultasiBannerBtnBgColor || DEFAULT_KONSULTASI_BANNER_BTN_BG_COLOR,
+                      backgroundColor: (() => {
+                        const bg = konsultasiBannerBtnBgColor || DEFAULT_KONSULTASI_BANNER_BTN_BG_COLOR;
+                        // WCAG AA: hijau lama #0A9A15 (rasio 3.71) otomatis diganti versi lebih gelap
+                        return bg.toLowerCase() === "#0a9a15" ? "#087F11" : bg;
+                      })(),
                       color: konsultasiBannerBtnTextColor || DEFAULT_KONSULTASI_BANNER_BTN_TEXT_COLOR,
                       fontSize: konsultasiBannerBtnTextSize
                         ? `clamp(${Math.max(13, Math.round(konsultasiBannerBtnTextSize * 0.7))}px, 3.5vw, ${Math.min(konsultasiBannerBtnTextSize, 16)}px)`
@@ -4920,7 +4926,7 @@ export default function HomePage() {
                   {/* Label kecil */}
                   <div className="flex items-center gap-2 mb-3">
                     <span className="h-px w-8 bg-yellow-400 block" />
-                    <span className="text-xs font-bold uppercase tracking-widest" style={{ color: "#D97706" }}>
+                    <span className="text-xs font-bold uppercase tracking-widest" style={{ color: "#B45309" }}>
                       Testimoni Klien
                     </span>
                     <span className="h-px w-8 bg-yellow-400 block" />
@@ -5285,11 +5291,10 @@ export default function HomePage() {
                   title="Klik untuk memutar video profil"
                 >
                   {/* Thumbnail Image */}
-                  <img
+                  <SmartImage
                     src={videoProfilThumbnail || DEFAULT_VIDEO_PROFIL_THUMBNAIL}
                     alt={videoProfilTitle || "Video Profil Indo Green Nature"}
-                    loading="lazy"
-                    decoding="async"
+                    sizes="(min-width: 1024px) 50vw, 100vw"
                     className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                   />
 
@@ -5499,12 +5504,11 @@ export default function HomePage() {
                           >
                             <div className="w-full aspect-square bg-primary/15 relative overflow-hidden flex items-center justify-center text-gray-500 text-sm transition-colors">
                               {item.image_url ? (
-                                <img
+                                <SmartImage
                                   src={item.image_url.startsWith('http') ? item.image_url : `https://wnozfcqgcmvxvkxbxgfj.supabase.co/storage/v1/object/public/product-images/${item.image_url}`}
                                   alt={item.name}
+                                  sizes="(min-width: 1024px) 20vw, (min-width: 640px) 33vw, 50vw"
                                   className="w-full h-full object-cover absolute inset-0 transition-transform duration-500 group-hover:scale-105"
-                                  loading="lazy"
-                                  decoding="async"
                                 />
                               ) : (
                                 "Produk"
@@ -5598,7 +5602,7 @@ export default function HomePage() {
             <>
               <div className="w-full aspect-square bg-primary/15 relative">
                 {selectedProduct.src && (
-                  <img src={selectedProduct.src} alt={selectedProduct.title} className="absolute inset-0 w-full h-full object-cover" />
+                  <SmartImage src={selectedProduct.src} alt={selectedProduct.title} sizes="(max-width: 384px) 90vw, 384px" className="absolute inset-0 w-full h-full object-cover" />
                 )}
                 <div className="absolute inset-x-0 bottom-0 px-5 pt-16 pb-4 bg-gradient-to-t from-black/80 via-black/40 to-transparent flex flex-col gap-0.5">
                   <DialogTitle className={`text-[20px] font-[600] text-white text-left drop-shadow ${outfit.className}`}>

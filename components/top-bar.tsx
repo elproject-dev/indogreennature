@@ -61,7 +61,7 @@ export function TopBar() {
                 const parsed = JSON.parse(cachedUser);
                 if (parsed && typeof parsed.name === "string") setUser(parsed);
             }
-        } catch (e) {}
+        } catch (e) { }
 
         // Load custom cached logo config if available
         try {
@@ -69,10 +69,7 @@ export function TopBar() {
             if (cached) {
                 const parsed = JSON.parse(cached);
                 const isLegacyLogo = parsed.logoUrl && (
-                    parsed.logoUrl.startsWith("/LOGO AI NEW") ||
-                    parsed.logoUrl.startsWith("/2sbagiamu") ||
-                    parsed.logoUrl.startsWith("/logo") ||
-                    parsed.logoUrl.startsWith("/badge-icon")
+                    parsed.logoUrl.startsWith("/logo")
                 );
                 setLogoConfig({
                     mode: parsed.mode || DEFAULT_TOPBAR_CONFIG.mode,
@@ -88,7 +85,7 @@ export function TopBar() {
                     textSize: parsed.textSize ? Number(parsed.textSize) : DEFAULT_TOPBAR_CONFIG.textSize,
                 });
             }
-        } catch (e) {}
+        } catch (e) { }
 
         const fetchUser = async () => {
             const { data: { session } } = await supabase.auth.getSession();
@@ -101,7 +98,7 @@ export function TopBar() {
             setUser(userData);
             try {
                 localStorage.setItem("topbar_cached_user", JSON.stringify(userData));
-            } catch (e) {}
+            } catch (e) { }
         };
         fetchUser();
 
@@ -132,12 +129,7 @@ export function TopBar() {
                     });
                     setLogoConfig(prev => {
                         const rawUrl = cfg.topbar_logo_url !== undefined ? cfg.topbar_logo_url : prev.logoUrl;
-                        const isLegacy = rawUrl && (
-                            rawUrl.startsWith("/LOGO AI NEW") ||
-                            rawUrl.startsWith("/2sbagiamu") ||
-                            rawUrl.startsWith("/logo") ||
-                            rawUrl.startsWith("/badge-icon")
-                        );
+                        const isLegacy = rawUrl && (rawUrl.startsWith("/logo"));
                         const cleanLogoUrl = isLegacy ? "" : rawUrl;
                         const updated = {
                             mode: cfg.topbar_display_mode || prev.mode,
@@ -168,11 +160,11 @@ export function TopBar() {
 
                         try {
                             localStorage.setItem("topbar_logo_config", JSON.stringify(updated));
-                        } catch (e) {}
+                        } catch (e) { }
                         return updated;
                     });
                 }
-            } catch (e) {}
+            } catch (e) { }
         };
         fetchLogoConfig();
 
@@ -186,7 +178,7 @@ export function TopBar() {
             setUser(userData);
             try {
                 localStorage.setItem("topbar_cached_user", JSON.stringify(userData));
-            } catch (e) {}
+            } catch (e) { }
         });
 
         // Listen for live instant preview updates
@@ -196,7 +188,7 @@ export function TopBar() {
                     const updated = { ...prev, ...e.detail };
                     try {
                         localStorage.setItem("topbar_logo_config", JSON.stringify(updated));
-                    } catch (err) {}
+                    } catch (err) { }
                     return updated;
                 });
             }
@@ -221,7 +213,7 @@ export function TopBar() {
     const handleLogout = async () => {
         try {
             localStorage.setItem("topbar_cached_user", JSON.stringify({ name: "Belum Login", email: "Mode Tamu", avatar: "" }));
-        } catch (e) {}
+        } catch (e) { }
 
         if (user?.name === "Belum Login") {
             router.push("/login");
@@ -252,16 +244,16 @@ export function TopBar() {
                         className="flex items-center gap-[10px] select-none cursor-pointer group hover:opacity-90 active:scale-[0.98] transition-all text-left"
                     >
                         {logoConfig.mode !== "text_only" && Boolean(logoConfig.logoUrl) && (
-                            <img
+                            <Image
                                 src={logoConfig.logoUrl}
                                 alt={(logoConfig.mode === "logo_and_text" || logoConfig.mode === "text_only" || !logoConfig.logoUrl) ? "" : (logoConfig.companyName || "CV. Indo Green Nature")}
                                 aria-hidden={(logoConfig.mode === "logo_and_text" || logoConfig.mode === "text_only" || !logoConfig.logoUrl) ? "true" : undefined}
-                                width={160}
-                                height={logoConfig.logoSize || 32}
-                                loading="eager"
-                                decoding="async"
+                                width={0}
+                                height={0}
+                                priority
+                                sizes="128px"
                                 style={{
-                                    height: `${logoConfig.logoSize}px`,
+                                    height: `${logoConfig.logoSize ? Math.min(Number(logoConfig.logoSize), 46) : 36}px`,
                                     width: "auto",
                                     maxHeight: "46px",
                                 }}
@@ -269,9 +261,6 @@ export function TopBar() {
                                     "object-contain drop-shadow-sm select-none group-hover:scale-105 transition-transform",
                                     logoConfig.logoColor === "white" ? "brightness-0 invert" : ""
                                 )}
-                                onError={(e) => {
-                                    (e.target as HTMLElement).style.display = "none";
-                                }}
                             />
                         )}
                         {(logoConfig.mode === "logo_and_text" || logoConfig.mode === "text_only" || !logoConfig.logoUrl) && (

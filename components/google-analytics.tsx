@@ -19,14 +19,33 @@ export function GoogleAnalytics({ gaId }: GoogleAnalyticsProps) {
     gtag("js", new Date());
     gtag("config", gaId);
 
-    const scriptId = "_ga_script_safe";
-    if (!document.getElementById(scriptId)) {
-      const script = document.createElement("script");
-      script.id = scriptId;
-      script.async = true;
-      script.src = `https://www.googletagmanager.com/gtag/js?id=${gaId}`;
-      document.head.appendChild(script);
-    }
+    let loaded = false;
+    const events: (keyof WindowEventMap)[] = ["pointerdown", "keydown", "scroll", "touchstart"];
+
+    const loadScript = () => {
+      if (loaded) return;
+      loaded = true;
+      events.forEach((e) => window.removeEventListener(e, loadScript));
+
+      const scriptId = "_ga_script_safe";
+      if (!document.getElementById(scriptId)) {
+        const script = document.createElement("script");
+        script.id = scriptId;
+        script.async = true;
+        script.src = `https://www.googletagmanager.com/gtag/js?id=${gaId}`;
+        document.head.appendChild(script);
+      }
+    };
+
+    // Performa (TBT): script GTM dimuat setelah halaman idle atau saat interaksi pertama,
+    // bukan saat render awal. dataLayer di atas tetap menampung event sampai script siap.
+    events.forEach((e) => window.addEventListener(e, loadScript, { once: true, passive: true }));
+    const timer = window.setTimeout(loadScript, 4000);
+
+    return () => {
+      window.clearTimeout(timer);
+      events.forEach((e) => window.removeEventListener(e, loadScript));
+    };
   }, [gaId]);
 
   return null;
