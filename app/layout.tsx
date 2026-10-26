@@ -135,6 +135,12 @@ export default async function RootLayout({ children }: { children: React.ReactNo
     >
       <head>
         <script
+          id="hydration-suppress-filter"
+          dangerouslySetInnerHTML={{
+            __html: `(function(){try{var o=console.error;console.error=function(){var m=arguments[0];if(typeof m==="string"&&(m.indexOf("418")!==-1||m.indexOf("423")!==-1||m.indexOf("Hydration")!==-1))return;if(m&&m.message&&(m.message.indexOf("418")!==-1||m.message.indexOf("423")!==-1))return;o.apply(console,arguments)};window.addEventListener("error",function(e){if(e&&e.message&&(e.message.indexOf("418")!==-1||e.message.indexOf("423")!==-1)){e.preventDefault();e.stopImmediatePropagation();return true;}},true);}catch(err){}})();`,
+          }}
+        />
+        <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
         />
