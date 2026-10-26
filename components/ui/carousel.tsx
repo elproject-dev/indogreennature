@@ -185,7 +185,7 @@ function CarouselPrevious({
       variant={variant}
       size={size}
       className={cn(
-        "absolute touch-manipulation",
+        "absolute touch-manipulation min-w-[48px] min-h-[48px]",
         orientation === "horizontal"
           ? "inset-y-0 -left-12 my-auto"
           : "-top-12 left-1/2 -translate-x-1/2 rotate-90",
@@ -215,7 +215,7 @@ function CarouselNext({
       variant={variant}
       size={size}
       className={cn(
-        "absolute touch-manipulation",
+        "absolute touch-manipulation min-w-[48px] min-h-[48px]",
         orientation === "horizontal"
           ? "inset-y-0 -right-12 my-auto"
           : "-bottom-12 left-1/2 -translate-x-1/2 rotate-90",
@@ -272,14 +272,14 @@ function CarouselDots({
   if (count <= 1) return null
 
   return (
-    <div className={cn("flex justify-center items-center gap-1", className)} {...props}>
+    <div className={cn("flex justify-center items-center gap-0.5", className)} {...props}>
       {Array.from({ length: count }).map((_, index) => {
         const isActive = selectedIndex % count === index
         return (
           <button
             key={index}
             type="button"
-            className="flex items-center justify-center py-1.5 px-1 rounded-full cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+            className="flex items-center justify-center min-w-[48px] min-h-[48px] rounded-full cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-primary touch-manipulation"
             onClick={() => api?.scrollTo(index)}
             aria-label={`Go to slide ${index + 1}`}
           >
