@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react'
 import { requestForToken, onMessageListener } from '@/lib/firebase'
 import { toast } from 'sonner'
-import { Bell, Loader2 } from 'lucide-react'
+import { Loader2 } from 'lucide-react'
 
 export function PushNotificationManager() {
   const [showPrompt, setShowPrompt] = useState(false)
@@ -206,40 +206,35 @@ export function PushNotificationManager() {
 
   return (
     <div className="fixed top-4 left-1/2 -translate-x-1/2 z-[100] w-[calc(100%-2rem)] max-w-sm rounded-lg border border-border bg-card/95 backdrop-blur-md p-4 shadow-xl animate-in fade-in slide-in-from-top-4 duration-500">
-      <div className="flex items-start gap-3">
-        <div className="p-2 rounded-full bg-primary/10 text-primary shrink-0 mt-0.5">
-          <Bell className="w-5 h-5" />
-        </div>
-        <div className="flex-1 min-w-0">
-          <p className="text-sm font-bold text-foreground">Aktifkan Notifikasi?</p>
-          <p className="mt-1 text-xs text-muted-foreground leading-relaxed">
-            Dapatkan info promo, artikel herbal, dan pemberitahuan penting CV. Indo Green Nature langsung di perangkat Anda.
-          </p>
-          <div className="mt-3 flex items-center justify-end gap-2">
-            <button
-              type="button"
-              disabled={isActivating}
-              onClick={handleDismiss}
-              className="rounded-md px-3 py-1.5 text-xs font-medium text-muted-foreground hover:bg-muted hover:text-foreground transition-colors cursor-pointer disabled:opacity-50"
-            >
-              Nanti
-            </button>
-            <button
-              type="button"
-              disabled={isActivating}
-              onClick={handleEnable}
-              className="rounded-md bg-primary px-3.5 py-1.5 text-xs font-semibold text-primary-foreground hover:bg-primary/90 transition-colors shadow-sm active:scale-95 cursor-pointer disabled:opacity-50 flex items-center gap-1.5"
-            >
-              {isActivating ? (
-                <>
-                  <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                  <span>Memproses...</span>
-                </>
-              ) : (
-                <span>Aktifkan</span>
-              )}
-            </button>
-          </div>
+      <div className="w-full">
+        <p className="text-sm font-bold text-foreground">Aktifkan Notifikasi?</p>
+        <p className="mt-1 text-xs text-muted-foreground leading-relaxed">
+          Dapatkan info promo, artikel herbal, dan pemberitahuan penting CV. Indo Green Nature langsung di perangkat Anda.
+        </p>
+        <div className="mt-3 flex items-center justify-end gap-2">
+          <button
+            type="button"
+            disabled={isActivating}
+            onClick={handleDismiss}
+            className="rounded-md px-3 py-1.5 text-xs font-medium text-muted-foreground hover:bg-muted hover:text-foreground transition-colors cursor-pointer disabled:opacity-50"
+          >
+            Nanti
+          </button>
+          <button
+            type="button"
+            disabled={isActivating}
+            onClick={handleEnable}
+            className="rounded-md bg-primary px-3.5 py-1.5 text-xs font-semibold text-primary-foreground hover:bg-primary/90 transition-colors shadow-sm active:scale-95 cursor-pointer disabled:opacity-50 flex items-center gap-1.5"
+          >
+            {isActivating ? (
+              <>
+                <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                <span>Memproses...</span>
+              </>
+            ) : (
+              <span>Aktifkan</span>
+            )}
+          </button>
         </div>
       </div>
     </div>
