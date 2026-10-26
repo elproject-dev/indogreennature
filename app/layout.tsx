@@ -133,6 +133,12 @@ export default async function RootLayout({ children }: { children: React.ReactNo
       className={cn("light", "h-full", "antialiased", geistSans.variable, geistMono.variable, "font-sans", outfit.variable, moderustic.variable, poiretOne.variable)}
       suppressHydrationWarning
     >
+      <head>
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        />
+      </head>
       <body className="min-h-full flex flex-col" suppressHydrationWarning>
         <ThemeProvider>
           <GlobalThemeApplier />
@@ -142,14 +148,10 @@ export default async function RootLayout({ children }: { children: React.ReactNo
           <PWAInstallPrompt />
           <PushNotificationManager />
         </ThemeProvider>
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
-        />
-        {process.env.NODE_ENV === "production" && process.env.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID && (
-          <GoogleAnalytics gaId={process.env.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID} />
-        )}
       </body>
+      {process.env.NODE_ENV === "production" && process.env.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID && (
+        <GoogleAnalytics gaId={process.env.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID} />
+      )}
     </html>
   );
 }
