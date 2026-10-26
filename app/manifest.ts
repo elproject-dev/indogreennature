@@ -8,7 +8,7 @@ export default function manifest(): MetadataRoute.Manifest {
     start_url: '/',
     display: 'standalone',
     background_color: '#ffffff',
-    theme_color: '#15803D',
+    theme_color: '#ffffff',
     icons: [
       {
         src: '/pwa-icon-192.png',
@@ -23,7 +23,7 @@ export default function manifest(): MetadataRoute.Manifest {
         purpose: 'any',
       },
       {
-        src: '/pwa-icon.png',
+        src: '/pwa-icon-maskable.png',
         sizes: '512x512',
         type: 'image/png',
         purpose: 'maskable',
