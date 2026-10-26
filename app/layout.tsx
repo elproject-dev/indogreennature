@@ -151,10 +151,14 @@ export default async function RootLayout({ children }: { children: React.ReactNo
       "description": seo.siteDescription,
       "address": {
         "@type": "PostalAddress",
+        "streetAddress": "Jl. Wahid Hasyim No. 123",
         "addressLocality": "Wates",
         "addressRegion": "Daerah Istimewa Yogyakarta",
+        "postalCode": "55651",
         "addressCountry": "ID"
       },
+      "telephone": "+6285877669199",
+      "email": "marketing@indogreennature.com",
       "sameAs": [
         "https://instagram.com/indogreennature",
         "https://facebook.com/indogreennature",
