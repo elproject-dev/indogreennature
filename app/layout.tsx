@@ -12,7 +12,8 @@ import { PushNotificationManager } from "@/components/push-notification-manager"
 import { GlobalThemeApplier } from "@/components/global-theme-applier"
 
 
-const moderustic = Moderustic({ subsets: ['latin'], variable: '--font-moderustic', preload: false });
+// const moderustic = Moderustic({ subsets: ['latin'], variable: '--font-moderustic', preload: false });
+const moderustic = Moderustic({ subsets: ['latin'], variable: '--font-moderustic' });
 const poiretOne = Poiret_One({ weight: "400", subsets: ['latin'], variable: '--font-poiret-one', preload: false });
 
 const geistSans = Geist({

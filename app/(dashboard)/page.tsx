@@ -341,13 +341,13 @@ export default function HomePage() {
       if (cached) {
         setOurProductsSettings(cached);
       }
-    } catch {}
+    } catch { }
 
     const handleOurProductsStorage = (e: StorageEvent) => {
       if (e.key === OUR_PRODUCTS_SETTINGS_KEY && e.newValue) {
         try {
           setOurProductsSettings(JSON.parse(e.newValue));
-        } catch {}
+        } catch { }
       }
     };
     window.addEventListener("storage", handleOurProductsStorage);
@@ -359,7 +359,7 @@ export default function HomePage() {
         ourProductsBc.onmessage = (ev) => {
           if (ev.data) setOurProductsSettings(ev.data);
         };
-      } catch {}
+      } catch { }
     }
 
     return () => {
@@ -482,7 +482,7 @@ export default function HomePage() {
   const [faqAnswerColor, setFaqAnswerColor] = useState(DEFAULT_FAQ_ANSWER_COLOR);
   const [faqItems, setFaqItems] = useState<FaqItem[]>(DEFAULT_FAQ_ITEMS);
   const [openFaqId, setOpenFaqId] = useState<string | null>(null); // default semua tertutup saat halaman dimuat/direfresh
-  
+
   // Video Profil Mengenal IGN states
   const [videoProfilTitle, setVideoProfilTitle] = useState(DEFAULT_VIDEO_PROFIL_TITLE);
   const [videoProfilTitleSize, setVideoProfilTitleSize] = useState<number>(DEFAULT_VIDEO_PROFIL_TITLE_SIZE);
@@ -513,7 +513,7 @@ export default function HomePage() {
   // Pop Up Video Modal
   const [activeVideoModalUrl, setActiveVideoModalUrl] = useState<string | null>(null);
   const [activeVideoModalTitle, setActiveVideoModalTitle] = useState<string>("Video Profil");
-  
+
   // State loading menutup layar penuh z-[200] agar transisi reload mulus tanpa flashback top bar (sama seperti About & Contact)
   const [isLoading, setIsLoading] = useState(true);
   const [articles, setArticles] = useState<any[]>([]);
@@ -641,7 +641,7 @@ export default function HomePage() {
           try {
             const parsed = JSON.parse(pSCards);
             if (Array.isArray(parsed)) setSolusiBisnisCards(parsed);
-          } catch (e) {}
+          } catch (e) { }
         }
         const pSCTColor = localStorage.getItem("solusi_bisnis_preview_card_title_color");
         if (pSCTColor !== null) setSolusiBisnisCardTitleColor(pSCTColor);
@@ -680,7 +680,7 @@ export default function HomePage() {
                 setJenisProdukCards(parsed);
               }
             }
-          } catch (e) {}
+          } catch (e) { }
         }
         const pPlTitle = localStorage.getItem("peluang_preview_title");
         if (pPlTitle !== null) setPeluangTitle(pPlTitle);
@@ -713,7 +713,7 @@ export default function HomePage() {
           try {
             const parsed = JSON.parse(pPlItems);
             if (Array.isArray(parsed) && parsed.length > 0) setPeluangItems(parsed);
-          } catch (e) {}
+          } catch (e) { }
         }
         const pMmTitle = localStorage.getItem("mengapa_preview_title");
         if (pMmTitle !== null) setMengapaTitle(pMmTitle);
@@ -744,7 +744,7 @@ export default function HomePage() {
           try {
             const parsed = JSON.parse(pMmCards);
             if (Array.isArray(parsed) && parsed.length > 0) setMengapaCards(parsed);
-          } catch (e) {}
+          } catch (e) { }
         }
         const pLegTitle = localStorage.getItem("legalitas_preview_title");
         if (pLegTitle !== null) setLegalitasTitle(pLegTitle);
@@ -771,7 +771,7 @@ export default function HomePage() {
           try {
             const parsed = JSON.parse(pLegItems);
             if (Array.isArray(parsed) && parsed.length > 0) setLegalitasItems(parsed);
-          } catch (e) {}
+          } catch (e) { }
         }
         // Dipercaya Brand Preview localStorage
         const pBrandTitle = localStorage.getItem("dipercaya_brand_preview_title");
@@ -799,7 +799,7 @@ export default function HomePage() {
           try {
             const parsed = JSON.parse(pBrandItems);
             if (Array.isArray(parsed) && parsed.length > 0) setDipercayaBrandItems(parsed);
-          } catch (e) {}
+          } catch (e) { }
         }
         // Proses Maklon Preview localStorage
         const pProsesTitle = localStorage.getItem("proses_maklon_preview_title");
@@ -829,7 +829,7 @@ export default function HomePage() {
           try {
             const parsed = JSON.parse(pProsesItems);
             if (Array.isArray(parsed) && parsed.length > 0) setProsesMaklonItems(parsed);
-          } catch (e) {}
+          } catch (e) { }
         }
         // Konsultasi Banner Preview localStorage
         const pKonsulText = localStorage.getItem("konsultasi_banner_preview_text");
@@ -1053,7 +1053,7 @@ export default function HomePage() {
           try {
             const parsed = JSON.parse(sSCards);
             if (Array.isArray(parsed)) setSolusiBisnisCards(parsed);
-          } catch (e) {}
+          } catch (e) { }
         }
         const sSCTColor = localStorage.getItem("solusi_bisnis_card_title_color");
         if (sSCTColor !== null) setSolusiBisnisCardTitleColor(sSCTColor);
@@ -1105,7 +1105,7 @@ export default function HomePage() {
                 setJenisProdukCards(parsed);
               }
             }
-          } catch (e) {}
+          } catch (e) { }
         }
         const sPlTitle = localStorage.getItem("peluang_title");
         if (sPlTitle !== null) setPeluangTitle(sPlTitle);
@@ -1138,7 +1138,7 @@ export default function HomePage() {
           try {
             const parsed = JSON.parse(sPlItems);
             if (Array.isArray(parsed) && parsed.length > 0) setPeluangItems(parsed);
-          } catch (e) {}
+          } catch (e) { }
         }
         const sMmTitle = localStorage.getItem("mengapa_title");
         if (sMmTitle !== null) setMengapaTitle(sMmTitle);
@@ -1169,7 +1169,7 @@ export default function HomePage() {
           try {
             const parsed = JSON.parse(sMmCards);
             if (Array.isArray(parsed) && parsed.length > 0) setMengapaCards(parsed);
-          } catch (e) {}
+          } catch (e) { }
         }
         const sLegTitle = localStorage.getItem("legalitas_title");
         if (sLegTitle !== null) setLegalitasTitle(sLegTitle);
@@ -1196,7 +1196,7 @@ export default function HomePage() {
           try {
             const parsed = JSON.parse(sLegItems);
             if (Array.isArray(parsed) && parsed.length > 0) setLegalitasItems(parsed);
-          } catch (e) {}
+          } catch (e) { }
         }
         // Dipercaya Brand Normal localStorage
         const sBrandTitle = localStorage.getItem("dipercaya_brand_title");
@@ -1224,7 +1224,7 @@ export default function HomePage() {
           try {
             const parsed = JSON.parse(sBrandItems);
             if (Array.isArray(parsed) && parsed.length > 0) setDipercayaBrandItems(parsed);
-          } catch (e) {}
+          } catch (e) { }
         }
         // Proses Maklon Normal localStorage
         const sProsesTitle = localStorage.getItem("proses_maklon_title");
@@ -1254,7 +1254,7 @@ export default function HomePage() {
           try {
             const parsed = JSON.parse(sProsesItems);
             if (Array.isArray(parsed) && parsed.length > 0) setProsesMaklonItems(parsed);
-          } catch (e) {}
+          } catch (e) { }
         }
         // Konsultasi Banner Normal localStorage
         const sKonsulText = localStorage.getItem("konsultasi_banner_text");
@@ -2349,7 +2349,7 @@ export default function HomePage() {
                   setSolusiBisnisCards(parsed);
                   localStorage.setItem('solusi_bisnis_cards', item.value);
                 }
-              } catch (e) {}
+              } catch (e) { }
             }
             else if (item.key === 'solusi_bisnis_desc_align' && (item.value === 'center' || item.value === 'left' || item.value === 'justify')) {
               if (!isPreview) {
@@ -3366,7 +3366,7 @@ export default function HomePage() {
                 if (parsed) {
                   setOurProductsSettings(sanitizeOurProductsSettings(parsed));
                 }
-              } catch {}
+              } catch { }
             }
             else linksObj[item.key] = item.value;
           });
@@ -3426,7 +3426,7 @@ export default function HomePage() {
                 requestAnimationFrame(() => setIsLoading(false));
               });
               return;
-            } catch {}
+            } catch { }
           }
           requestAnimationFrame(() => setIsLoading(false));
         }, remaining);
@@ -3628,8 +3628,6 @@ export default function HomePage() {
                     alt="Banner CV. Indo Green Nature"
                     fill
                     priority
-                    loading="eager"
-                    fetchPriority="high"
                     unoptimized
                     sizes="(max-width: 640px) 100vw, 453px"
                     className={heroImageFit === 'contain' ? "object-contain" : "object-cover"}
@@ -4076,8 +4074,8 @@ export default function HomePage() {
                       peluangDescAlign === "center"
                         ? "text-center"
                         : peluangDescAlign === "justify"
-                        ? "text-center lg:text-justify"
-                        : "text-center lg:text-left",
+                          ? "text-center lg:text-justify"
+                          : "text-center lg:text-left",
                       !peluangDescSize && "text-[12px] sm:text-base",
                       !peluangDescColor && "text-black dark:text-white/80"
                     )}
@@ -5303,7 +5301,7 @@ export default function HomePage() {
                     <div className="relative flex items-center justify-center">
                       {/* Ripple Ring */}
                       <div className="absolute w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-red-600/40 animate-ping opacity-75" />
-                      
+
                       {/* Play Button Circle */}
                       <div className="relative w-14 h-14 sm:w-16 sm:h-16 rounded-full bg-red-600 group-hover:bg-red-700 text-white flex items-center justify-center shadow-xl transition-all duration-300 group-hover:scale-110">
                         <Play className="w-6 h-6 sm:w-7 sm:h-7 ml-0.5 fill-white" />
@@ -5435,8 +5433,8 @@ export default function HomePage() {
                   style={
                     hero2FontSize
                       ? {
-                          fontSize: `clamp(${Math.max(20, Math.round(hero2FontSize * 0.5))}px, 5vw, ${hero2FontSize}px)`,
-                        }
+                        fontSize: `clamp(${Math.max(20, Math.round(hero2FontSize * 0.5))}px, 5vw, ${hero2FontSize}px)`,
+                      }
                       : undefined
                   }
                   className={cn(

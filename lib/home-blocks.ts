@@ -194,25 +194,25 @@ export const DEFAULT_SOLUSI_BISNIS_CARDS: SolusiBisnisCard[] = [
     id: "card-1",
     title: "Mulai Brand Obat Herbal Baru",
     desc: "Wujudkan produk impian Anda meski tanpa pengalaman. Kami bantu dari konsep, formulasi, hingga legalitas (BPOM & Halal) siap rilis.",
-    image: "/images/solusi/solusi-1.jpg",
+    image: "/images/solusi/logo.png",
   },
   {
     id: "card-2",
     title: "Mulai Brand Obat Herbal Baru",
     desc: "Wujudkan produk impian Anda meski tanpa pengalaman. Kami bantu dari konsep, formulasi, hingga legalitas (BPOM & Halal) siap rilis.",
-    image: "/images/solusi/solusi-2.jpg",
+    image: "/images/solusi/logo.png",
   },
   {
     id: "card-3",
     title: "Mulai Brand Obat Herbal Baru",
     desc: "Wujudkan produk impian Anda meski tanpa pengalaman. Kami bantu dari konsep, formulasi, hingga legalitas (BPOM & Halal) siap rilis.",
-    image: "/images/solusi/solusi-3.jpg",
+    image: "/images/solusi/logo.png",
   },
   {
     id: "card-4",
     title: "Mulai Brand Obat Herbal Baru",
     desc: "Wujudkan produk impian Anda meski tanpa pengalaman. Kami bantu dari konsep, formulasi, hingga legalitas (BPOM & Halal) siap rilis.",
-    image: "/images/solusi/solusi-4.jpg",
+    image: "/images/solusi/logo.png",
   },
 ]
 
