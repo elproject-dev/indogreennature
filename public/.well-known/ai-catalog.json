@@ -1,0 +1,51 @@
+{
+  "specVersion": "1.0",
+  "host": {
+    "displayName": "CV. Indo Green Nature",
+    "identifier": "indogreennature.com"
+  },
+  "entries": [
+    {
+      "identifier": "urn:air:indogreennature.com:site:sitemap",
+      "displayName": "Sitemap Indo Green Nature",
+      "type": "application/xml",
+      "url": "https://www.indogreennature.com/sitemap.xml",
+      "description": "Daftar lengkap halaman publik CV. Indo Green Nature untuk crawler dan agen AI."
+    },
+    {
+      "identifier": "urn:air:indogreennature.com:site:home",
+      "displayName": "Jasa Maklon Produk Herbal & Kesehatan",
+      "type": "text/html",
+      "url": "https://www.indogreennature.com/",
+      "description": "Layanan maklon (contract manufacturing) produk herbal, jamu, dan suplemen kesehatan: jenis produk, legalitas, proses maklon, dan ulasan klien."
+    },
+    {
+      "identifier": "urn:air:indogreennature.com:site:our-products",
+      "displayName": "Katalog Produk Indo Green Nature",
+      "type": "text/html",
+      "url": "https://www.indogreennature.com/our-products",
+      "description": "Katalog produk herbal resmi beserta harga, deskripsi, dan tautan pembelian marketplace atau WhatsApp."
+    },
+    {
+      "identifier": "urn:air:indogreennature.com:site:legalitas",
+      "displayName": "Legalitas & Standar Kualitas",
+      "type": "text/html",
+      "url": "https://www.indogreennature.com/legalitas",
+      "description": "Informasi legalitas usaha, sertifikasi, dan standar kualitas produksi."
+    },
+    {
+      "identifier": "urn:air:indogreennature.com:site:about",
+      "displayName": "Tentang Kami",
+      "type": "text/html",
+      "url": "https://www.indogreennature.com/about",
+      "description": "Profil perusahaan, visi, dan fasilitas produksi CV. Indo Green Nature."
+    },
+    {
+      "identifier": "urn:air:indogreennature.com:site:contact",
+      "displayName": "Kontak & Konsultasi Maklon",
+      "type": "text/html",
+      "url": "https://www.indogreennature.com/contact",
+      "description": "Halaman kontak, lokasi, dan konsultasi pengembangan produk maklon."
+    }
+  ]
+}

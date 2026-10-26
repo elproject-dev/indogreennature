@@ -1,0 +1,24 @@
+# CV. Indo Green Nature
+
+> CV. Indo Green Nature adalah penyedia jasa maklon (contract manufacturing) produk herbal, jamu, dan suplemen kesehatan di Indonesia. Situs ini memuat layanan maklon, katalog produk resmi, legalitas dan standar kualitas, serta informasi kontak untuk konsultasi pengembangan produk.
+
+Bahasa utama situs adalah Bahasa Indonesia. Harga, ketersediaan, dan tautan pembelian produk dapat berubah; gunakan halaman katalog sebagai sumber terbaru. Halaman admin (/settings, /login) dan /api/ tidak untuk dirayapi.
+
+## Layanan & Perusahaan
+
+- [Beranda](https://www.indogreennature.com/): Ringkasan layanan maklon herbal, jenis produk yang dapat dimaklon, proses maklon, ulasan klien, dan FAQ.
+- [Tentang Kami](https://www.indogreennature.com/about): Profil perusahaan, visi, dan latar belakang.
+- [Legalitas & Standar Kualitas](https://www.indogreennature.com/legalitas): Legalitas usaha, sertifikasi, dan standar kualitas produksi.
+
+## Produk
+
+- [Katalog Produk](https://www.indogreennature.com/our-products): Daftar produk herbal beserta harga, deskripsi, dan tautan pembelian (marketplace atau WhatsApp).
+
+## Kontak
+
+- [Kontak & Konsultasi Maklon](https://www.indogreennature.com/contact): Informasi kontak dan formulir konsultasi pengembangan produk.
+
+## Optional
+
+- [Sitemap](https://www.indogreennature.com/sitemap.xml): Daftar lengkap halaman publik.
+- [AI Catalog](https://www.indogreennature.com/.well-known/ai-catalog.json): Manifest penemuan sumber daya untuk agen AI.
