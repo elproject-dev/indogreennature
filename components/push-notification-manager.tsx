@@ -18,15 +18,24 @@ export function PushNotificationManager() {
           const token = await requestForToken();
 
           if (token) {
-            // Send token to backend to subscribe to 'all_users' topic
-            await fetch('/api/subscribe', {
-              method: 'POST',
-              headers: {
-                'Content-Type': 'application/json',
-              },
-              body: JSON.stringify({ token }),
-            });
-            console.log("Successfully subscribed to notifications");
+            // CEK LOKAL: Tambahkan pengecekan localStorage di sini juga
+            const savedToken = localStorage.getItem('fcm_token_sent');
+
+            if (savedToken !== token) {
+              await fetch('/api/subscribe', {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ token }),
+              });
+              console.log("Successfully subscribed to notifications");
+
+              // SIMPAN KE LOKAL
+              localStorage.setItem('fcm_token_sent', token);
+            } else {
+              console.log("Token FCM otomatis sudah sinkron, skip fetch.");
+            }
           }
         } catch (error) {
           console.error("Error setting up push notifications:", error);
@@ -145,12 +154,25 @@ export function PushNotificationManager() {
         try {
           const token = await requestForToken();
           if (token) {
-            await fetch('/api/subscribe', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ token }),
-            });
-            console.log("Successfully subscribed to notifications with token");
+            // CEK LOKAL: Pastikan token belum pernah dikirim sebelumnya
+            const savedToken = localStorage.getItem('fcm_token_sent');
+
+            // Hanya lakukan fetch jika token di lokal kosong atau token dari FCM berubah
+            if (savedToken !== token) {
+              await fetch('/api/subscribe', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ token }),
+              });
+
+              console.log("Successfully subscribed to notifications with token");
+
+              // SIMPAN KE LOKAL: Tandai bahwa token ini sudah berhasil dikirim
+              localStorage.setItem('fcm_token_sent', token);
+            } else {
+              // Jika token sama dengan yang ada di lokal, skip fetch
+              console.log("Token FCM sudah sinkron dengan backend, skip fetch.");
+            }
           }
         } catch (fcmErr) {
           console.warn("FCM background token registration warning:", fcmErr);
