@@ -114,19 +114,54 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   const seo = await fetchSeoConfig();
   const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || seo.canonicalUrl || "https://www.indogreennature.com";
 
-  const jsonLd = {
-    "@context": "https://schema.org",
-    "@type": "Organization",
-    "name": seo.companyName || "CV. Indo Green Nature",
-    "url": baseUrl,
-    "logo": `${baseUrl}/pwa-icon.png`,
-    "description": seo.siteDescription,
-    "sameAs": [
-      "https://instagram.com/indogreennature",
-      "https://facebook.com/indogreennature",
-      "https://tiktok.com/@indogreennature"
-    ]
-  };
+  const jsonLd = [
+    {
+      "@context": "https://schema.org",
+      "@type": "WebSite",
+      "@id": `${baseUrl}/#website`,
+      "url": baseUrl,
+      "name": seo.companyName || "CV. Indo Green Nature",
+      "description": seo.siteDescription,
+      "publisher": {
+        "@id": `${baseUrl}/#organization`,
+      },
+      "inLanguage": "id-ID",
+      "potentialAction": {
+        "@type": "SearchAction",
+        "target": {
+          "@type": "EntryPoint",
+          "urlTemplate": `${baseUrl}/our-products?q={search_term_string}`
+        },
+        "query-input": "required name=search_term_string"
+      }
+    },
+    {
+      "@context": "https://schema.org",
+      "@type": "Organization",
+      "@id": `${baseUrl}/#organization`,
+      "name": seo.companyName || "CV. Indo Green Nature",
+      "url": baseUrl,
+      "logo": {
+        "@type": "ImageObject",
+        "url": `${baseUrl}/pwa-icon-512.png`,
+        "width": 512,
+        "height": 512
+      },
+      "image": seo.ogImageUrl || `${baseUrl}/pwa-icon-512.png`,
+      "description": seo.siteDescription,
+      "address": {
+        "@type": "PostalAddress",
+        "addressLocality": "Wates",
+        "addressRegion": "Daerah Istimewa Yogyakarta",
+        "addressCountry": "ID"
+      },
+      "sameAs": [
+        "https://instagram.com/indogreennature",
+        "https://facebook.com/indogreennature",
+        "https://tiktok.com/@indogreennature"
+      ]
+    }
+  ];
 
   return (
     <html
