@@ -13,43 +13,16 @@ export function PWAInstallPrompt() {
 
   useEffect(() => {
     if (typeof window !== "undefined") {
-      // Manual Service Worker registration
-      if ("serviceWorker" in navigator) {
-        if (process.env.NODE_ENV === 'development') {
-          // Bersihkan hanya sisa service worker caching utama di development, jangan hapus firebase-messaging-sw
-          navigator.serviceWorker.getRegistrations().then((registrations) => {
-            for (let registration of registrations) {
-              const scriptUrl = registration.active?.scriptURL || registration.installing?.scriptURL || '';
-              if (!scriptUrl.includes('firebase-messaging-sw.js')) {
-                registration.unregister();
-              }
+      // Di development, bersihkan service worker caching lama jika ada agar tidak mengganggu live-reload
+      if ("serviceWorker" in navigator && process.env.NODE_ENV === "development") {
+        navigator.serviceWorker.getRegistrations().then((registrations) => {
+          for (const registration of registrations) {
+            const scriptUrl = registration.active?.scriptURL || registration.installing?.scriptURL || "";
+            if (!scriptUrl.includes("firebase-messaging-sw.js")) {
+              registration.unregister();
             }
-          });
-        } else {
-          navigator.serviceWorker
-            .register("/sw.js")
-            .then((reg) => {
-              console.log("Service Worker registered successfully", reg);
-              // Segera periksa pembaruan Service Worker jika ada versi baru yang dideploy
-              reg.update().catch(() => {});
-            })
-            .catch((err) => console.log("Service Worker registration failed: ", err));
-
-          // Gunakan sessionStorage agar flag persisten antar render,
-          // mencegah loop reload tak berujung saat SW baru aktif setelah deploy.
-          navigator.serviceWorker.addEventListener("controllerchange", () => {
-            if (!sessionStorage.getItem("sw-reloading")) {
-              sessionStorage.setItem("sw-reloading", "1");
-              window.location.reload();
-            }
-          });
-
-          // Bersihkan flag setelah halaman selesai dimuat (setelah reload)
-          // agar update SW berikutnya tetap bisa mentrigger reload sekali lagi.
-          window.addEventListener("load", () => {
-            sessionStorage.removeItem("sw-reloading");
-          }, { once: true });
-        }
+          }
+        });
       }
 
       // Cek jika event sudah ditangkap sebelumnya oleh global script (opsional)
