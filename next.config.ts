@@ -6,6 +6,7 @@ const withPWA = withPWAInit({
   disable: process.env.NODE_ENV === "development",
   extendDefaultRuntimeCaching: true,
   workboxOptions: {
+    navigateFallback: "/offline.html",
     navigateFallbackDenylist: [/^\/api\/.*/, /^\/auth\/.*/, /^\/login(\/.*)?$/],
     runtimeCaching: [
       {
@@ -30,6 +31,23 @@ const withPWA = withPWAInit({
           url.pathname.startsWith("/login") ||
           url.pathname.startsWith("/api"),
         handler: "NetworkOnly",
+      },
+      // Halaman navigasi (SSR): NetworkFirst dengan fallback agar /about tidak no-response
+      {
+        urlPattern: ({ request }: { request: Request }) =>
+          request.mode === "navigate",
+        handler: "NetworkFirst",
+        options: {
+          cacheName: "pages-cache",
+          networkTimeoutSeconds: 5,
+          plugins: [
+            {
+              handlerDidError: async () =>
+                (await caches.match("/offline.html")) ||
+                new Response("Offline", { status: 503 }),
+            },
+          ],
+        },
       },
       {
         urlPattern: ({ sameOrigin }: { sameOrigin: boolean }) => !sameOrigin,
