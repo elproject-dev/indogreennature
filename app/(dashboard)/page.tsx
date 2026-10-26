@@ -180,6 +180,8 @@ import {
   DEFAULT_MELAYANI_KLIEN_PILL_TEXT_COLOR,
   DEFAULT_MELAYANI_KLIEN_PILL_SIZE,
   DEFAULT_MELAYANI_KLIEN_PILL_FONT_WEIGHT,
+  DEFAULT_MELAYANI_KLIEN_PILL_FONT,
+  DEFAULT_MELAYANI_KLIEN_STAR_COLOR,
   DEFAULT_MELAYANI_KLIEN_CITIES,
   DEFAULT_ULASAN_KLIEN_TITLE,
   DEFAULT_ULASAN_KLIEN_TITLE_COLOR,
@@ -242,6 +244,7 @@ import { FaFacebook, FaYoutube } from "react-icons/fa";
 import { BsBrowserChrome } from "react-icons/bs";
 import { CalendarDays, MapPin, Star, Check, Image as ImageIcon, ShieldCheck, ChevronDown, Play, X } from "lucide-react";
 import Autoplay from "embla-carousel-autoplay";
+import AutoScroll from "embla-carousel-auto-scroll";
 import { Carousel, CarouselContent, CarouselItem, CarouselDots, CarouselPrevious, CarouselNext } from "@/components/ui/carousel";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
@@ -460,6 +463,8 @@ export default function HomePage() {
   const [melayaniKlienPillTextColor, setMelayaniKlienPillTextColor] = useState(DEFAULT_MELAYANI_KLIEN_PILL_TEXT_COLOR);
   const [melayaniKlienPillSize, setMelayaniKlienPillSize] = useState<number>(DEFAULT_MELAYANI_KLIEN_PILL_SIZE);
   const [melayaniKlienPillFontWeight, setMelayaniKlienPillFontWeight] = useState(DEFAULT_MELAYANI_KLIEN_PILL_FONT_WEIGHT);
+  const [melayaniKlienPillFont, setMelayaniKlienPillFont] = useState(DEFAULT_MELAYANI_KLIEN_PILL_FONT);
+  const [melayaniKlienStarColor, setMelayaniKlienStarColor] = useState(DEFAULT_MELAYANI_KLIEN_STAR_COLOR);
   const [melayaniKlienCities, setMelayaniKlienCities] = useState<string[]>(DEFAULT_MELAYANI_KLIEN_CITIES);
   const [ulasanKlienTitle, setUlasanKlienTitle] = useState(DEFAULT_ULASAN_KLIEN_TITLE);
   const [ulasanKlienTitleSize, setUlasanKlienTitleSize] = useState<number>(DEFAULT_ULASAN_KLIEN_TITLE_SIZE);
@@ -537,10 +542,12 @@ export default function HomePage() {
 
   const bannerPlugin = useRef(Autoplay({ delay: 4000, stopOnInteraction: true }));
   const productPlugin = useRef(Autoplay({ delay: 3000, stopOnInteraction: true }));
-  const ulasanPlugin = useRef(Autoplay({ delay: 3500, stopOnInteraction: false }));
+  const ulasanPlugin = useRef(Autoplay({ delay: 3500, stopOnInteraction: false, stopOnMouseEnter: true }));
   const jenisProdukPlugin = useRef(Autoplay({ delay: 3500, stopOnInteraction: true }));
   const mengapaPlugin = useRef(Autoplay({ delay: 3500, stopOnInteraction: true }));
   const prosesMaklonPlugin = useRef(Autoplay({ delay: 3500, stopOnInteraction: true }));
+  const legalitasPlugin = useRef(AutoScroll({ speed: 1.2, stopOnInteraction: false, stopOnMouseEnter: true }));
+  const dipercayaBrandPlugin = useRef(AutoScroll({ speed: 1.2, stopOnInteraction: false, stopOnMouseEnter: true }));
 
   useEffect(() => {
     const isPreview = typeof window !== "undefined" && window.location.search.includes("preview=true");
@@ -892,6 +899,10 @@ export default function HomePage() {
         if (pMelayaniPillSize !== null) { const num = parseInt(pMelayaniPillSize, 10); if (!isNaN(num)) setMelayaniKlienPillSize(num); }
         const pMelayaniPillWeight = localStorage.getItem("melayani_klien_preview_pill_font_weight");
         if (pMelayaniPillWeight !== null) setMelayaniKlienPillFontWeight(pMelayaniPillWeight);
+        const pMelayaniPillFont = localStorage.getItem("melayani_klien_preview_pill_font");
+        if (pMelayaniPillFont !== null) setMelayaniKlienPillFont(pMelayaniPillFont);
+        const pMelayaniStarColor = localStorage.getItem("melayani_klien_preview_star_color");
+        if (pMelayaniStarColor !== null) setMelayaniKlienStarColor(pMelayaniStarColor);
         const pMelayaniCities = localStorage.getItem("melayani_klien_preview_cities");
         if (pMelayaniCities !== null) {
           try {
@@ -1318,6 +1329,10 @@ export default function HomePage() {
         if (sMelayaniPillSize !== null) { const num = parseInt(sMelayaniPillSize, 10); if (!isNaN(num)) setMelayaniKlienPillSize(num); }
         const sMelayaniPillWeight = localStorage.getItem("melayani_klien_pill_font_weight");
         if (sMelayaniPillWeight !== null) setMelayaniKlienPillFontWeight(sMelayaniPillWeight);
+        const sMelayaniPillFont = localStorage.getItem("melayani_klien_pill_font");
+        if (sMelayaniPillFont !== null) setMelayaniKlienPillFont(sMelayaniPillFont);
+        const sMelayaniStarColor = localStorage.getItem("melayani_klien_star_color");
+        if (sMelayaniStarColor !== null) setMelayaniKlienStarColor(sMelayaniStarColor);
         const sMelayaniCities = localStorage.getItem("melayani_klien_cities");
         if (sMelayaniCities !== null) {
           try {
@@ -1716,6 +1731,8 @@ export default function HomePage() {
           if (data.pillTextColor !== undefined) setMelayaniKlienPillTextColor(data.pillTextColor);
           if (data.pillSize !== undefined) setMelayaniKlienPillSize(data.pillSize);
           if (data.pillFontWeight !== undefined) setMelayaniKlienPillFontWeight(data.pillFontWeight);
+          if (data.pillFont !== undefined) setMelayaniKlienPillFont(data.pillFont);
+          if (data.starColor !== undefined) setMelayaniKlienStarColor(data.starColor);
           if (data.cities !== undefined && Array.isArray(data.cities)) setMelayaniKlienCities(data.cities);
         };
       } catch (e) { }
@@ -4369,7 +4386,7 @@ export default function HomePage() {
               )}
             >
               {/* Header: Judul & Subtitle */}
-              <div className="w-full max-w-[1200px] flex flex-col items-center text-center mb-8 sm:mb-10 px-4">
+              <div className="w-full flex flex-col items-center text-center mb-6 sm:mb-8 px-2 sm:px-4">
                 {/* layer--2: Judul Section */}
                 <h2
                   suppressHydrationWarning
@@ -4411,34 +4428,63 @@ export default function HomePage() {
                 </p>
               </div>
 
-              {/* group-5 & group-4: Kotak Sertifikasi / Legalitas - 3 kolom di mobile, 6 frame rapi dalam 1 baris di desktop dan otomatis rata tengah (justify-center) */}
-              <div
-                className={cn(
-                  "w-full max-w-[1140px] px-2 sm:px-4 mx-auto flex flex-wrap items-center justify-center gap-3 sm:gap-3.5 md:gap-4 xl:gap-5",
-                  activeLegalitasItems.length <= 6 && "lg:flex-nowrap"
-                )}
-              >
-                {activeLegalitasItems.map((item, idx) => {
-                  const cardBg = item.bgColor || legalitasCardBg || DEFAULT_LEGALITAS_CARD_BG;
+              {/* Carousel Auto Slider Tanpa Henti (Full-Width Seamless Continuous Marquee) */}
+              {(() => {
+                const repeatCount = activeLegalitasItems.length > 0 ? Math.max(2, Math.ceil(16 / activeLegalitasItems.length)) : 1;
+                const sliderItems = Array.from({ length: repeatCount }).flatMap((_, repIdx) =>
+                  activeLegalitasItems.map((item, origIdx) => ({
+                    ...item,
+                    sliderKey: `${item.id || origIdx}-rep-${repIdx}`,
+                  }))
+                );
 
-                  return (
-                    <div
-                      key={item.id || `leg-${idx}`}
-                      style={{
-                        backgroundColor: cardBg,
+                return (
+                  <div className="w-full relative overflow-hidden">
+                    {/* Efek gradien fade di sisi kiri & kanan untuk transisi visual tanpa henti */}
+                    <div className="pointer-events-none absolute left-0 top-0 bottom-0 w-8 sm:w-16 bg-gradient-to-r from-white dark:from-background to-transparent z-10" />
+                    <div className="pointer-events-none absolute right-0 top-0 bottom-0 w-8 sm:w-16 bg-gradient-to-l from-white dark:from-background to-transparent z-10" />
+
+                    <Carousel
+                      opts={{
+                        align: "start",
+                        loop: true,
+                        dragFree: true,
                       }}
-                      className="w-[calc((100%-1.5rem)/3)] max-w-[135px] aspect-[135/138] sm:aspect-auto sm:w-[145px] sm:h-[148px] md:w-[148px] md:h-[151px] lg:w-[150px] lg:h-[153px] xl:w-[158px] xl:h-[161px] rounded-[5px] border-0 border-transparent flex items-center justify-center p-2 sm:p-3 text-center transition-all duration-200 hover:-translate-y-1 relative overflow-hidden shrink min-w-0 group"
+                      plugins={[legalitasPlugin.current]}
+                      className="w-full"
                     >
-                      <SmartImage
-                        src={item.image}
-                        alt={item.title || `Sertifikasi ${idx + 1}`}
-                        sizes="(min-width: 640px) 160px, 33vw"
-                        className="w-full h-full object-contain"
-                      />
-                    </div>
-                  );
-                })}
-              </div>
+                      <CarouselContent className="-ml-3 sm:-ml-3.5 md:-ml-4 py-2.5">
+                        {sliderItems.map((item) => {
+                          const cardBg = item.bgColor || legalitasCardBg || DEFAULT_LEGALITAS_CARD_BG;
+
+                          return (
+                            <CarouselItem
+                              key={item.sliderKey}
+                              className="pl-3 sm:pl-3.5 md:pl-4 basis-auto select-none"
+                            >
+                              <div
+                                style={{
+                                  backgroundColor: cardBg,
+                                }}
+                                className="w-[88px] h-[90px] xs:w-[98px] xs:h-[100px] sm:w-[108px] sm:h-[112px] md:w-[114px] md:h-[118px] lg:w-[120px] lg:h-[124px] rounded-[5px] border-0 border-transparent shadow-none flex items-center justify-center p-2 sm:p-2.5 md:p-3 text-center transition-all duration-200 hover:-translate-y-1 relative overflow-hidden shrink-0 group cursor-grab active:cursor-grabbing"
+                              >
+                                <div className="w-full h-full relative flex items-center justify-center p-0.5 sm:p-1">
+                                  <SmartImage
+                                    src={item.image}
+                                    alt={item.title || "Sertifikasi Legalitas"}
+                                    sizes="(min-width: 640px) 120px, 90px"
+                                    className="w-full h-full object-contain pointer-events-none transition-transform duration-200 group-hover:scale-105"
+                                  />
+                                </div>
+                              </div>
+                            </CarouselItem>
+                          );
+                        })}
+                      </CarouselContent>
+                    </Carousel>
+                  </div>
+                );
+              })()}
             </section>
           </React.Fragment>
         );
@@ -4519,7 +4565,7 @@ export default function HomePage() {
               )}
             >
               {/* Header: Judul & Subtitle */}
-              <div className="w-full max-w-[1200px] flex flex-col items-center text-center mb-8 sm:mb-10 px-4">
+              <div className="w-full flex flex-col items-center text-center mb-6 sm:mb-8 px-2 sm:px-4">
                 <h2
                   suppressHydrationWarning
                   style={{
@@ -4559,34 +4605,63 @@ export default function HomePage() {
                 </p>
               </div>
 
-              {/* group-5 & group-4: Kotak Logo Brand - 3 kolom di mobile, 6 frame rapi dalam 1 baris di desktop, otomatis rata tengah, tanpa garis stroke */}
-              <div
-                className={cn(
-                  "w-full max-w-[1140px] px-2 sm:px-4 mx-auto flex flex-wrap items-center justify-center gap-3 sm:gap-3.5 md:gap-4 xl:gap-5",
-                  activeBrandItems.length <= 6 && "lg:flex-nowrap"
-                )}
-              >
-                {activeBrandItems.map((item, idx) => {
-                  const cardBg = item.bgColor || dipercayaBrandCardBg || DEFAULT_DIPERCAYA_BRAND_CARD_BG;
+              {/* Carousel Auto Slider Tanpa Henti (Full-Width Seamless Continuous Marquee) */}
+              {(() => {
+                const repeatCount = activeBrandItems.length > 0 ? Math.max(2, Math.ceil(16 / activeBrandItems.length)) : 1;
+                const sliderItems = Array.from({ length: repeatCount }).flatMap((_, repIdx) =>
+                  activeBrandItems.map((item, origIdx) => ({
+                    ...item,
+                    sliderKey: `${item.id || origIdx}-brand-rep-${repIdx}`,
+                  }))
+                );
 
-                  return (
-                    <div
-                      key={item.id || `brand-${idx}`}
-                      style={{
-                        backgroundColor: cardBg,
+                return (
+                  <div className="w-full relative overflow-hidden">
+                    {/* Efek gradien fade di sisi kiri & kanan untuk transisi visual tanpa henti */}
+                    <div className="pointer-events-none absolute left-0 top-0 bottom-0 w-8 sm:w-16 bg-gradient-to-r from-white dark:from-background to-transparent z-10" />
+                    <div className="pointer-events-none absolute right-0 top-0 bottom-0 w-8 sm:w-16 bg-gradient-to-l from-white dark:from-background to-transparent z-10" />
+
+                    <Carousel
+                      opts={{
+                        align: "start",
+                        loop: true,
+                        dragFree: true,
                       }}
-                      className="w-[calc((100%-1.5rem)/3)] max-w-[135px] aspect-[135/138] sm:aspect-auto sm:w-[145px] sm:h-[148px] md:w-[148px] md:h-[151px] lg:w-[150px] lg:h-[153px] xl:w-[158px] xl:h-[161px] rounded-[5px] border-0 border-transparent flex items-center justify-center p-2 sm:p-3 text-center transition-all duration-200 hover:-translate-y-1 relative overflow-hidden shrink min-w-0 group"
+                      plugins={[dipercayaBrandPlugin.current]}
+                      className="w-full"
                     >
-                      <SmartImage
-                        src={item.image}
-                        alt={item.title || `Brand Mitra ${idx + 1}`}
-                        sizes="(min-width: 640px) 160px, 33vw"
-                        className="w-full h-full object-contain"
-                      />
-                    </div>
-                  );
-                })}
-              </div>
+                      <CarouselContent className="-ml-3 sm:-ml-3.5 md:-ml-4 py-2.5">
+                        {sliderItems.map((item) => {
+                          const cardBg = item.bgColor || dipercayaBrandCardBg || DEFAULT_DIPERCAYA_BRAND_CARD_BG;
+
+                          return (
+                            <CarouselItem
+                              key={item.sliderKey}
+                              className="pl-3 sm:pl-3.5 md:pl-4 basis-auto select-none"
+                            >
+                              <div
+                                style={{
+                                  backgroundColor: cardBg,
+                                }}
+                                className="w-[88px] h-[90px] xs:w-[98px] xs:h-[100px] sm:w-[108px] sm:h-[112px] md:w-[114px] md:h-[118px] lg:w-[120px] lg:h-[124px] rounded-[5px] border-0 border-transparent shadow-none flex items-center justify-center p-2 sm:p-2.5 md:p-3 text-center transition-all duration-200 hover:-translate-y-1 relative overflow-hidden shrink-0 group cursor-grab active:cursor-grabbing"
+                              >
+                                <div className="w-full h-full relative flex items-center justify-center p-0.5 sm:p-1">
+                                  <SmartImage
+                                    src={item.image}
+                                    alt={item.title || "Brand Mitra"}
+                                    sizes="(min-width: 640px) 120px, 90px"
+                                    className="w-full h-full object-contain pointer-events-none transition-transform duration-200 group-hover:scale-105"
+                                  />
+                                </div>
+                              </div>
+                            </CarouselItem>
+                          );
+                        })}
+                      </CarouselContent>
+                    </Carousel>
+                  </div>
+                );
+              })()}
             </section>
           </React.Fragment>
         );
@@ -4815,13 +4890,36 @@ export default function HomePage() {
         const titleWeightClass = getHeroFontWeightClass(melayaniKlienTitleFontWeight);
         const titleWeightNum = parseHeroFontWeightNumber(melayaniKlienTitleFontWeight);
         const pillWeightNum = parseHeroFontWeightNumber(melayaniKlienPillFontWeight);
+        const textFontClass = getHeroFontClass(melayaniKlienPillFont || "poppins");
+
+        // Filter out "DAN KOTA-KOTA LAINNYA"
+        const activeCities = melayaniKlienCities.filter((c) => !c.toUpperCase().includes("KOTA-KOTA"));
+        const baseCities = activeCities.length > 0 ? activeCities : DEFAULT_MELAYANI_KLIEN_CITIES.filter((c) => !c.toUpperCase().includes("KOTA-KOTA"));
+
+        // Bagi kota ke baris atas dan baris bawah untuk variasi ritme
+        const row1Cities = baseCities.filter((_, idx) => idx % 2 === 0);
+        const row2Cities = baseCities.filter((_, idx) => idx % 2 !== 0);
+
+        const topCities = row1Cities.length > 0 ? row1Cities : baseCities;
+        const bottomCities = row2Cities.length > 0 ? row2Cities : baseCities;
+
+        // Ulangi elemen agar loop 100% mulus dan memenuhi layar lebar
+        const rep1 = Math.max(3, Math.ceil(12 / topCities.length));
+        const rep2 = Math.max(3, Math.ceil(12 / bottomCities.length));
+
+        const topSequence = Array.from({ length: rep1 }).flatMap(() => topCities);
+        const bottomSequence = Array.from({ length: rep2 }).flatMap(() => bottomCities);
+
+        // Pastikan warna teks terbaca jelas (jika sebelumnya tersimpan #fff dari background badge, fallback ke hijau brand)
+        const isWhiteText = melayaniKlienPillTextColor && (melayaniKlienPillTextColor.toLowerCase() === "#ffffff" || melayaniKlienPillTextColor.toLowerCase() === "#fff");
+        const resolvedTextColor = isWhiteText ? (melayaniKlienTitleColor || "#15803D") : (melayaniKlienPillTextColor || "#15803D");
 
         return (
           <React.Fragment key="melayani_klien">
             <section
               id="melayani-klien"
               className={cn(
-                "w-full bg-white dark:bg-card/40 transition-colors my-4 sm:my-8 py-8 sm:py-12 flex flex-col items-center justify-center relative overflow-hidden",
+                "w-full bg-white dark:bg-card/40 transition-colors my-4 sm:my-8 py-8 sm:py-14 flex flex-col items-center justify-center relative overflow-hidden",
                 poppins.className
               )}
             >
@@ -4865,32 +4963,112 @@ export default function HomePage() {
                     {renderFormattedText(melayaniKlienSubtitle)}
                   </div>
                 )}
+              </div>
 
-                {/* Grid / Flex Badge Kota-Kota - 2 kolom di mobile, multi-kolom di desktop */}
-                <div className="w-full max-w-[1220px] flex flex-wrap items-center justify-center gap-3 sm:gap-4 md:gap-5 mt-8 sm:mt-10">
-                  {melayaniKlienCities.map((city, idx) => {
-                    const isLongText = city.trim().length > 15 || city.toUpperCase().includes("KOTA-KOTA");
-                    return (
-                      <div
-                        key={`${city}-${idx}`}
-                        style={{
-                          backgroundColor: melayaniKlienPillBg || DEFAULT_MELAYANI_KLIEN_PILL_BG,
-                          color: melayaniKlienPillTextColor || DEFAULT_MELAYANI_KLIEN_PILL_TEXT_COLOR,
-                          fontSize: melayaniKlienPillSize
-                            ? `clamp(${Math.max(12, Math.round(melayaniKlienPillSize * 0.65))}px, 3.2vw, ${melayaniKlienPillSize}px)`
-                            : undefined,
-                          fontWeight: pillWeightNum,
-                        }}
-                        className={cn(
-                          "min-h-[46px] h-[48px] sm:h-[70px] rounded-[100px] flex items-center justify-center text-center px-3 sm:px-6 py-2 transition-all duration-300 hover:scale-[1.04] hover:shadow-lg shadow-sm select-none cursor-default",
-                          isLongText ? "w-full sm:w-[334px]" : "w-[calc((100%-0.75rem)/2)] sm:w-[221px]",
-                          !melayaniKlienPillSize && "text-xs xs:text-sm sm:text-lg md:text-[20px]"
-                        )}
-                      >
-                        <span className="tracking-wide uppercase break-words leading-tight">{city}</span>
+              {/* Slider Animasi Dua Arah: Atas ke Kanan, Bawah ke Kiri (Tanpa Badge) */}
+              <div className="w-full relative overflow-hidden mt-8 sm:mt-12 flex flex-col gap-3 sm:gap-5">
+                {/* Gradien Fade di Sisi Kiri & Kanan */}
+                <div className="pointer-events-none absolute left-0 top-0 bottom-0 w-12 sm:w-28 md:w-40 bg-gradient-to-r from-white dark:from-background to-transparent z-10" />
+                <div className="pointer-events-none absolute right-0 top-0 bottom-0 w-12 sm:w-28 md:w-40 bg-gradient-to-l from-white dark:from-background to-transparent z-10" />
+
+                {/* Baris 1 (Atas): Bergerak ke KANAN */}
+                <div className="w-full overflow-hidden flex select-none py-1.5 sm:py-2">
+                  <div className="animate-marquee-reverse flex items-center shrink-0">
+                    {topSequence.map((city, idx) => (
+                      <div key={`top-a-${city}-${idx}`} className="inline-flex items-center shrink-0">
+                        <span
+                          style={{
+                            color: resolvedTextColor,
+                            fontSize: melayaniKlienPillSize
+                              ? `clamp(${Math.max(16, Math.round(melayaniKlienPillSize * 0.65))}px, 3.8vw, ${melayaniKlienPillSize}px)`
+                              : undefined,
+                            fontWeight: pillWeightNum,
+                          }}
+                          className={cn(
+                            "tracking-widest transition-transform duration-200 hover:scale-105 cursor-default px-1.5 sm:px-3",
+                            textFontClass,
+                            !melayaniKlienPillSize && "text-base sm:text-2xl md:text-3xl"
+                          )}
+                        >
+                          {city}
+                        </span>
+                        <span style={{ color: melayaniKlienStarColor || DEFAULT_MELAYANI_KLIEN_STAR_COLOR }} className="text-xs sm:text-sm md:text-base mx-3 sm:mx-6 md:mx-8 select-none shrink-0 transition-colors">✦</span>
                       </div>
-                    );
-                  })}
+                    ))}
+                  </div>
+                  <div className="animate-marquee-reverse flex items-center shrink-0" aria-hidden="true">
+                    {topSequence.map((city, idx) => (
+                      <div key={`top-b-${city}-${idx}`} className="inline-flex items-center shrink-0">
+                        <span
+                          style={{
+                            color: resolvedTextColor,
+                            fontSize: melayaniKlienPillSize
+                              ? `clamp(${Math.max(16, Math.round(melayaniKlienPillSize * 0.65))}px, 3.8vw, ${melayaniKlienPillSize}px)`
+                              : undefined,
+                            fontWeight: pillWeightNum,
+                          }}
+                          className={cn(
+                            "tracking-widest transition-transform duration-200 hover:scale-105 cursor-default px-1.5 sm:px-3",
+                            textFontClass,
+                            !melayaniKlienPillSize && "text-base sm:text-2xl md:text-3xl"
+                          )}
+                        >
+                          {city}
+                        </span>
+                        <span style={{ color: melayaniKlienStarColor || DEFAULT_MELAYANI_KLIEN_STAR_COLOR }} className="text-xs sm:text-sm md:text-base mx-3 sm:mx-6 md:mx-8 select-none shrink-0 transition-colors">✦</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Baris 2 (Bawah): Bergerak ke KIRI */}
+                <div className="w-full overflow-hidden flex select-none py-1.5 sm:py-2">
+                  <div className="animate-marquee flex items-center shrink-0">
+                    {bottomSequence.map((city, idx) => (
+                      <div key={`bot-a-${city}-${idx}`} className="inline-flex items-center shrink-0">
+                        <span
+                          style={{
+                            color: resolvedTextColor,
+                            fontSize: melayaniKlienPillSize
+                              ? `clamp(${Math.max(16, Math.round(melayaniKlienPillSize * 0.65))}px, 3.8vw, ${melayaniKlienPillSize}px)`
+                              : undefined,
+                            fontWeight: pillWeightNum,
+                          }}
+                          className={cn(
+                            "tracking-widest transition-transform duration-200 hover:scale-105 cursor-default px-1.5 sm:px-3",
+                            textFontClass,
+                            !melayaniKlienPillSize && "text-base sm:text-2xl md:text-3xl"
+                          )}
+                        >
+                          {city}
+                        </span>
+                        <span style={{ color: melayaniKlienStarColor || DEFAULT_MELAYANI_KLIEN_STAR_COLOR }} className="text-xs sm:text-sm md:text-base mx-3 sm:mx-6 md:mx-8 select-none shrink-0 transition-colors">✦</span>
+                      </div>
+                    ))}
+                  </div>
+                  <div className="animate-marquee flex items-center shrink-0" aria-hidden="true">
+                    {bottomSequence.map((city, idx) => (
+                      <div key={`bot-b-${city}-${idx}`} className="inline-flex items-center shrink-0">
+                        <span
+                          style={{
+                            color: resolvedTextColor,
+                            fontSize: melayaniKlienPillSize
+                              ? `clamp(${Math.max(16, Math.round(melayaniKlienPillSize * 0.65))}px, 3.8vw, ${melayaniKlienPillSize}px)`
+                              : undefined,
+                            fontWeight: pillWeightNum,
+                          }}
+                          className={cn(
+                            "tracking-widest transition-transform duration-200 hover:scale-105 cursor-default px-1.5 sm:px-3",
+                            textFontClass,
+                            !melayaniKlienPillSize && "text-base sm:text-2xl md:text-3xl"
+                          )}
+                        >
+                          {city}
+                        </span>
+                        <span style={{ color: melayaniKlienStarColor || DEFAULT_MELAYANI_KLIEN_STAR_COLOR }} className="text-xs sm:text-sm md:text-base mx-3 sm:mx-6 md:mx-8 select-none shrink-0 transition-colors">✦</span>
+                      </div>
+                    ))}
+                  </div>
                 </div>
               </div>
             </section>
@@ -4981,8 +5159,6 @@ export default function HomePage() {
                     opts={{ align: "start", loop: true }}
                     plugins={[ulasanPlugin.current]}
                     className="w-full"
-                    onMouseEnter={() => ulasanPlugin.current.stop()}
-                    onMouseLeave={() => ulasanPlugin.current.reset()}
                   >
                     <CarouselContent className="-ml-3 sm:-ml-4 py-3">
                       {ulasanItems.map((ulasan) => (
@@ -5059,8 +5235,8 @@ export default function HomePage() {
                             <div className="mt-4 pt-3 border-t border-gray-100 flex items-center justify-between">
                               <span className="text-[11px] text-gray-600 font-medium italic">ulasan terverifikasi</span>
                               <div className="inline-flex items-center gap-1">
-                                <span className="text-xs font-bold text-amber-700 leading-none">{ulasan.rating}.0</span>
-                                <Star className="w-3.5 h-3.5 fill-amber-500 text-amber-500 shrink-0" />
+                                <span className="text-xs font-bold text-gray-900 leading-none">{ulasan.rating}.0</span>
+                                <Star className="w-3.5 h-3.5 fill-yellow-400 text-yellow-400 shrink-0 -translate-y-[1px]" />
                               </div>
                             </div>
                           </div>
@@ -5597,7 +5773,7 @@ export default function HomePage() {
   return (
     <>
       <Dialog open={!!selectedProduct} onOpenChange={(open) => !open && setSelectedProduct(null)}>
-        <DialogContent className="w-[90vw] max-w-sm p-0 overflow-hidden rounded-xl border-none bg-card gap-0">
+        <DialogContent className="w-[90vw] max-w-sm p-0 overflow-hidden rounded-[5px] border-none bg-card gap-0">
           {selectedProduct && (
             <>
               <div className="w-full aspect-square bg-primary/15 relative">

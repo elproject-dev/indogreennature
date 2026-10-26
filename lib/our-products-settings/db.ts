@@ -40,6 +40,15 @@ export function sanitizeOurProductsSettings(raw: any): OurProductsSettingsData {
     shopeeCategories: Array.isArray(raw.shopeeCategories) && raw.shopeeCategories.length > 0
       ? raw.shopeeCategories
       : DEFAULT_OUR_PRODUCTS_SETTINGS.shopeeCategories,
+    orderWhatsappNumber: typeof raw.orderWhatsappNumber === "string" && raw.orderWhatsappNumber.trim() !== ""
+      ? raw.orderWhatsappNumber.trim()
+      : DEFAULT_OUR_PRODUCTS_SETTINGS.orderWhatsappNumber,
+    orderWhatsappMessageTemplate: typeof raw.orderWhatsappMessageTemplate === "string" && raw.orderWhatsappMessageTemplate.trim() !== ""
+      ? raw.orderWhatsappMessageTemplate
+      : DEFAULT_OUR_PRODUCTS_SETTINGS.orderWhatsappMessageTemplate,
+    orderWhatsappButtonText: typeof raw.orderWhatsappButtonText === "string" && raw.orderWhatsappButtonText.trim() !== ""
+      ? raw.orderWhatsappButtonText
+      : DEFAULT_OUR_PRODUCTS_SETTINGS.orderWhatsappButtonText,
   }
 }
 

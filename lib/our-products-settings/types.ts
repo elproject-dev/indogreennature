@@ -82,6 +82,11 @@ export interface OurProductsSettingsData {
   shopeeCategories?: string[]
   shopeeGridColumns?: 4 | 5 | 6
   shopeeProducts: ShopeeProductItem[]
+
+  // ─── Order via WhatsApp Global ───
+  orderWhatsappNumber?: string
+  orderWhatsappMessageTemplate?: string
+  orderWhatsappButtonText?: string
 }
 
 export const OUR_PRODUCTS_SETTINGS_KEY = "cv_our_products_settings_data_v1"
@@ -427,4 +432,9 @@ export const DEFAULT_OUR_PRODUCTS_SETTINGS: OurProductsSettingsData = {
   ],
   shopeeGridColumns: 6,
   shopeeProducts: DEFAULT_SHOPEE_PRODUCTS,
+
+  // ─── Order via WhatsApp Global ───
+  orderWhatsappNumber: "6285877669199",
+  orderWhatsappMessageTemplate: "Halo CV. Indo Green Nature, saya ingin memesan produk: {product_name} ({product_price}). Mohon info ketersediaan stok & pengiriman.",
+  orderWhatsappButtonText: "Order Cepat via WhatsApp Official",
 }

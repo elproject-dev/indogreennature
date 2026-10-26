@@ -279,7 +279,7 @@ function CarouselDots({
           <button
             key={index}
             type="button"
-            className="flex items-center justify-center min-w-[28px] min-h-[28px] p-1 rounded-full cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+            className="flex items-center justify-center py-1.5 px-1 rounded-full cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-primary"
             onClick={() => api?.scrollTo(index)}
             aria-label={`Go to slide ${index + 1}`}
           >

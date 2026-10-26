@@ -915,14 +915,14 @@ export default function OurProductsPage() {
               onClick={() => setSelectedProduct(null)}
             >
               <div
-                className="w-full max-w-2xl md:max-w-3xl lg:max-w-[900px] xl:max-w-[940px] bg-card rounded-[16px] sm:rounded-[20px] border border-border shadow-2xl overflow-y-auto md:overflow-hidden flex flex-col md:flex-row relative animate-in zoom-in-95 duration-200 md:min-h-[580px] lg:min-h-[610px] max-h-[calc(100vh-84px)] md:max-h-[600px] lg:max-h-[630px]"
+                className="w-full max-w-2xl md:max-w-3xl lg:max-w-[900px] xl:max-w-[940px] bg-card rounded-[5px] border border-border shadow-2xl overflow-y-auto md:overflow-hidden flex flex-col md:flex-row relative animate-in zoom-in-95 duration-200 md:min-h-[580px] lg:min-h-[610px] max-h-[calc(100vh-84px)] md:max-h-[600px] lg:max-h-[630px]"
                 onClick={(e) => e.stopPropagation()}
               >
                 {/* Tombol Tutup Modal */}
                 <button
                   type="button"
                   onClick={() => setSelectedProduct(null)}
-                  className="absolute top-3 right-3 sm:top-3.5 sm:right-3.5 z-30 w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-background/85 hover:bg-background border border-border flex items-center justify-center text-foreground hover:scale-105 active:scale-95 transition-all cursor-pointer shadow-md"
+                  className="absolute top-3 right-3 sm:top-3.5 sm:right-3.5 z-30 w-8 h-8 sm:w-9 sm:h-9 rounded-[5px] bg-background/85 hover:bg-background border border-border flex items-center justify-center text-foreground hover:scale-105 active:scale-95 transition-all cursor-pointer shadow-md"
                   aria-label="Tutup Detail Produk"
                 >
                   <X className="w-4 h-4" />
@@ -932,7 +932,7 @@ export default function OurProductsPage() {
                 <div className="w-full md:w-[350px] lg:w-[380px] xl:w-[400px] shrink-0 bg-transparent flex flex-col items-center justify-center p-3 sm:p-5.5 lg:p-6 border-b md:border-b-0 md:border-r border-border/60">
                   {/* Foto Utama 1:1 Presisi (Square) */}
                   <div
-                    className="w-full aspect-square relative rounded-[12px] overflow-hidden bg-transparent select-none group/slider"
+                    className="w-full aspect-square relative rounded-[5px] overflow-hidden bg-transparent select-none group/slider"
                     onMouseEnter={() => setIsModalHovered(true)}
                     onMouseLeave={() => setIsModalHovered(false)}
                   >
@@ -1120,7 +1120,7 @@ export default function OurProductsPage() {
                     </div>
 
                     {/* Harga Ala Shopee (Warna Orange) */}
-                    <div className="mt-3.5 sm:mt-4 p-3.5 sm:p-4 rounded-[10px] bg-muted/40 border border-border/60">
+                    <div className="mt-3.5 sm:mt-4 p-3.5 sm:p-4 rounded-[5px] bg-muted/40 border border-border/60">
                       {selectedProduct.originalPrice ? (
                         <div className="flex items-center gap-2 mb-1">
                           <span className="text-xs sm:text-sm text-muted-foreground line-through">
@@ -1241,7 +1241,7 @@ export default function OurProductsPage() {
 
                     {/* Container Auto-Slide 2 Button: Transisi Selalu Bergerak ke Arah Kiri */}
                     <div
-                      className="w-full overflow-hidden rounded-[8px] relative h-[42px] sm:h-[44px]"
+                      className="w-full overflow-hidden rounded-[5px] relative h-[42px] sm:h-[44px]"
                       onMouseEnter={() => setIsMarketplaceHovered(true)}
                       onMouseLeave={() => setIsMarketplaceHovered(false)}
                     >
@@ -1261,7 +1261,7 @@ export default function OurProductsPage() {
                                 href={selectedProduct.shopeeUrl || "https://shopee.co.id"}
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                className="flex items-center justify-center gap-1.5 py-2.5 px-3 rounded-[8px] bg-[#EE4D2D] hover:bg-[#EE4D2D]/90 text-white text-xs sm:text-sm font-bold transition-all shadow-none cursor-pointer hover:scale-[1.01] active:scale-[0.99] h-full"
+                                className="flex items-center justify-center gap-1.5 py-2.5 px-3 rounded-[5px] bg-[#EE4D2D] hover:bg-[#EE4D2D]/90 text-white text-xs sm:text-sm font-bold transition-all shadow-none cursor-pointer hover:scale-[1.01] active:scale-[0.99] h-full"
                               >
                                 <ShoppingBag className="w-4 h-4 shrink-0" />
                                 <span className="truncate">Beli di Shopee</span>
@@ -1272,7 +1272,7 @@ export default function OurProductsPage() {
                                 href={selectedProduct.tokopediaUrl || "https://tokopedia.com"}
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                className="flex items-center justify-center gap-1.5 py-2.5 px-3 rounded-[8px] bg-[#03AC0E] hover:bg-[#03AC0E]/90 text-white text-xs sm:text-sm font-bold transition-all shadow-none cursor-pointer hover:scale-[1.01] active:scale-[0.99] h-full"
+                                className="flex items-center justify-center gap-1.5 py-2.5 px-3 rounded-[5px] bg-[#03AC0E] hover:bg-[#03AC0E]/90 text-white text-xs sm:text-sm font-bold transition-all shadow-none cursor-pointer hover:scale-[1.01] active:scale-[0.99] h-full"
                               >
                                 <ShoppingBag className="w-4 h-4 shrink-0" />
                                 <span className="truncate">Beli di Tokopedia</span>
@@ -1285,7 +1285,7 @@ export default function OurProductsPage() {
                                 href={selectedProduct.lazadaUrl || "https://www.lazada.co.id"}
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                className="flex items-center justify-center gap-1.5 py-2.5 px-3 rounded-[8px] bg-[#0F146D] hover:bg-[#0F146D]/90 text-white text-xs sm:text-sm font-bold transition-all shadow-none cursor-pointer hover:scale-[1.01] active:scale-[0.99] h-full"
+                                className="flex items-center justify-center gap-1.5 py-2.5 px-3 rounded-[5px] bg-[#0F146D] hover:bg-[#0F146D]/90 text-white text-xs sm:text-sm font-bold transition-all shadow-none cursor-pointer hover:scale-[1.01] active:scale-[0.99] h-full"
                               >
                                 <ShoppingBag className="w-4 h-4 shrink-0" />
                                 <span className="truncate">Beli di Lazada</span>
@@ -1296,7 +1296,7 @@ export default function OurProductsPage() {
                                 href={selectedProduct.tiktokUrl || "https://tiktok.com"}
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                className="flex items-center justify-center gap-2 py-2.5 px-3 rounded-[8px] bg-black hover:bg-zinc-800 text-white text-xs sm:text-sm font-bold transition-all shadow-none cursor-pointer hover:scale-[1.01] active:scale-[0.99] h-full"
+                                className="flex items-center justify-center gap-2 py-2.5 px-3 rounded-[5px] bg-black hover:bg-zinc-800 text-white text-xs sm:text-sm font-bold transition-all shadow-none cursor-pointer hover:scale-[1.01] active:scale-[0.99] h-full"
                               >
                                 <ShoppingBag className="w-4 h-4 shrink-0" />
                                 <span className="truncate">Beli di TikTok</span>
@@ -1308,24 +1308,35 @@ export default function OurProductsPage() {
                     </div>
 
                     {/* Order Cepat WhatsApp */}
-                    <a
-                      href={`https://wa.me/6285877669199?text=${encodeURIComponent(
-                        `Halo CV. Indo Green Nature, saya ingin memesan produk: ${selectedProduct.name} (${formatRupiah(
-                          selectedProduct.price
-                        )}). Mohon info ketersediaan stok & pengiriman.`
-                      )}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="flex items-center justify-center gap-2 py-2.5 px-3.5 rounded-[8px] bg-[#2563EB] hover:bg-[#1D4ED8] text-white text-xs sm:text-sm font-bold transition-all shadow-xs cursor-pointer hover:scale-[1.01] active:scale-[0.99]"
-                    >
-                      <svg
-                        className="w-4 h-4 fill-current shrink-0"
-                        viewBox="0 0 24 24"
-                      >
-                        <path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z" />
-                      </svg>
-                      <span>Order Cepat via WhatsApp Official</span>
-                    </a>
+                    {(() => {
+                      const rawNum = settings.orderWhatsappNumber || "6285877669199"
+                      const cleanNum = rawNum.replace(/[^0-9]/g, "")
+                      const normalizedNum = cleanNum.startsWith("0") ? "62" + cleanNum.slice(1) : cleanNum
+                      const template =
+                        settings.orderWhatsappMessageTemplate ||
+                        "Halo CV. Indo Green Nature, saya ingin memesan produk: {product_name} ({product_price}). Mohon info ketersediaan stok & pengiriman."
+                      const messageText = template
+                        .replace(/\{product_name\}/g, selectedProduct.name)
+                        .replace(/\{product_price\}/g, formatRupiah(selectedProduct.price))
+                      const btnText = settings.orderWhatsappButtonText || "Order Cepat via WhatsApp Official"
+
+                      return (
+                        <a
+                          href={`https://wa.me/${normalizedNum}?text=${encodeURIComponent(messageText)}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="flex items-center justify-center gap-2 py-2.5 px-3.5 rounded-[5px] bg-[#2563EB] hover:bg-[#1D4ED8] text-white text-xs sm:text-sm font-bold transition-all shadow-xs cursor-pointer hover:scale-[1.01] active:scale-[0.99]"
+                        >
+                          <svg
+                            className="w-4 h-4 fill-current shrink-0"
+                            viewBox="0 0 24 24"
+                          >
+                            <path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z" />
+                          </svg>
+                          <span>{btnText}</span>
+                        </a>
+                      )
+                    })()}
                   </div>
                 </div>
               </div>

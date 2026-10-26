@@ -603,22 +603,23 @@ export const DEFAULT_MELAYANI_KLIEN_SUBTITLE_COLOR = "#000000"
 export const DEFAULT_MELAYANI_KLIEN_SUBTITLE_ALIGN: "center" | "left" | "justify" = "center"
 
 export const DEFAULT_MELAYANI_KLIEN_PILL_BG = "#15803D"
-export const DEFAULT_MELAYANI_KLIEN_PILL_TEXT_COLOR = "#FFFFFF"
-export const DEFAULT_MELAYANI_KLIEN_PILL_SIZE = 20
+export const DEFAULT_MELAYANI_KLIEN_PILL_TEXT_COLOR = "#15803D"
+export const DEFAULT_MELAYANI_KLIEN_PILL_SIZE = 24
 export const DEFAULT_MELAYANI_KLIEN_PILL_FONT_WEIGHT = "bold"
+export const DEFAULT_MELAYANI_KLIEN_PILL_FONT = "poppins"
+export const DEFAULT_MELAYANI_KLIEN_STAR_COLOR = "#4B5563"
 
 export const DEFAULT_MELAYANI_KLIEN_CITIES: string[] = [
-  "JAKARTA",
-  "BANDUNG",
-  "BALI",
-  "YOGYAKARTA",
-  "SURABAYA",
-  "MEDAN",
-  "SEMARANG",
-  "MAKASSAR",
-  "PALEMBANG",
-  "BANJARMASIN",
-  "DAN KOTA-KOTA LAINNYA"
+  "Jakarta",
+  "Bandung",
+  "Bali",
+  "Yogyakarta",
+  "Surabaya",
+  "Medan",
+  "Semarang",
+  "Makassar",
+  "Palembang",
+  "Banjarmasin"
 ]
 
 export const ALL_HOME_BLOCKS: HomeBlock[] = [

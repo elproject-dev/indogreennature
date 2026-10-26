@@ -39,6 +39,8 @@ import {
   Tag,
   Percent,
   FileText,
+  MessageCircle,
+  Phone,
 } from "lucide-react"
 import { poppins, outfit, HERO_FONTS } from "@/lib/fonts"
 import { uploadOurProductsMedia } from "@/lib/storage"
@@ -2459,6 +2461,107 @@ export function OurProductsSettingsSidebar({
                         </button>
                       )
                     })}
+                  </div>
+                </div>
+
+                {/* Pengaturan Order Cepat via WhatsApp (Global Semua Produk) */}
+                <div className="p-4 rounded-[8px] bg-muted/40 border border-emerald-500/30 space-y-4">
+                  <div className="flex items-center justify-between border-b border-border/60 pb-2">
+                    <span className="text-xs font-bold text-foreground uppercase tracking-wide flex items-center gap-2">
+                      <MessageCircle className="w-4 h-4 text-emerald-600" />
+                      Order Cepat via WhatsApp (Global Semua Produk)
+                    </span>
+                    <span className="text-[10px] text-emerald-700 dark:text-emerald-400 font-bold font-mono bg-emerald-50 dark:bg-emerald-950/40 px-2 py-0.5 rounded">
+                      Semua Produk
+                    </span>
+                  </div>
+
+                  <p className="text-xs text-muted-foreground leading-relaxed">
+                    Pengaturan nomor dan template pesan WhatsApp di bawah ini berlaku secara global untuk tombol <strong>Order Cepat via WhatsApp</strong> pada semua item produk di halaman Our Products.
+                  </p>
+
+                  {/* 1. Nomor WhatsApp */}
+                  <div className="flex flex-col gap-1.5">
+                    <label className="text-[11px] font-semibold text-foreground/80 flex items-center justify-between">
+                      <span>Nomor WhatsApp Pemesanan</span>
+                      <span className="text-[10px] text-muted-foreground font-mono">
+                        Awali 62 atau 0 (misal: 6285877669199)
+                      </span>
+                    </label>
+                    <div className="flex items-center gap-2">
+                      <div className="relative flex-1">
+                        <Phone className="w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
+                        <input
+                          type="text"
+                          value={data.orderWhatsappNumber || ""}
+                          placeholder="6285877669199"
+                          onChange={(e) => handleFieldChange("orderWhatsappNumber", e.target.value)}
+                          className="w-full pl-9 pr-3.5 py-2 rounded-[5px] text-xs font-mono font-bold bg-background border border-border focus:outline-none focus:ring-2 focus:ring-emerald-600"
+                        />
+                      </div>
+                      <a
+                        href={`https://wa.me/${(data.orderWhatsappNumber || "6285877669199").replace(/[^0-9]/g, "").replace(/^0/, "62")}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="px-3 py-2 text-xs font-semibold rounded-[5px] bg-emerald-600 hover:bg-emerald-700 text-white flex items-center gap-1.5 transition-colors shrink-0"
+                      >
+                        <ExternalLink className="w-3.5 h-3.5" />
+                        <span>Tes Nomor</span>
+                      </a>
+                    </div>
+                  </div>
+
+                  {/* 2. Teks Tombol Order */}
+                  <div className="flex flex-col gap-1.5">
+                    <label className="text-[11px] font-semibold text-foreground/80">
+                      Teks Tombol Order WhatsApp
+                    </label>
+                    <input
+                      type="text"
+                      value={data.orderWhatsappButtonText || ""}
+                      placeholder="Order Cepat via WhatsApp Official"
+                      onChange={(e) => handleFieldChange("orderWhatsappButtonText", e.target.value)}
+                      className="w-full px-3.5 py-2 rounded-[5px] text-xs font-medium bg-background border border-border focus:outline-none focus:ring-2 focus:ring-emerald-600"
+                    />
+                  </div>
+
+                  {/* 3. Template Pesan WhatsApp */}
+                  <div className="flex flex-col gap-1.5">
+                    <div className="flex items-center justify-between">
+                      <label className="text-[11px] font-semibold text-foreground/80">
+                        Template Pesan WhatsApp Otomatis
+                      </label>
+                      <button
+                        type="button"
+                        onClick={() =>
+                          handleFieldChange(
+                            "orderWhatsappMessageTemplate",
+                            "Halo CV. Indo Green Nature, saya ingin memesan produk: {product_name} ({product_price}). Mohon info ketersediaan stok & pengiriman."
+                          )
+                        }
+                        className="text-[10px] text-emerald-600 hover:underline cursor-pointer"
+                      >
+                        Gunakan Template Standar
+                      </button>
+                    </div>
+                    <AutoResizeTextarea
+                      minHeight={65}
+                      value={data.orderWhatsappMessageTemplate || ""}
+                      placeholder="Halo CV. Indo Green Nature, saya ingin memesan produk: {product_name} ({product_price}). Mohon info ketersediaan stok & pengiriman."
+                      onChange={(e) => handleFieldChange("orderWhatsappMessageTemplate", e.target.value)}
+                      className="w-full px-3.5 py-2 rounded-[5px] text-xs bg-background border border-border focus:outline-none focus:ring-2 focus:ring-emerald-600 leading-relaxed font-sans"
+                    />
+                    <div className="flex items-center gap-2 flex-wrap text-[10px] text-muted-foreground pt-0.5">
+                      <span className="font-semibold text-foreground/70">Variabel dinamis:</span>
+                      <code className="px-1.5 py-0.5 bg-muted rounded font-mono text-emerald-600 font-bold border border-border">
+                        {"{product_name}"}
+                      </code>
+                      <span>(Nama Produk)</span>
+                      <code className="px-1.5 py-0.5 bg-muted rounded font-mono text-emerald-600 font-bold border border-border">
+                        {"{product_price}"}
+                      </code>
+                      <span>(Harga Produk)</span>
+                    </div>
                   </div>
                 </div>
 

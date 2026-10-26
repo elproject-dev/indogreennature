@@ -1,6 +1,6 @@
 "use client"
 import { toast } from "@/components/ui/toast"
-import { Loader2, Pencil, Tag, Calendar, Package, Image as ImageIcon, Search, Plus, MapPin, MapPinned, X, AlignLeft, AlignCenter, AlignRight, AlignJustify, Maximize2, Layout, Store, Bell, Star, Megaphone, GripVertical, Type, Bold, PanelTop, Sliders, Check, Minus, Upload, Trash2, ImagePlus, MonitorSmartphone, Monitor, Smartphone, RotateCcw, ExternalLink, Palette, Sparkles, Save, BookOpen, ArrowUp, ArrowDown, Briefcase, Copy, Layers, Globe, CheckCircle2, ShieldCheck, EyeOff, Handshake, Workflow, MessageSquareQuote, Link as LinkIcon, MessageCircle, HelpCircle, PlaySquare, Play, Film, Share2 } from "lucide-react"
+import { Loader2, Pencil, Tag, Calendar, Package, Image as ImageIcon, Search, Plus, MapPin, MapPinned, X, AlignLeft, AlignCenter, AlignRight, AlignJustify, Maximize2, Layout, Store, Bell, Star, Megaphone, GripVertical, Type, Bold, PanelTop, Sliders, Check, Minus, Upload, Trash2, ImagePlus, MonitorSmartphone, Monitor, Smartphone, RotateCcw, ExternalLink, Palette, Sparkles, Save, BookOpen, ArrowUp, ArrowDown, Briefcase, Copy, Layers, Globe, CheckCircle2, ShieldCheck, EyeOff, Handshake, Workflow, MessageSquareQuote, Link as LinkIcon, MessageCircle, HelpCircle, PlaySquare, Play, Film, Share2, ShoppingBag } from "lucide-react"
 import { AiFillTikTok, AiFillInstagram } from "react-icons/ai"
 import { FaFacebook, FaYoutube } from "react-icons/fa"
 import { BsBrowserChrome } from "react-icons/bs"
@@ -45,6 +45,7 @@ import { supabase } from "@/lib/supabase"
 import { ProdukSortableList } from "@/components/produk-sortable-list"
 import { HomeLayoutEditor } from "@/components/home-layout-editor"
 import { WhatsAppSettingsPanel } from "@/components/whatsapp-settings-panel"
+import { OurProductsSettingsPanel } from "@/components/our-products-settings-panel"
 import {
     DEFAULT_HERO_TEXT,
     DEFAULT_HERO_FONT,
@@ -203,6 +204,8 @@ import {
     DEFAULT_MELAYANI_KLIEN_PILL_TEXT_COLOR,
     DEFAULT_MELAYANI_KLIEN_PILL_SIZE,
     DEFAULT_MELAYANI_KLIEN_PILL_FONT_WEIGHT,
+    DEFAULT_MELAYANI_KLIEN_PILL_FONT,
+    DEFAULT_MELAYANI_KLIEN_STAR_COLOR,
     DEFAULT_MELAYANI_KLIEN_CITIES,
     DEFAULT_ULASAN_KLIEN_TITLE,
     DEFAULT_ULASAN_KLIEN_TITLE_SIZE,
@@ -298,6 +301,7 @@ const menuItems = [
     { id: 'pengenalan', label: 'Pengenalan', icon: BookOpen },
     { id: 'solusi_bisnis', label: 'Solusi Bisnis', icon: Briefcase },
     { id: 'jenis_produk', label: 'Jenis Produk Maklon', icon: Layers },
+    { id: 'our_products', label: 'Our Products & Order WA', icon: ShoppingBag },
     { id: 'peluang', label: 'Peluang Pasar Global', icon: Globe },
     { id: 'mengapa_memilih', label: 'Mengapa Memilih IGN', icon: CheckCircle2 },
     { id: 'legalitas', label: 'Legalitas & Kualitas', icon: ShieldCheck },
@@ -1836,6 +1840,20 @@ export default function SettingsPage() {
             if (stored !== null) return stored;
         }
         return DEFAULT_MELAYANI_KLIEN_PILL_FONT_WEIGHT;
+    });
+    const [melayaniKlienPillFont, setMelayaniKlienPillFont] = useState<string>(() => {
+        if (typeof window !== 'undefined') {
+            const stored = localStorage.getItem('melayani_klien_pill_font');
+            if (stored !== null) return stored;
+        }
+        return DEFAULT_MELAYANI_KLIEN_PILL_FONT;
+    });
+    const [melayaniKlienStarColor, setMelayaniKlienStarColor] = useState<string>(() => {
+        if (typeof window !== 'undefined') {
+            const stored = localStorage.getItem('melayani_klien_star_color');
+            if (stored !== null) return stored;
+        }
+        return DEFAULT_MELAYANI_KLIEN_STAR_COLOR;
     });
     const [melayaniKlienCities, setMelayaniKlienCities] = useState<string[]>(() => {
         if (typeof window !== 'undefined') {
@@ -4297,6 +4315,8 @@ export default function SettingsPage() {
         pillTextColor: string;
         pillSize: number;
         pillFontWeight: string;
+        pillFont: string;
+        starColor: string;
         cities: string[];
     }>) => {
         if (typeof window !== 'undefined') {
@@ -4313,6 +4333,8 @@ export default function SettingsPage() {
             if (updates.pillTextColor !== undefined) localStorage.setItem('melayani_klien_preview_pill_text_color', updates.pillTextColor);
             if (updates.pillSize !== undefined) localStorage.setItem('melayani_klien_preview_pill_size', updates.pillSize.toString());
             if (updates.pillFontWeight !== undefined) localStorage.setItem('melayani_klien_preview_pill_font_weight', updates.pillFontWeight);
+            if (updates.pillFont !== undefined) localStorage.setItem('melayani_klien_preview_pill_font', updates.pillFont);
+            if (updates.starColor !== undefined) localStorage.setItem('melayani_klien_preview_star_color', updates.starColor);
             if (updates.cities !== undefined) localStorage.setItem('melayani_klien_preview_cities', JSON.stringify(updates.cities));
         }
 
@@ -4350,6 +4372,8 @@ export default function SettingsPage() {
             await saveConfig('melayani_klien_pill_text_color', melayaniKlienPillTextColor);
             await saveConfig('melayani_klien_pill_size', melayaniKlienPillSize.toString());
             await saveConfig('melayani_klien_pill_font_weight', melayaniKlienPillFontWeight);
+            await saveConfig('melayani_klien_pill_font', melayaniKlienPillFont);
+            await saveConfig('melayani_klien_star_color', melayaniKlienStarColor);
             await saveConfig('melayani_klien_cities', JSON.stringify(melayaniKlienCities));
 
             if (typeof window !== 'undefined') {
@@ -4366,6 +4390,8 @@ export default function SettingsPage() {
                 localStorage.setItem('melayani_klien_pill_text_color', melayaniKlienPillTextColor);
                 localStorage.setItem('melayani_klien_pill_size', melayaniKlienPillSize.toString());
                 localStorage.setItem('melayani_klien_pill_font_weight', melayaniKlienPillFontWeight);
+                localStorage.setItem('melayani_klien_pill_font', melayaniKlienPillFont);
+                localStorage.setItem('melayani_klien_star_color', melayaniKlienStarColor);
                 localStorage.setItem('melayani_klien_cities', JSON.stringify(melayaniKlienCities));
 
                 localStorage.setItem('melayani_klien_preview_title', melayaniKlienTitle);
@@ -4381,6 +4407,8 @@ export default function SettingsPage() {
                 localStorage.setItem('melayani_klien_preview_pill_text_color', melayaniKlienPillTextColor);
                 localStorage.setItem('melayani_klien_preview_pill_size', melayaniKlienPillSize.toString());
                 localStorage.setItem('melayani_klien_preview_pill_font_weight', melayaniKlienPillFontWeight);
+                localStorage.setItem('melayani_klien_preview_pill_font', melayaniKlienPillFont);
+                localStorage.setItem('melayani_klien_preview_star_color', melayaniKlienStarColor);
                 localStorage.setItem('melayani_klien_preview_cities', JSON.stringify(melayaniKlienCities));
             }
 
@@ -4401,6 +4429,8 @@ export default function SettingsPage() {
                         pillTextColor: melayaniKlienPillTextColor,
                         pillSize: melayaniKlienPillSize,
                         pillFontWeight: melayaniKlienPillFontWeight,
+                        pillFont: melayaniKlienPillFont,
+                        starColor: melayaniKlienStarColor,
                         cities: melayaniKlienCities,
                     });
                     bc.close();
@@ -5214,7 +5244,7 @@ export default function SettingsPage() {
                 'dipercaya_brand_title', 'dipercaya_brand_title_size', 'dipercaya_brand_title_color', 'dipercaya_brand_title_font', 'dipercaya_brand_title_font_weight', 'dipercaya_brand_subtitle', 'dipercaya_brand_subtitle_color', 'dipercaya_brand_subtitle_size', 'dipercaya_brand_subtitle_align', 'dipercaya_brand_card_bg', 'dipercaya_brand_items',
                 'proses_maklon_title', 'proses_maklon_title_size', 'proses_maklon_title_color', 'proses_maklon_title_font', 'proses_maklon_title_font_weight', 'proses_maklon_subtitle', 'proses_maklon_subtitle_color', 'proses_maklon_subtitle_size', 'proses_maklon_subtitle_align', 'proses_maklon_card_bg', 'proses_maklon_card_text_color', 'proses_maklon_items',
                 'konsultasi_banner_text', 'konsultasi_banner_text_size', 'konsultasi_banner_text_color', 'konsultasi_banner_text_font', 'konsultasi_banner_text_font_weight', 'konsultasi_banner_bg_color', 'konsultasi_banner_border_radius', 'konsultasi_banner_btn_text', 'konsultasi_banner_btn_bg_color', 'konsultasi_banner_btn_text_color', 'konsultasi_banner_btn_text_size', 'konsultasi_banner_link_type', 'konsultasi_banner_wa_number', 'konsultasi_banner_wa_message', 'konsultasi_banner_custom_url', 'konsultasi_banner_open_new_tab',
-                'melayani_klien_title', 'melayani_klien_title_size', 'melayani_klien_title_color', 'melayani_klien_title_font', 'melayani_klien_title_font_weight', 'melayani_klien_subtitle', 'melayani_klien_subtitle_color', 'melayani_klien_subtitle_size', 'melayani_klien_subtitle_align', 'melayani_klien_pill_bg', 'melayani_klien_pill_text_color', 'melayani_klien_pill_size', 'melayani_klien_pill_font_weight', 'melayani_klien_cities',
+                'melayani_klien_title', 'melayani_klien_title_size', 'melayani_klien_title_color', 'melayani_klien_title_font', 'melayani_klien_title_font_weight', 'melayani_klien_subtitle', 'melayani_klien_subtitle_color', 'melayani_klien_subtitle_size', 'melayani_klien_subtitle_align', 'melayani_klien_pill_bg', 'melayani_klien_pill_text_color', 'melayani_klien_pill_size', 'melayani_klien_pill_font_weight', 'melayani_klien_pill_font', 'melayani_klien_star_color', 'melayani_klien_cities',
                 'ulasan_klien_title', 'ulasan_klien_title_size', 'ulasan_klien_title_color', 'ulasan_klien_title_font', 'ulasan_klien_title_font_weight', 'ulasan_klien_subtitle', 'ulasan_klien_subtitle_color', 'ulasan_klien_subtitle_size', 'ulasan_klien_items',
                 'faq_title', 'faq_title_size', 'faq_title_color', 'faq_title_font', 'faq_title_font_weight', 'faq_subtitle', 'faq_subtitle_color', 'faq_subtitle_size',
                 'faq_question_color', 'faq_question_active_color', 'faq_answer_color',
@@ -5706,6 +5736,14 @@ export default function SettingsPage() {
                     if (item.key === 'melayani_klien_pill_font_weight' && item.value) {
                         setMelayaniKlienPillFontWeight(item.value);
                         try { localStorage.setItem('melayani_klien_pill_font_weight', item.value); } catch (e) { }
+                    }
+                    if (item.key === 'melayani_klien_pill_font' && item.value) {
+                        setMelayaniKlienPillFont(item.value);
+                        try { localStorage.setItem('melayani_klien_pill_font', item.value); } catch (e) { }
+                    }
+                    if (item.key === 'melayani_klien_star_color' && item.value) {
+                        setMelayaniKlienStarColor(item.value);
+                        try { localStorage.setItem('melayani_klien_star_color', item.value); } catch (e) { }
                     }
                     if (item.key === 'melayani_klien_cities' && item.value) {
                         try {
@@ -15986,66 +16024,52 @@ export default function SettingsPage() {
                                             </CardContent>
                                         </Card>
 
-                                        {/* Card 2: Gaya & Warna Badge Pill Kota */}
+                                        {/* Card 2: Gaya & Tipografi Teks Slide Kota (Tanpa Badge) */}
                                         <Card className="bg-card-alt text-primary border-primary/20 shadow-sm rounded-none">
                                             <CardContent className="p-5 sm:p-6 space-y-4">
                                                 <div className="border-b border-primary/10 pb-3">
                                                     <span className="font-semibold text-sm flex items-center gap-2">
                                                         <Sliders className="w-4 h-4 text-primary" />
-                                                        <span>Gaya & Warna Badge Pill Kota</span>
+                                                        <span>Gaya & Tipografi Teks Slide Kota</span>
                                                     </span>
                                                 </div>
 
                                                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                                    {/* Background Pill */}
+                                                    {/* Pilihan Gaya Font Teks Slide */}
                                                     <div className="space-y-1.5">
-                                                        <Label className="text-xs font-semibold">Warna Background Pill</Label>
-                                                        <div className="flex items-center gap-2">
-                                                            <input
-                                                                type="color"
-                                                                value={melayaniKlienPillBg}
-                                                                onChange={(e) => {
-                                                                    setMelayaniKlienPillBg(e.target.value);
-                                                                    updateMelayaniKlienLive({ pillBg: e.target.value });
-                                                                }}
-                                                                className="w-8 h-8 rounded border border-primary/20 cursor-pointer p-0.5 bg-background shrink-0"
-                                                            />
-                                                            <Input
-                                                                value={melayaniKlienPillBg}
-                                                                onChange={(e) => {
-                                                                    setMelayaniKlienPillBg(e.target.value);
-                                                                    updateMelayaniKlienLive({ pillBg: e.target.value });
-                                                                }}
-                                                                className="rounded-none bg-background text-xs font-mono h-8 flex-1"
-                                                            />
-                                                        </div>
+                                                        <Label className="text-xs font-semibold">Gaya Font Teks Slide</Label>
+                                                        <select
+                                                            value={melayaniKlienPillFont}
+                                                            onChange={(e) => {
+                                                                setMelayaniKlienPillFont(e.target.value);
+                                                                updateMelayaniKlienLive({ pillFont: e.target.value });
+                                                            }}
+                                                            className="w-full h-8 text-xs border border-primary/20 bg-background px-2 rounded-none"
+                                                        >
+                                                            {HERO_FONTS.map(f => (
+                                                                <option key={f.id} value={f.id}>{f.name} ({f.category})</option>
+                                                            ))}
+                                                        </select>
                                                     </div>
 
-                                                    {/* Text Color Pill */}
+                                                    {/* Ketebalan Font */}
                                                     <div className="space-y-1.5">
-                                                        <Label className="text-xs font-semibold">Warna Teks Pill</Label>
-                                                        <div className="flex items-center gap-2">
-                                                            <input
-                                                                type="color"
-                                                                value={melayaniKlienPillTextColor}
-                                                                onChange={(e) => {
-                                                                    setMelayaniKlienPillTextColor(e.target.value);
-                                                                    updateMelayaniKlienLive({ pillTextColor: e.target.value });
-                                                                }}
-                                                                className="w-8 h-8 rounded border border-primary/20 cursor-pointer p-0.5 bg-background shrink-0"
-                                                            />
-                                                            <Input
-                                                                value={melayaniKlienPillTextColor}
-                                                                onChange={(e) => {
-                                                                    setMelayaniKlienPillTextColor(e.target.value);
-                                                                    updateMelayaniKlienLive({ pillTextColor: e.target.value });
-                                                                }}
-                                                                className="rounded-none bg-background text-xs font-mono h-8 flex-1"
-                                                            />
-                                                        </div>
+                                                        <Label className="text-xs font-semibold">Ketebalan Font Teks</Label>
+                                                        <select
+                                                            value={melayaniKlienPillFontWeight}
+                                                            onChange={(e) => {
+                                                                setMelayaniKlienPillFontWeight(e.target.value);
+                                                                updateMelayaniKlienLive({ pillFontWeight: e.target.value });
+                                                            }}
+                                                            className="w-full h-8 text-xs border border-primary/20 bg-background px-2 rounded-none"
+                                                        >
+                                                            {HERO_FONT_WEIGHTS.map(w => (
+                                                                <option key={w.id} value={w.id}>{w.name}</option>
+                                                            ))}
+                                                        </select>
                                                     </div>
 
-                                                    {/* Ukuran Font Pill */}
+                                                    {/* Ukuran Font */}
                                                     <div className="space-y-1.5">
                                                         <Label className="text-xs font-semibold">Ukuran Font ({melayaniKlienPillSize}px)</Label>
                                                         <div className="flex items-center gap-2">
@@ -16068,13 +16092,13 @@ export default function SettingsPage() {
                                                                 onChange={(e) => {
                                                                     const num = parseInt(e.target.value, 10);
                                                                     if (!isNaN(num)) {
-                                                                        const clamped = Math.min(32, Math.max(12, num));
+                                                                        const clamped = Math.min(48, Math.max(12, num));
                                                                         setMelayaniKlienPillSize(clamped);
                                                                         updateMelayaniKlienLive({ pillSize: clamped });
                                                                     }
                                                                 }}
                                                                 min={12}
-                                                                max={32}
+                                                                max={48}
                                                                 className="rounded-none bg-background text-center text-xs h-8 flex-1"
                                                             />
                                                             <Button
@@ -16083,7 +16107,7 @@ export default function SettingsPage() {
                                                                 size="sm"
                                                                 className="h-8 w-8 p-0 rounded-none cursor-pointer"
                                                                 onClick={() => {
-                                                                    const next = Math.min(32, melayaniKlienPillSize + 1);
+                                                                    const next = Math.min(48, melayaniKlienPillSize + 1);
                                                                     setMelayaniKlienPillSize(next);
                                                                     updateMelayaniKlienLive({ pillSize: next });
                                                                 }}
@@ -16093,21 +16117,55 @@ export default function SettingsPage() {
                                                         </div>
                                                     </div>
 
-                                                    {/* Ketebalan Font Pill */}
+                                                    {/* Warna Teks Kota */}
                                                     <div className="space-y-1.5">
-                                                        <Label className="text-xs font-semibold">Ketebalan Font Pill</Label>
-                                                        <select
-                                                            value={melayaniKlienPillFontWeight}
-                                                            onChange={(e) => {
-                                                                setMelayaniKlienPillFontWeight(e.target.value);
-                                                                updateMelayaniKlienLive({ pillFontWeight: e.target.value });
-                                                            }}
-                                                            className="w-full h-8 text-xs border border-primary/20 bg-background px-2 rounded-none"
-                                                        >
-                                                            {HERO_FONT_WEIGHTS.map(w => (
-                                                                <option key={w.id} value={w.id}>{w.name}</option>
-                                                            ))}
-                                                        </select>
+                                                        <Label className="text-xs font-semibold">Warna Teks Kota</Label>
+                                                        <div className="flex items-center gap-2">
+                                                            <input
+                                                                type="color"
+                                                                value={melayaniKlienPillTextColor}
+                                                                onChange={(e) => {
+                                                                    setMelayaniKlienPillTextColor(e.target.value);
+                                                                    updateMelayaniKlienLive({ pillTextColor: e.target.value });
+                                                                }}
+                                                                className="w-8 h-8 rounded border border-primary/20 cursor-pointer p-0.5 bg-background shrink-0"
+                                                            />
+                                                            <Input
+                                                                value={melayaniKlienPillTextColor}
+                                                                onChange={(e) => {
+                                                                    setMelayaniKlienPillTextColor(e.target.value);
+                                                                    updateMelayaniKlienLive({ pillTextColor: e.target.value });
+                                                                }}
+                                                                className="rounded-none bg-background text-xs font-mono h-8 flex-1"
+                                                            />
+                                                        </div>
+                                                    </div>
+
+                                                    {/* Warna Titik Star Pemisah */}
+                                                    <div className="space-y-1.5">
+                                                        <Label className="text-xs font-semibold flex items-center gap-1.5">
+                                                            <span>Warna Titik Star Pemisah</span>
+                                                            <span style={{ color: melayaniKlienStarColor }} className="font-bold">✦</span>
+                                                        </Label>
+                                                        <div className="flex items-center gap-2">
+                                                            <input
+                                                                type="color"
+                                                                value={melayaniKlienStarColor}
+                                                                onChange={(e) => {
+                                                                    setMelayaniKlienStarColor(e.target.value);
+                                                                    updateMelayaniKlienLive({ starColor: e.target.value });
+                                                                }}
+                                                                className="w-8 h-8 rounded border border-primary/20 cursor-pointer p-0.5 bg-background shrink-0"
+                                                            />
+                                                            <Input
+                                                                value={melayaniKlienStarColor}
+                                                                onChange={(e) => {
+                                                                    setMelayaniKlienStarColor(e.target.value);
+                                                                    updateMelayaniKlienLive({ starColor: e.target.value });
+                                                                }}
+                                                                className="rounded-none bg-background text-xs font-mono h-8 flex-1"
+                                                            />
+                                                        </div>
                                                     </div>
                                                 </div>
                                             </CardContent>
@@ -16145,25 +16203,27 @@ export default function SettingsPage() {
                                                         onKeyDown={(e) => {
                                                             if (e.key === "Enter" && newCityInput.trim()) {
                                                                 e.preventDefault();
-                                                                const updated = [...melayaniKlienCities, newCityInput.trim().toUpperCase()];
+                                                                const trimmed = newCityInput.trim();
+                                                                const updated = [...melayaniKlienCities, trimmed];
                                                                 setMelayaniKlienCities(updated);
                                                                 setNewCityInput("");
                                                                 updateMelayaniKlienLive({ cities: updated });
-                                                                toast.add({ title: `Kota "${newCityInput.trim().toUpperCase()}" ditambahkan`, type: 'success' });
+                                                                toast.add({ title: `Kota "${trimmed}" ditambahkan`, type: 'success' });
                                                             }
                                                         }}
-                                                        placeholder="Ketik nama kota baru (misal: MAKASSAR, MEDAN)..."
-                                                        className="rounded-none bg-background text-sm h-9 flex-1 uppercase"
+                                                        placeholder="Ketik nama kota baru (misal: Makassar, Medan)..."
+                                                        className="rounded-none bg-background text-sm h-9 flex-1"
                                                     />
                                                     <Button
                                                         type="button"
                                                         onClick={() => {
                                                             if (!newCityInput.trim()) return;
-                                                            const updated = [...melayaniKlienCities, newCityInput.trim().toUpperCase()];
+                                                            const trimmed = newCityInput.trim();
+                                                            const updated = [...melayaniKlienCities, trimmed];
                                                             setMelayaniKlienCities(updated);
                                                             setNewCityInput("");
                                                             updateMelayaniKlienLive({ cities: updated });
-                                                            toast.add({ title: `Kota "${newCityInput.trim().toUpperCase()}" ditambahkan`, type: 'success' });
+                                                            toast.add({ title: `Kota "${trimmed}" ditambahkan`, type: 'success' });
                                                         }}
                                                         className="rounded-none h-9 gap-1 text-xs px-4 cursor-pointer"
                                                     >
@@ -16190,7 +16250,7 @@ export default function SettingsPage() {
                                                                     setMelayaniKlienCities(updated);
                                                                     updateMelayaniKlienLive({ cities: updated });
                                                                 }}
-                                                                className="rounded-none bg-card-alt text-xs font-medium h-8 flex-1 uppercase"
+                                                                className="rounded-none bg-card-alt text-xs font-medium h-8 flex-1"
                                                             />
                                                             {/* Tombol Geser Atas */}
                                                             <Button
@@ -16379,29 +16439,105 @@ export default function SettingsPage() {
                                                         </p>
                                                     )}
 
-                                                    {/* Mini Badges Kota */}
-                                                    <div className="w-full flex flex-wrap items-center justify-center gap-1.5 mt-2 max-h-[160px] overflow-hidden">
-                                                        {melayaniKlienCities.map((city, idx) => {
-                                                            const isLongText = city.trim().length > 15 || city.toUpperCase().includes("KOTA");
-                                                            return (
-                                                                <span
-                                                                    key={idx}
-                                                                    style={{
-                                                                        backgroundColor: melayaniKlienPillBg || DEFAULT_MELAYANI_KLIEN_PILL_BG,
-                                                                        color: melayaniKlienPillTextColor || DEFAULT_MELAYANI_KLIEN_PILL_TEXT_COLOR,
-                                                                        fontSize: `${Math.max(9, Math.round(melayaniKlienPillSize * 0.48))}px`,
-                                                                        fontWeight: parseHeroFontWeightNumber(melayaniKlienPillFontWeight),
-                                                                    }}
-                                                                    className={cn(
-                                                                        "rounded-full px-2.5 py-1 text-center shadow-xs transition-transform hover:scale-105 select-none",
-                                                                        isLongText ? "w-auto min-w-[100px]" : "w-auto"
-                                                                    )}
-                                                                >
-                                                                    {city}
-                                                                </span>
-                                                            );
-                                                        })}
-                                                    </div>
+                                                    {/* Mini Slide Dua Arah (Atas ke Kanan, Bawah ke Kiri) */}
+                                                    {(() => {
+                                                        const activeCities = melayaniKlienCities.filter((c) => !c.toUpperCase().includes("KOTA-KOTA"));
+                                                        const baseCities = activeCities.length > 0 ? activeCities : DEFAULT_MELAYANI_KLIEN_CITIES.filter((c) => !c.toUpperCase().includes("KOTA-KOTA"));
+                                                        const row1 = baseCities.filter((_, idx) => idx % 2 === 0);
+                                                        const row2 = baseCities.filter((_, idx) => idx % 2 !== 0);
+                                                        const topList = row1.length > 0 ? row1 : baseCities;
+                                                        const botList = row2.length > 0 ? row2 : baseCities;
+                                                        const rep1 = Math.max(3, Math.ceil(8 / topList.length));
+                                                        const rep2 = Math.max(3, Math.ceil(8 / botList.length));
+                                                        const topSeq = Array.from({ length: rep1 }).flatMap(() => topList);
+                                                        const botSeq = Array.from({ length: rep2 }).flatMap(() => botList);
+                                                        const isWhite = melayaniKlienPillTextColor && (melayaniKlienPillTextColor.toLowerCase() === "#ffffff" || melayaniKlienPillTextColor.toLowerCase() === "#fff");
+                                                        const resColor = isWhite ? (melayaniKlienTitleColor || "#15803D") : (melayaniKlienPillTextColor || "#15803D");
+                                                        const textFontClass = getHeroFontClass(melayaniKlienPillFont || "poppins");
+
+                                                        return (
+                                                            <div className="w-full relative overflow-hidden mt-3 flex flex-col gap-1.5 py-1">
+                                                                <div className="pointer-events-none absolute left-0 top-0 bottom-0 w-8 bg-gradient-to-r from-card-alt to-transparent z-10" />
+                                                                <div className="pointer-events-none absolute right-0 top-0 bottom-0 w-8 bg-gradient-to-l from-card-alt to-transparent z-10" />
+
+                                                                {/* Baris 1: Atas ke Kanan */}
+                                                                <div className="w-full overflow-hidden flex select-none">
+                                                                    <div className="animate-marquee-reverse flex items-center shrink-0">
+                                                                        {topSeq.map((city, idx) => (
+                                                                            <span key={`prev-top-a-${city}-${idx}`} className="inline-flex items-center shrink-0">
+                                                                                <span
+                                                                                    style={{
+                                                                                        color: resColor,
+                                                                                        fontSize: `${Math.max(10, Math.round(melayaniKlienPillSize * 0.55))}px`,
+                                                                                        fontWeight: parseHeroFontWeightNumber(melayaniKlienPillFontWeight),
+                                                                                    }}
+                                                                                    className={cn("tracking-wider px-1", textFontClass)}
+                                                                                >
+                                                                                    {city}
+                                                                                </span>
+                                                                                <span style={{ color: melayaniKlienStarColor || DEFAULT_MELAYANI_KLIEN_STAR_COLOR }} className="text-[9px] mx-2 select-none">✦</span>
+                                                                            </span>
+                                                                        ))}
+                                                                    </div>
+                                                                    <div className="animate-marquee-reverse flex items-center shrink-0" aria-hidden="true">
+                                                                        {topSeq.map((city, idx) => (
+                                                                            <span key={`prev-top-b-${city}-${idx}`} className="inline-flex items-center shrink-0">
+                                                                                <span
+                                                                                    style={{
+                                                                                        color: resColor,
+                                                                                        fontSize: `${Math.max(10, Math.round(melayaniKlienPillSize * 0.55))}px`,
+                                                                                        fontWeight: parseHeroFontWeightNumber(melayaniKlienPillFontWeight),
+                                                                                    }}
+                                                                                    className={cn("tracking-wider px-1", textFontClass)}
+                                                                                >
+                                                                                    {city}
+                                                                                </span>
+                                                                                <span style={{ color: melayaniKlienStarColor || DEFAULT_MELAYANI_KLIEN_STAR_COLOR }} className="text-[9px] mx-2 select-none">✦</span>
+                                                                            </span>
+                                                                        ))}
+                                                                    </div>
+                                                                </div>
+
+                                                                {/* Baris 2: Bawah ke Kiri */}
+                                                                <div className="w-full overflow-hidden flex select-none">
+                                                                    <div className="animate-marquee flex items-center shrink-0">
+                                                                        {botSeq.map((city, idx) => (
+                                                                            <span key={`prev-bot-a-${city}-${idx}`} className="inline-flex items-center shrink-0">
+                                                                                <span
+                                                                                    style={{
+                                                                                        color: resColor,
+                                                                                        fontSize: `${Math.max(10, Math.round(melayaniKlienPillSize * 0.55))}px`,
+                                                                                        fontWeight: parseHeroFontWeightNumber(melayaniKlienPillFontWeight),
+                                                                                    }}
+                                                                                    className={cn("tracking-wider px-1", textFontClass)}
+                                                                                >
+                                                                                    {city}
+                                                                                </span>
+                                                                                <span style={{ color: melayaniKlienStarColor || DEFAULT_MELAYANI_KLIEN_STAR_COLOR }} className="text-[9px] mx-2 select-none">✦</span>
+                                                                            </span>
+                                                                        ))}
+                                                                    </div>
+                                                                    <div className="animate-marquee flex items-center shrink-0" aria-hidden="true">
+                                                                        {botSeq.map((city, idx) => (
+                                                                            <span key={`prev-bot-b-${city}-${idx}`} className="inline-flex items-center shrink-0">
+                                                                                <span
+                                                                                    style={{
+                                                                                        color: resColor,
+                                                                                        fontSize: `${Math.max(10, Math.round(melayaniKlienPillSize * 0.55))}px`,
+                                                                                        fontWeight: parseHeroFontWeightNumber(melayaniKlienPillFontWeight),
+                                                                                    }}
+                                                                                    className={cn("tracking-wider px-1", textFontClass)}
+                                                                                >
+                                                                                    {city}
+                                                                                </span>
+                                                                                <span style={{ color: melayaniKlienStarColor || DEFAULT_MELAYANI_KLIEN_STAR_COLOR }} className="text-[9px] mx-2 select-none">✦</span>
+                                                                            </span>
+                                                                        ))}
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        );
+                                                    })()}
                                                 </div>
 
                                                 <div className="bg-primary/5 p-3 text-xs text-primary/80 border border-primary/10 flex flex-col gap-2">
@@ -19413,6 +19549,10 @@ export default function SettingsPage() {
                                     </DialogContent>
                                 </Dialog>
                             </div>
+                        )}
+
+                        {activeMenu === 'our_products' && (
+                            <OurProductsSettingsPanel />
                         )}
 
                         {activeMenu === 'whatsapp_button' && (
