@@ -35,3 +35,4 @@ credentials/
 
 # typescript
 *.tsbuildinfo
+.env*
