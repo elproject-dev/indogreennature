@@ -68,7 +68,7 @@ export function SourceBarChart({ data }: SourceBarChartProps) {
     <Card className="flex flex-col h-full">
       <CardHeader>
         <CardTitle className="text-sm font-medium text-primary">Sumber / Media Pengguna</CardTitle>
-        <CardDescription className="text-[10px]">Data Google Analytics (30 Hari)</CardDescription>
+        <CardDescription className="text-[10px]">Data Google Analytics (28 Hari)</CardDescription>
       </CardHeader>
       <CardContent className="flex-1 px-4 pb-0 flex items-center justify-center">
         {chartData.length > 0 ? (

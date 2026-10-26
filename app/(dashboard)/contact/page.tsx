@@ -31,6 +31,7 @@ import {
   resetContactSettings,
 } from "@/lib/contact-settings"
 import { renderFormattedText } from "@/lib/home-blocks"
+import { trackButtonClick } from "@/lib/track-click"
 
 function FaqItem({
   item,
@@ -134,38 +135,33 @@ function ContactForm({
     setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }))
   }
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const [error, setError] = useState("")
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setIsSending(true)
-
-    const subjectLabels: Record<string, string> = {
-      umum: "Pertanyaan Umum",
-      kemitraan: "Permintaan Kemitraan",
-      maklon: "Permintaan Maklon / OEM",
-      produk: "Informasi Produk",
-    }
-
-    const targetEmail = receiverEmail || "marketing@indogreennature.com"
-    const mailSubject = `[${subjectLabels[form.subject] || "Kontak"}] Pesan dari ${form.name}${form.company ? ` (${form.company})` : ""}`
-    const mailBody = `Halo CV. Indo Green Nature,\n\nSaya ingin berkonsultasi mengenai: ${subjectLabels[form.subject] || "Kerjasama"}\n\nData Pengirim:\n- Nama: ${form.name}\n- Perusahaan / Brand: ${form.company || "-"}\n- No. WhatsApp / HP: ${form.phone || "-"}\n- Email: ${form.email}\n- Topik: ${subjectLabels[form.subject]}\n\nPesan / Kebutuhan:\n${form.message}\n\nMohon tanggapannya. Terima kasih.`
-
-    const gmailUrl = `https://mail.google.com/mail/?view=cm&fs=1&to=${encodeURIComponent(targetEmail)}&su=${encodeURIComponent(mailSubject)}&body=${encodeURIComponent(mailBody)}`
-    const mailtoUrl = `mailto:${targetEmail}?subject=${encodeURIComponent(mailSubject)}&body=${encodeURIComponent(mailBody)}`
+    setError("")
 
     try {
-      const opened = window.open(gmailUrl, "_blank", "noopener,noreferrer")
-      if (!opened) {
-        window.location.href = mailtoUrl
-      }
-    } catch {
-      window.location.href = mailtoUrl
-    }
-
-    setTimeout(() => {
-      setIsSending(false)
+      const res = await fetch("/api/contact", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ...form, to: receiverEmail }),
+      })
+      if (!res.ok) throw new Error()
       setIsSent(true)
-    }, 400)
+      trackButtonClick({
+        buttonType: "contact_form_submit",
+        itemName: `Form: ${form.name} (${form.subject})`,
+        pagePath: "/contact",
+      })
+    } catch {
+      setError("Gagal mengirim pesan. Silakan coba lagi atau hubungi kami via WhatsApp.")
+    } finally {
+      setIsSending(false)
+    }
   }
+
 
   if (isSent) {
     return (
@@ -174,7 +170,7 @@ function ContactForm({
 
         <div className="flex flex-col gap-1 max-w-sm">
           <p className="text-sm text-foreground/85">
-            Draf pesan tujuan ke
+            Pesan Anda berhasil terkirim ke
           </p>
           <span className="font-semibold text-primary text-sm sm:text-base">
             {receiverEmail || "marketing@indogreennature.com"}
@@ -341,6 +337,8 @@ function ContactForm({
         />
       </div>
 
+      {error && <p className="text-sm text-red-600">{error}</p>}
+
       <button
         type="submit"
         disabled={isSending}
@@ -352,7 +350,7 @@ function ContactForm({
         {isSending ? (
           <>
             <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-            Membuka Email...
+            Mengirim...
           </>
         ) : (
           <>
@@ -700,6 +698,13 @@ export default function ContactPage() {
               href={waConsultUrl}
               target="_blank"
               rel="noopener noreferrer"
+              onClick={() => {
+                trackButtonClick({
+                  buttonType: "whatsapp_contact",
+                  itemName: "WhatsApp Bisnis (Kemitraan & Maklon)",
+                  pagePath: "/contact",
+                })
+              }}
               className="group flex flex-col gap-1.5 p-5 rounded-[5px] border border-border bg-card hover:border-primary/30 hover:shadow-md transition-all duration-200 cursor-pointer"
             >
               <span className={cn("text-xs font-semibold text-muted-foreground uppercase tracking-wider", poppins.className)}>
@@ -912,6 +917,13 @@ export default function ContactPage() {
                     href={waTargetUrl}
                     target="_blank"
                     rel="noopener noreferrer"
+                    onClick={() => {
+                      trackButtonClick({
+                        buttonType: "whatsapp_contact",
+                        itemName: `Layanan: ${card.title || card.btnText || "Konsultasi"}`,
+                        pagePath: "/contact",
+                      })
+                    }}
                     className={cn(
                       "mt-auto flex items-center justify-center gap-2 px-5 py-2.5 rounded-full bg-primary text-primary-foreground text-sm font-semibold hover:bg-primary/90 transition-colors active:scale-95 cursor-pointer",
                       poppins.className
@@ -975,6 +987,13 @@ export default function ContactPage() {
               href={`https://wa.me/${settings.whatsappBisnisNumber}?text=${encodeURIComponent(settings.faqCtaWaText || "Halo CV. Indo Green Nature, saya memiliki pertanyaan seputar produk & kemitraan.")}`}
               target="_blank"
               rel="noopener noreferrer"
+              onClick={() => {
+                trackButtonClick({
+                  buttonType: "whatsapp_contact",
+                  itemName: "FAQ Tanya Langsung",
+                  pagePath: "/contact",
+                })
+              }}
               className={cn(
                 "shrink-0 inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-primary text-primary-foreground text-sm font-semibold hover:bg-primary/90 transition-colors active:scale-95 cursor-pointer shadow-xs",
                 poppins.className

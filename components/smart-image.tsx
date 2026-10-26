@@ -44,6 +44,7 @@ export function SmartImage({ src, alt, sizes, className, style, priority }: Smar
         fill
         sizes={sizes}
         priority={priority}
+        fetchPriority={priority ? "high" : undefined}
         className={className}
         style={style}
       />
@@ -56,6 +57,7 @@ export function SmartImage({ src, alt, sizes, className, style, priority }: Smar
       src={src}
       alt={alt}
       loading={priority ? "eager" : "lazy"}
+      fetchPriority={priority ? "high" : undefined}
       decoding="async"
       className={className}
       style={style}

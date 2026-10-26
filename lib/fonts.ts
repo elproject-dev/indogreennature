@@ -21,7 +21,7 @@ import {
 } from "next/font/google"
 
 // Outfit adalah variable font: satu file mencakup semua weight (300-800).
-export const outfit = Outfit({ subsets: ["latin"], variable: "--font-sans", display: "swap" })
+export const outfit = Outfit({ subsets: ["latin"], variable: "--font-sans", display: "swap", preload: false })
 export const jockey = Jockey_One({ weight: "400", subsets: ["latin"], preload: false })
 export const mclaren = McLaren({ weight: "400", subsets: ["latin"], preload: false })
 
@@ -40,7 +40,7 @@ export const montserrat = Montserrat({ subsets: ["latin"], preload: false })
 export const satisfy = Satisfy({ weight: "400", subsets: ["latin"], preload: false })
 export const oswald = Oswald({ subsets: ["latin"], preload: false })
 export const greatVibes = Great_Vibes({ weight: "400", subsets: ["latin"], preload: false })
-export const poppins = Poppins({ weight: ["400", "600", "700"], subsets: ["latin"], display: "swap" })
+export const poppins = Poppins({ weight: ["400", "600", "700"], subsets: ["latin"], display: "swap", preload: false })
 
 export interface HeroFontOption {
   id: string

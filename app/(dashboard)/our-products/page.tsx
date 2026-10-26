@@ -44,6 +44,7 @@ import {
   resetOurProductsSettings,
 } from "@/lib/our-products-settings"
 import { renderFormattedText } from "@/lib/home-blocks"
+import { trackButtonClick } from "@/lib/track-click"
 
 export default function OurProductsPage() {
   const [isClientMounted, setIsClientMounted] = useState(false)
@@ -1261,6 +1262,13 @@ export default function OurProductsPage() {
                                 href={selectedProduct.shopeeUrl || "https://shopee.co.id"}
                                 target="_blank"
                                 rel="noopener noreferrer"
+                                onClick={() => {
+                                  trackButtonClick({
+                                    buttonType: "shopee",
+                                    itemName: selectedProduct.name,
+                                    pagePath: "/our-products",
+                                  })
+                                }}
                                 className="flex items-center justify-center gap-1.5 py-2.5 px-3 rounded-[5px] bg-[#EE4D2D] hover:bg-[#EE4D2D]/90 text-white text-xs sm:text-sm font-bold transition-all shadow-none cursor-pointer hover:scale-[1.01] active:scale-[0.99] h-full"
                               >
                                 <ShoppingBag className="w-4 h-4 shrink-0" />
@@ -1272,6 +1280,13 @@ export default function OurProductsPage() {
                                 href={selectedProduct.tokopediaUrl || "https://tokopedia.com"}
                                 target="_blank"
                                 rel="noopener noreferrer"
+                                onClick={() => {
+                                  trackButtonClick({
+                                    buttonType: "tokopedia",
+                                    itemName: selectedProduct.name,
+                                    pagePath: "/our-products",
+                                  })
+                                }}
                                 className="flex items-center justify-center gap-1.5 py-2.5 px-3 rounded-[5px] bg-[#03AC0E] hover:bg-[#03AC0E]/90 text-white text-xs sm:text-sm font-bold transition-all shadow-none cursor-pointer hover:scale-[1.01] active:scale-[0.99] h-full"
                               >
                                 <ShoppingBag className="w-4 h-4 shrink-0" />
@@ -1285,6 +1300,13 @@ export default function OurProductsPage() {
                                 href={selectedProduct.lazadaUrl || "https://www.lazada.co.id"}
                                 target="_blank"
                                 rel="noopener noreferrer"
+                                onClick={() => {
+                                  trackButtonClick({
+                                    buttonType: "lazada",
+                                    itemName: selectedProduct.name,
+                                    pagePath: "/our-products",
+                                  })
+                                }}
                                 className="flex items-center justify-center gap-1.5 py-2.5 px-3 rounded-[5px] bg-[#0F146D] hover:bg-[#0F146D]/90 text-white text-xs sm:text-sm font-bold transition-all shadow-none cursor-pointer hover:scale-[1.01] active:scale-[0.99] h-full"
                               >
                                 <ShoppingBag className="w-4 h-4 shrink-0" />
@@ -1296,6 +1318,13 @@ export default function OurProductsPage() {
                                 href={selectedProduct.tiktokUrl || "https://tiktok.com"}
                                 target="_blank"
                                 rel="noopener noreferrer"
+                                onClick={() => {
+                                  trackButtonClick({
+                                    buttonType: "tiktok",
+                                    itemName: selectedProduct.name,
+                                    pagePath: "/our-products",
+                                  })
+                                }}
                                 className="flex items-center justify-center gap-2 py-2.5 px-3 rounded-[5px] bg-black hover:bg-zinc-800 text-white text-xs sm:text-sm font-bold transition-all shadow-none cursor-pointer hover:scale-[1.01] active:scale-[0.99] h-full"
                               >
                                 <ShoppingBag className="w-4 h-4 shrink-0" />
@@ -1325,6 +1354,13 @@ export default function OurProductsPage() {
                           href={`https://wa.me/${normalizedNum}?text=${encodeURIComponent(messageText)}`}
                           target="_blank"
                           rel="noopener noreferrer"
+                          onClick={() => {
+                            trackButtonClick({
+                              buttonType: "whatsapp_order",
+                              itemName: selectedProduct.name,
+                              pagePath: "/our-products",
+                            })
+                          }}
                           className="flex items-center justify-center gap-2 py-2.5 px-3.5 rounded-[5px] bg-[#2563EB] hover:bg-[#1D4ED8] text-white text-xs sm:text-sm font-bold transition-all shadow-xs cursor-pointer hover:scale-[1.01] active:scale-[0.99]"
                         >
                           <svg

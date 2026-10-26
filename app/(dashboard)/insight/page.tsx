@@ -2,6 +2,8 @@
 
 import * as React from "react"
 import Link from "next/link"
+import Image from "next/image"
+import dynamic from "next/dynamic"
 import { useRouter } from "next/navigation"
 import {
   BookOpenIcon,
@@ -22,8 +24,12 @@ import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
 import { InsightArticle, INSIGHT_CATEGORIES } from "@/lib/insight/types"
 import { fetchInsights } from "@/lib/insight/db"
-import { InsightSettingsSidebar } from "@/components/insight-settings-sidebar"
-import { LoadingSpinner } from "@/components/loading-spinner"
+
+// Lazy load settings sidebar so it is not included in the main visitor bundle
+const InsightSettingsSidebar = dynamic(
+  () => import("@/components/insight-settings-sidebar").then((m) => m.InsightSettingsSidebar),
+  { ssr: false }
+)
 import {
   InsightSettingsData,
   DEFAULT_INSIGHT_SETTINGS,
@@ -70,7 +76,6 @@ export default function InsightIndexPage() {
   const [isSettingsOpen, setIsSettingsOpen] = React.useState(false)
   const [isSavingSettings, setIsSavingSettings] = React.useState(false)
   const [isPreview, setIsPreview] = React.useState(false)
-  const [isSettingsLoading, setIsSettingsLoading] = React.useState(true)
   const [customCategories, setCustomCategories] = React.useState<string[]>([])
   const [isMounted, setIsMounted] = React.useState(false)
 
@@ -131,50 +136,26 @@ export default function InsightIndexPage() {
     }
 
     async function initSettings() {
-      const minTimer = new Promise((resolve) => setTimeout(resolve, 250))
-      let finalSettings: InsightSettingsData | null = null
-
       try {
         // 1. Ambil data lokal dari cache seketika setelah client mount
         const cached = getInitialInsightSettings()
         if (cached && isMounted) {
           setInsightSettings(cached)
-          finalSettings = cached
         }
 
-        // 2. Sinkronkan dengan data master database (hanya jika BUKAN tab pratinjau)
+        // 2. Sinkronkan dengan data master database secara non-blocking di background
         if (!isPrev) {
           const remote = await fetchInsightSettings()
           if (isMounted) {
             setInsightSettings(remote)
-            finalSettings = remote
+            // Preload font baru di background
+            preloadHeroFont(remote.bannerTitleFont || "outfit")
+            preloadHeroFont(remote.bannerDescFont || "outfit")
+            preloadHeroFont(remote.bannerBadgeFont || "outfit")
           }
         }
-
-        // 3. Pastikan font final selesai diunduh sebelum konten ditampilkan
-        await Promise.all([
-          preloadHeroFont(finalSettings?.bannerTitleFont || "outfit"),
-          preloadHeroFont(finalSettings?.bannerDescFont || "outfit"),
-          preloadHeroFont(finalSettings?.bannerBadgeFont || "outfit"),
-        ])
       } catch (err) {
         console.warn("[InsightPage] Gagal memuat pengaturan insight:", err)
-      } finally {
-        // Tunggu minimal 250ms agar loading spinner stabil
-        await minTimer
-
-        if (typeof document !== "undefined" && document.fonts) {
-          try {
-            await document.fonts.ready
-          } catch {
-            // Abaikan jika browser tidak mendukung
-          }
-        }
-
-        // Frame pertama dengan font baru dirender sebelum overlay diangkat
-        requestAnimationFrame(() => {
-          if (isMounted) setIsSettingsLoading(false)
-        })
       }
     }
     initSettings()
@@ -326,18 +307,7 @@ export default function InsightIndexPage() {
 
   return (
     <>
-      {(isSettingsLoading || loading) && (
-        <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-background">
-          <LoadingSpinner text="Loading" />
-        </div>
-      )}
-
-    <div
-      className={cn(
-        "w-full min-h-screen bg-background flex flex-col items-center overflow-x-hidden font-sans transition-colors duration-300",
-        (isSettingsLoading || loading) && "invisible"
-      )}
-    >
+      <div className="w-full min-h-screen bg-background flex flex-col items-center overflow-x-hidden font-sans transition-colors duration-300">
       {/* Banner Indikator Mode Pratinjau (preview=true) */}
       {isPreview && (
         <div className="w-full bg-[#15803D] text-white text-xs py-2 px-4 flex items-center justify-between font-medium shadow-md sticky top-0 z-[100]">
@@ -777,12 +747,15 @@ export default function InsightIndexPage() {
                 <div className="grid grid-cols-1 lg:grid-cols-12 gap-0">
                   {/* Image Column (Rasio 16:9 di Mobile) */}
                   <div className="relative lg:col-span-7 w-full aspect-video lg:aspect-auto lg:h-full lg:min-h-[340px] overflow-hidden bg-muted">
-                    <img
+                    <Image
                       src={
                         featuredArticle.cover_image ||
                         "/images/banner-default.jpg"
                       }
                       alt={featuredArticle.title}
+                      fill
+                      priority
+                      sizes="(max-width: 1024px) 100vw, 58vw"
                       className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent lg:hidden" />
@@ -891,11 +864,12 @@ export default function InsightIndexPage() {
                       <div>
                         {/* Cover image */}
                         <div className="relative aspect-[16/10] overflow-hidden bg-muted">
-                          <img
+                          <Image
                             src={art.cover_image || "/images/banner-default.jpg"}
                             alt={art.title}
+                            fill
+                            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
                             className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
-                            loading="lazy"
                           />
                           <Badge className="absolute top-3 left-3 bg-black/60 backdrop-blur-md text-white font-medium text-[11px] border-none rounded-[5px]">
                             {art.category}
@@ -1002,15 +976,17 @@ export default function InsightIndexPage() {
       </main>
 
       {/* ─── Sidebar / Modal Pengaturan Desktop (Konsep Figma Sesuai About Us) ─── */}
-      <InsightSettingsSidebar
-        isOpen={isSettingsOpen}
-        onClose={() => setIsSettingsOpen(false)}
-        data={insightSettings}
-        onChange={setInsightSettings}
-        onSave={handleSaveSettings}
-        onReset={handleResetSettings}
-        isSaving={isSavingSettings}
-      />
+      {isSettingsOpen && (
+        <InsightSettingsSidebar
+          isOpen={isSettingsOpen}
+          onClose={() => setIsSettingsOpen(false)}
+          data={insightSettings}
+          onChange={setInsightSettings}
+          onSave={handleSaveSettings}
+          onReset={handleResetSettings}
+          isSaving={isSavingSettings}
+        />
+      )}
     </div>
     </>
   )

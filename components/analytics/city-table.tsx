@@ -34,7 +34,7 @@ export function CityTable({ data }: CityTableProps) {
     <Card className="flex flex-col h-full">
       <CardHeader>
         <CardTitle className="text-sm font-medium text-primary">Pengguna Aktif Menurut Kota</CardTitle>
-        <CardDescription className="text-[10px]">Data Google Analytics (30 Hari)</CardDescription>
+        <CardDescription className="text-[10px]">Data Google Analytics (28 Hari)</CardDescription>
       </CardHeader>
       <CardContent className="flex-1 overflow-auto px-2 pb-0">
         {tableData.length > 0 ? (

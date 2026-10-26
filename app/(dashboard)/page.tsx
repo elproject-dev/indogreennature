@@ -2067,8 +2067,10 @@ export default function HomePage() {
             }
             else if (item.key === 'hero_banner_image') {
               if (!isPreview) {
-                setHeroImage(item.value);
-                hImage = item.value;
+                if (item.value && item.value !== heroImage) {
+                  setHeroImage(item.value);
+                  hImage = item.value;
+                }
                 localStorage.setItem('hero_banner_image', item.value);
               }
             }
@@ -2213,7 +2215,9 @@ export default function HomePage() {
             else if (item.key === 'hero_banner_image_fit' && (item.value === 'contain' || item.value === 'cover')) {
               hImageFit = item.value as 'contain' | 'cover';
               if (!isPreview) {
-                setHeroImageFit(item.value as 'contain' | 'cover');
+                if (item.value !== heroImageFit) {
+                  setHeroImageFit(item.value as 'contain' | 'cover');
+                }
                 localStorage.setItem('hero_banner_image_fit', item.value);
               }
             }
@@ -3646,8 +3650,8 @@ export default function HomePage() {
                     alt="Banner CV. Indo Green Nature"
                     fill
                     priority
-                    unoptimized
-                    sizes="(max-width: 640px) 100vw, 453px"
+                    fetchPriority="high"
+                    sizes="(max-width: 640px) 100vw, 540px"
                     className={heroImageFit === 'contain' ? "object-contain" : "object-cover"}
                   />
                 ) : (
@@ -5471,6 +5475,7 @@ export default function HomePage() {
                     src={videoProfilThumbnail || DEFAULT_VIDEO_PROFIL_THUMBNAIL}
                     alt={videoProfilTitle || "Video Profil Indo Green Nature"}
                     sizes="(min-width: 1024px) 50vw, 100vw"
+                    priority={false}
                     className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                   />
 

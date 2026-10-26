@@ -101,7 +101,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         }
     }, [router, pathname])
 
-    if (isCheckingRole) {
+    if (isCheckingRole && isTryingToAccessAdminRoute) {
         return (
             <div className="min-h-screen flex items-center justify-center bg-background">
                 <LoadingSpinner text="Loading" />

@@ -13,7 +13,7 @@ import { GlobalThemeApplier } from "@/components/global-theme-applier"
 
 
 // const moderustic = Moderustic({ subsets: ['latin'], variable: '--font-moderustic', preload: false });
-const moderustic = Moderustic({ subsets: ['latin'], variable: '--font-moderustic' });
+const moderustic = Moderustic({ subsets: ['latin'], variable: '--font-moderustic', preload: false });
 const poiretOne = Poiret_One({ weight: "400", subsets: ['latin'], variable: '--font-poiret-one', preload: false });
 
 const geistSans = Geist({
@@ -174,6 +174,8 @@ export default async function RootLayout({ children }: { children: React.ReactNo
       suppressHydrationWarning
     >
       <head>
+        <link rel="preconnect" href="https://ivtpcjwwenjdatxxtjqm.supabase.co" crossOrigin="" />
+        <link rel="dns-prefetch" href="https://ivtpcjwwenjdatxxtjqm.supabase.co" />
         <script
           id="hydration-suppress-filter"
           dangerouslySetInnerHTML={{

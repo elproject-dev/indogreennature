@@ -129,11 +129,11 @@ export const BLOCK_META: Record<HomeBlockType, { label: string; desc: string }> 
 export const DEFAULT_HERO_TEXT = "\nJasa Maklon Obat Herbal Alami Terpercaya di Indonesia"
 export const DEFAULT_HERO_FONT = "poppins"
 export const DEFAULT_HERO_FONT_WEIGHT = "bold"
-export const DEFAULT_HERO_FONT_SIZE = "52"
+export const DEFAULT_HERO_FONT_SIZE = "44"
 export const DEFAULT_HERO_TEXT_COLOR = "#D97706"
 export const DEFAULT_HERO_SUBTEXT = "Dari Ide Produk Hingga Siap Dipasarkan"
-export const DEFAULT_HERO_SUBTEXT_COLOR = "#1c8d2f"
-export const DEFAULT_HERO_SUBTEXT_SIZE = 27
+export const DEFAULT_HERO_SUBTEXT_COLOR = "#15803d"
+export const DEFAULT_HERO_SUBTEXT_SIZE = 31
 export const DEFAULT_HERO_SUBTEXT_FONT_WEIGHT = "bold"
 export const DEFAULT_HERO_DESC = `**INDO GREEN NATURE** membantu Anda mewujudkan dan mengembangkan brand Obat Herbal sendiri \ntanpa harus membangun pabrik atau fasilitas produksi. \nMelalui layanan jasa maklon Herbal yang lengkap, \nkami mendampingi setiap tahap mulai dari pengembangan formula, produksi, pengemasan, \nhingga pengurusan legalitas BPOM dan Halal agar produk Anda siap dipasarkan.`
 export const DEFAULT_HERO_DESC_COLOR = "#1c1c1c"
@@ -143,14 +143,14 @@ export const DEFAULT_HERO_POINTS: string[] = [
   "930+ Produk Diformulasikan",
   "BPOM, Halal & ISO 22000"
 ]
-export const DEFAULT_HERO_POINTS_FONT_WEIGHT = "bold"
-export const DEFAULT_HERO_POINTS_COLOR = "#252225"
-export const DEFAULT_HERO_IMAGE = "https://ivtpcjwwenjdatxxtjqm.supabase.co/storage/v1/object/public/media/hero_banner/1792330129667-hsobqa.webp"
+export const DEFAULT_HERO_POINTS_FONT_WEIGHT = "semibold"
+export const DEFAULT_HERO_POINTS_COLOR = "#276259"
+export const DEFAULT_HERO_IMAGE = "https://ivtpcjwwenjdatxxtjqm.supabase.co/storage/v1/object/public/media/hero_banner/1792977972701-b9iar0.webp"
 export const DEFAULT_HERO_IMAGE_POSITION: "left" | "right" = "right"
 export const DEFAULT_HERO_IMAGE_ASPECT = "square"
-export const DEFAULT_HERO_IMAGE_SIZE = "465"
+export const DEFAULT_HERO_IMAGE_SIZE = "540"
 export const DEFAULT_HERO_IMAGE_TRANSPARENT = true
-export const DEFAULT_HERO_IMAGE_FIT: "cover" | "contain" = "cover"
+export const DEFAULT_HERO_IMAGE_FIT: "cover" | "contain" = "contain"
 
 export const DEFAULT_PENGENALAN_TITLE = "Mengenal Indo Green Nature"
 export const DEFAULT_PENGENALAN_TITLE_SIZE = 48

@@ -1,12 +1,15 @@
 import React from 'react';
 import { BetaAnalyticsDataClient } from '@google-analytics/data';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { UsersIcon, EyeIcon, ClockIcon, UserCheck, Users, UserCog, Activity } from 'lucide-react';
-import { supabase } from '@/lib/supabase';
+import { UsersIcon, EyeIcon, ClockIcon, UserCheck, Users, UserCog, Activity, Globe, ExternalLink } from 'lucide-react';
 import { createClient } from '@supabase/supabase-js';
 import { CityTable } from '@/components/analytics/city-table';
+import { CountryTable } from '@/components/analytics/country-table';
 import { SourceBarChart } from '@/components/analytics/source-bar-chart';
 import { RealtimeBarChart } from '@/components/analytics/realtime-bar-chart';
+import { DeviceChart } from '@/components/analytics/device-chart';
+import { ConversionHub, ClickRecord } from '@/components/analytics/conversion-hub';
+import { supabase } from '@/lib/supabase';
 
 export const revalidate = 60; // Cache data for 1 minute for near realtime
 
@@ -34,22 +37,97 @@ async function getAnalyticsData() {
       property: `properties/${propertyId}`,
       dateRanges: [
         {
-          startDate: '30daysAgo',
-          endDate: 'today',
+          startDate: '28daysAgo',
+          endDate: 'yesterday',
         },
       ],
       metrics: [
         { name: 'activeUsers' },
         { name: 'screenPageViews' },
-        { name: 'sessions' }
+        { name: 'sessions' },
+        { name: 'newUsers' }
       ],
     });
+
+    // Total Kunjungan Keseluruhan (All-time sessions)
+    let allTimeSessions = '0';
+    try {
+      const [allTimeResponse] = await analyticsDataClient.runReport({
+        property: `properties/${propertyId}`,
+        dateRanges: [
+          {
+            startDate: '2020-01-01',
+            endDate: 'today',
+          },
+        ],
+        metrics: [
+          { name: 'sessions' }
+        ],
+      });
+      if (allTimeResponse.rows && allTimeResponse.rows.length > 0) {
+        allTimeSessions = allTimeResponse.rows[0].metricValues?.[0]?.value || '0';
+      }
+    } catch (e) {
+      console.error('Error fetching all-time GA sessions:', e);
+    }
+
+
+    // Device Category Report
+    const [deviceResponse] = await analyticsDataClient.runReport({
+      property: `properties/${propertyId}`,
+      dateRanges: [
+        { startDate: '28daysAgo', endDate: 'yesterday' },
+      ],
+      dimensions: [
+        { name: 'deviceCategory' }
+      ],
+      metrics: [
+        { name: 'activeUsers' }
+      ],
+      orderBys: [
+        {
+          metric: { metricName: 'activeUsers' },
+          desc: true,
+        }
+      ],
+    });
+
+    const deviceData = deviceResponse.rows?.map(row => ({
+      category: row.dimensionValues?.[0]?.value || 'desktop',
+      activeUsers: parseInt(row.metricValues?.[0]?.value || '0', 10)
+    })) || [];
+
+    // Country Report
+    const [countryResponse] = await analyticsDataClient.runReport({
+      property: `properties/${propertyId}`,
+      dateRanges: [
+        { startDate: '28daysAgo', endDate: 'yesterday' },
+      ],
+      dimensions: [
+        { name: 'country' }
+      ],
+      metrics: [
+        { name: 'activeUsers' }
+      ],
+      orderBys: [
+        {
+          metric: { metricName: 'activeUsers' },
+          desc: true,
+        }
+      ],
+      limit: 10,
+    });
+
+    const countryData = countryResponse.rows?.map(row => ({
+      country: row.dimensionValues?.[0]?.value || 'Unknown',
+      activeUsers: parseInt(row.metricValues?.[0]?.value || '0', 10)
+    })) || [];
 
     // City Report
     const [cityResponse] = await analyticsDataClient.runReport({
       property: `properties/${propertyId}`,
       dateRanges: [
-        { startDate: '30daysAgo', endDate: 'today' },
+        { startDate: '28daysAgo', endDate: 'yesterday' },
       ],
       dimensions: [
         { name: 'city' }
@@ -75,7 +153,7 @@ async function getAnalyticsData() {
     const [sourceResponse] = await analyticsDataClient.runReport({
       property: `properties/${propertyId}`,
       dateRanges: [
-        { startDate: '30daysAgo', endDate: 'today' },
+        { startDate: '28daysAgo', endDate: 'yesterday' },
       ],
       dimensions: [
         { name: 'firstUserSourceMedium' }
@@ -101,7 +179,7 @@ async function getAnalyticsData() {
     const [trendResponse] = await analyticsDataClient.runReport({
       property: `properties/${propertyId}`,
       dateRanges: [
-        { startDate: '30daysAgo', endDate: 'today' },
+        { startDate: '28daysAgo', endDate: 'yesterday' },
       ],
       dimensions: [
         { name: 'date' }
@@ -174,11 +252,15 @@ async function getAnalyticsData() {
       const row = response.rows[0];
       return {
         overview: {
+          allTimeSessions,
           activeUsers: row.metricValues?.[0]?.value || '0',
           pageViews: row.metricValues?.[1]?.value || '0',
           sessions: row.metricValues?.[2]?.value || '0',
+          newUsers: row.metricValues?.[3]?.value || '0',
           realtimeUsers,
         },
+        deviceData,
+        countryData,
         cityData,
         sourceData,
         trendData,
@@ -189,11 +271,15 @@ async function getAnalyticsData() {
 
     return {
       overview: {
+        allTimeSessions: allTimeSessions || '0',
         activeUsers: '0',
         pageViews: '0',
         sessions: '0',
+        newUsers: '0',
         realtimeUsers: realtimeUsers,
       },
+      deviceData: deviceData || [],
+      countryData: countryData || [],
       cityData,
       sourceData,
       trendData,
@@ -207,13 +293,6 @@ async function getAnalyticsData() {
 
 export default async function AnalyticsPage() {
   const data = await getAnalyticsData();
-
-  // Fetch DB metrics
-
-  const { count: totalMember } = await supabase.from('customers')
-    .select('*', { count: 'exact', head: true })
-    .neq('membership_type', 'Umum')
-    .not('membership_type', 'is', null);
 
   // Fetch Google Users
   let googleUsersCount = 0;
@@ -235,9 +314,43 @@ export default async function AnalyticsPage() {
   } catch (err) {
     console.error("Error fetching google users:", err);
   }
-  // const { count: totalStaf } = await supabase.from('staf').select('*', { count: 'exact', head: true });
+
+  // Fetch All Button Clicks & Conversion Stats from Supabase
+  let recentClicks: ClickRecord[] = [];
+  let totalClicksCount = 0;
+  try {
+    const { data: clicks, count } = await supabase
+      .from('button_clicks')
+      .select('id, button_type, item_name, page_path, created_at', { count: 'exact' })
+      .order('created_at', { ascending: false })
+      .limit(100);
+
+    recentClicks = (clicks as ClickRecord[]) || [];
+    totalClicksCount = count || 0;
+  } catch (err) {
+    console.error("Error fetching click stats:", err);
+  }
+
   return (
     <div className="flex-1 space-y-4 p-3 md:p-8 pt-4 md:pt-6">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 pb-1 border-b border-border/40">
+        <div>
+          <h2 className="text-xl md:text-2xl font-bold tracking-tight">Statistik & Analitik</h2>
+          <p className="text-xs md:text-sm text-muted-foreground">
+            Laporan kunjungan dan aktivitas pengunjung website
+          </p>
+        </div>
+        <a
+          href="https://analytics.google.com/analytics/web/?hl=id#/a413307547p560691901/reports/intelligenthome"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="hidden sm:inline-flex items-center gap-1.5 self-start sm:self-auto text-xs md:text-sm font-medium text-emerald-700 dark:text-emerald-400 hover:text-emerald-800 dark:hover:text-emerald-300 transition-colors px-3 py-1.5 rounded-md bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800/60 shadow-xs hover:bg-emerald-100/70 dark:hover:bg-emerald-900/40"
+        >
+          <span>Buka Google Analytics</span>
+          <ExternalLink className="w-3.5 h-3.5" />
+        </a>
+      </div>
+
       {data.error ? (
         <div className="rounded-md bg-destructive/15 p-4 border border-destructive/20">
           <div className="flex">
@@ -251,36 +364,39 @@ export default async function AnalyticsPage() {
         </div>
       ) : (
         <div className="grid grid-cols-2 gap-3 md:gap-4 md:grid-cols-2 lg:grid-cols-3 rounded-sm">
+          {/* Card 1: Total Kunjungan */}
           <Card className="bg-gradient-to-br from-emerald-500 to-emerald-700 text-white shadow-md border-none gap-0 py-2 md:py-2">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 px-3 md:px-4 py-1">
               <CardTitle className="text-xs md:text-sm font-medium text-white/90">
-                Total Pelanggan
+                Total Kunjungan
               </CardTitle>
-              <UserCheck className="h-4 w-4 text-white/80 hidden sm:block" />
+              <Globe className="h-4 w-4 text-white/80 hidden sm:block" />
             </CardHeader>
             <CardContent className="px-3 md:px-4 py-1">
-              <div className="text-lg md:text-2xl font-bold">{totalMember || 0}</div>
+              <div className="text-lg md:text-2xl font-bold">{data.overview?.sessions || '0'}</div>
               <p className="text-[10px] md:text-xs text-white/70 mt-0 leading-tight md:leading-normal">
-                Member terdaftar
+                Total sesi kunjungan
               </p>
             </CardContent>
           </Card>
 
+          {/* Card 2: Pengunjung Unik */}
           <Card className="bg-gradient-to-br from-violet-500 to-violet-700 text-white shadow-md border-none gap-0 py-2 md:py-2">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 px-3 md:px-4 py-1">
               <CardTitle className="text-xs md:text-sm font-medium text-white/90">
-                Pengguna Aktif
+                Pengunjung Unik
               </CardTitle>
               <UsersIcon className="h-4 w-4 text-white/80 hidden sm:block" />
             </CardHeader>
             <CardContent className="px-3 md:px-4 py-1">
               <div className="text-lg md:text-2xl font-bold">{data.overview?.activeUsers || '0'}</div>
               <p className="text-[10px] md:text-xs text-white/70 mt-0 leading-tight md:leading-normal">
-                Pengguna aktif
+                Pengguna aktif terdeteksi
               </p>
             </CardContent>
           </Card>
 
+          {/* Card 3: Tayangan Halaman */}
           <Card className="bg-gradient-to-br from-pink-500 to-rose-600 text-white shadow-md border-none gap-0 py-2 md:py-2">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 px-3 md:px-4 py-1">
               <CardTitle className="text-xs md:text-sm font-medium text-white/90">
@@ -291,22 +407,23 @@ export default async function AnalyticsPage() {
             <CardContent className="px-3 md:px-4 py-1">
               <div className="text-lg md:text-2xl font-bold">{data.overview?.pageViews || '0'}</div>
               <p className="text-[10px] md:text-xs text-white/70 mt-0 leading-tight md:leading-normal">
-                Total halaman yang dilihat
+                Total halaman dilihat
               </p>
             </CardContent>
           </Card>
 
+          {/* Card 4: Pengunjung Baru */}
           <Card className="bg-gradient-to-br from-cyan-500 to-cyan-700 text-white shadow-md border-none gap-0 py-2 md:py-2">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 px-3 md:px-4 py-1">
               <CardTitle className="text-xs md:text-sm font-medium text-white/90">
-                Sesi
+                Pengunjung Baru
               </CardTitle>
-              <ClockIcon className="h-4 w-4 text-white/80 hidden sm:block" />
+              <UserCheck className="h-4 w-4 text-white/80 hidden sm:block" />
             </CardHeader>
             <CardContent className="px-3 md:px-4 py-1">
-              <div className="text-lg md:text-2xl font-bold">{data.overview?.sessions || '0'}</div>
+              <div className="text-lg md:text-2xl font-bold">{data.overview?.newUsers || data.overview?.sessions || '0'}</div>
               <p className="text-[10px] md:text-xs text-white/70 mt-0 leading-tight md:leading-normal">
-                Total sesi kunjungan
+                Pengunjung pertama kali
               </p>
             </CardContent>
           </Card>
@@ -351,10 +468,11 @@ export default async function AnalyticsPage() {
       )}
 
       {/* Chart Section */}
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-2 mt-4 items-stretch">
-
+      <div className="grid gap-4 grid-cols-1 md:grid-cols-2 xl:grid-cols-4 mt-4 items-stretch">
         {!data.error && (
           <>
+            <DeviceChart data={data.deviceData || []} />
+            <CountryTable data={data.countryData || []} />
             <CityTable data={data.cityData || []} />
             <SourceBarChart data={data.sourceData || []} />
           </>
@@ -362,10 +480,18 @@ export default async function AnalyticsPage() {
       </div>
 
       {!data.error && (
-        <div className="mt-4 pb-4 md:pb-0">
+        <div className="mt-4">
           <RealtimeBarChart data={data.realtimeMinutesData || []} />
         </div>
       )}
+
+      {/* Conversion Hub (WhatsApp, Marketplace & Form Tracking) */}
+      <div className="mt-4 pb-4 md:pb-0">
+        <ConversionHub
+          recentClicks={recentClicks}
+          totalCount={totalClicksCount}
+        />
+      </div>
     </div>
   );
 }

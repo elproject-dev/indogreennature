@@ -1,3 +1,4 @@
+import { cache } from "react"
 import { supabase } from "./supabase"
 
 export interface SeoConfig {
@@ -39,7 +40,7 @@ export function getInitialSeoConfig(): SeoConfig {
   return DEFAULT_SEO_CONFIG
 }
 
-export async function fetchSeoConfig(): Promise<SeoConfig> {
+export const fetchSeoConfig = cache(async function fetchSeoConfig(): Promise<SeoConfig> {
   let localData: Partial<SeoConfig> = {}
   if (typeof window !== "undefined") {
     try {
@@ -72,7 +73,7 @@ export async function fetchSeoConfig(): Promise<SeoConfig> {
   }
 
   return { ...DEFAULT_SEO_CONFIG, ...localData }
-}
+})
 
 export async function saveSeoConfig(config: SeoConfig): Promise<boolean> {
   const merged = { ...DEFAULT_SEO_CONFIG, ...config }

@@ -250,7 +250,7 @@ export function TopBar() {
                                 aria-hidden={(logoConfig.mode === "logo_and_text" || logoConfig.mode === "text_only" || !logoConfig.logoUrl) ? "true" : undefined}
                                 width={0}
                                 height={0}
-                                priority
+                                loading="eager"
                                 sizes="128px"
                                 style={{
                                     height: `${logoConfig.logoSize ? Math.min(Number(logoConfig.logoSize), 46) : 36}px`,

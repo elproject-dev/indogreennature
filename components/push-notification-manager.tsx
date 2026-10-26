@@ -33,8 +33,6 @@ export function PushNotificationManager() {
 
               // SIMPAN KE LOKAL
               localStorage.setItem('fcm_token_sent', token);
-            } else {
-              console.log("Token FCM otomatis sudah sinkron, skip fetch.");
             }
           }
         } catch (error) {
@@ -50,11 +48,15 @@ export function PushNotificationManager() {
       };
       window.addEventListener('open-notification-prompt', handleCustomOpen);
 
-      // Jika izin sudah diberikan, langsung daftarkan token tanpa menampilkan banner.
-      // Jika belum (default), minta izin lewat tombol agar browser mau menampilkan popup.
+      // Jika izin sudah diberikan, daftarkan token di background saat browser idle
+      // agar IndexedDB dan network request Firebase tidak memblokir render awal / LCP
       if (typeof Notification !== 'undefined') {
         if (Notification.permission === 'granted') {
-          setupPushNotifications();
+          if (typeof window !== 'undefined' && 'requestIdleCallback' in window) {
+            (window as any).requestIdleCallback(() => setupPushNotifications(), { timeout: 4000 });
+          } else {
+            promptTimer = setTimeout(setupPushNotifications, 3500);
+          }
         } else if (
           Notification.permission === 'default' &&
           !sessionStorage.getItem('notif-prompt-dismissed')
@@ -62,7 +64,7 @@ export function PushNotificationManager() {
           // Beri jeda agar loading selesai terlebih dahulu sebelum popup muncul
           promptTimer = setTimeout(() => {
             setShowPrompt(true);
-          }, 3000);
+          }, 3500);
         }
       }
 
@@ -169,9 +171,6 @@ export function PushNotificationManager() {
 
               // SIMPAN KE LOKAL: Tandai bahwa token ini sudah berhasil dikirim
               localStorage.setItem('fcm_token_sent', token);
-            } else {
-              // Jika token sama dengan yang ada di lokal, skip fetch
-              console.log("Token FCM sudah sinkron dengan backend, skip fetch.");
             }
           }
         } catch (fcmErr) {
