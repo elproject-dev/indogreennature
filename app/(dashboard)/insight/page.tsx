@@ -24,6 +24,7 @@ import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
 import { InsightArticle, INSIGHT_CATEGORIES } from "@/lib/insight/types"
 import { fetchInsights } from "@/lib/insight/db"
+import { LoadingSpinner } from "@/components/loading-spinner"
 
 // Lazy load settings sidebar so it is not included in the main visitor bundle
 const InsightSettingsSidebar = dynamic(
@@ -110,6 +111,7 @@ export default function InsightIndexPage() {
 
   const loadData = React.useCallback(async () => {
     setLoading(true)
+    const minTimer = new Promise((resolve) => setTimeout(resolve, 250))
     try {
       const data = await fetchInsights()
       setArticles(data)
@@ -117,6 +119,7 @@ export default function InsightIndexPage() {
       console.error("Gagal memuat insight:", err)
       toast.error("Gagal memuat artikel insight.")
     } finally {
+      await minTimer
       setLoading(false)
     }
   }, [])
@@ -307,7 +310,18 @@ export default function InsightIndexPage() {
 
   return (
     <>
-      <div className="w-full min-h-screen bg-background flex flex-col items-center overflow-x-hidden font-sans transition-colors duration-300">
+      {loading && (
+        <div className="fixed inset-0 z-[200] flex items-center justify-center bg-background">
+          <LoadingSpinner text="Loading" />
+        </div>
+      )}
+
+      <div
+        className={cn(
+          "w-full min-h-screen bg-background flex flex-col items-center overflow-x-hidden font-sans transition-colors duration-300",
+          loading && "invisible"
+        )}
+      >
       {/* Banner Indikator Mode Pratinjau (preview=true) */}
       {isPreview && (
         <div className="w-full bg-[#15803D] text-white text-xs py-2 px-4 flex items-center justify-between font-medium shadow-md sticky top-0 z-[100]">
@@ -523,7 +537,7 @@ export default function InsightIndexPage() {
                   ["--banner-frame-offset" as any]: `${insightSettings.bannerFrameOffsetY ?? 0}px`,
                 }}
                 className={cn(
-                  "order-1 lg:order-2 shrink-0 w-full sm:w-auto flex justify-center lg:justify-end transition-all duration-300 lg:[transform:translateY(var(--banner-frame-offset))]",
+                  "order-1 lg:order-2 shrink-0 w-full sm:w-auto flex justify-center lg:justify-end lg:[transform:translateY(var(--banner-frame-offset))]",
                   insightSettings.bannerFrameAlign === "top"
                     ? "self-center lg:self-start"
                     : insightSettings.bannerFrameAlign === "bottom"
@@ -535,11 +549,11 @@ export default function InsightIndexPage() {
                   {/* Container Logo Transparan 1:1 (Tanpa border, background, shadow, atau glow) */}
                   <div
                     style={{
-                      width: `clamp(160px, 45vw, ${insightSettings.bannerFrameSize || 320}px)`,
+                      width: `clamp(160px, 45vw, ${insightSettings.bannerFrameSize || 210}px)`,
                       maxWidth: "100%",
                       aspectRatio: "1 / 1",
                     }}
-                    className="relative aspect-square flex items-center justify-center bg-transparent border-0 shadow-none ring-0 overflow-visible transition-all duration-300"
+                    className="relative aspect-square flex items-center justify-center bg-transparent border-0 shadow-none ring-0 overflow-visible"
                   >
                     {insightSettings.bannerFrameLink ? (
                       <a
@@ -695,8 +709,8 @@ export default function InsightIndexPage() {
             {/* Skeleton Featured Card (Mencegah flash lingkaran spinner) */}
             <div className="rounded-[5px] border border-border bg-card p-0 overflow-hidden shadow-xs animate-pulse">
               <div className="grid grid-cols-1 lg:grid-cols-12 gap-0">
-                <div className="lg:col-span-7 w-full aspect-video lg:aspect-auto lg:h-[340px] bg-muted/60" />
-                <div className="lg:col-span-5 p-6 sm:p-8 flex flex-col justify-between min-h-[300px] sm:min-h-[340px] space-y-4">
+                <div className="lg:col-span-7 w-full aspect-video lg:aspect-auto lg:h-full lg:min-h-[340px] bg-muted/60" />
+                <div className="lg:col-span-5 p-6 sm:p-8 flex flex-col justify-between min-h-[340px] space-y-4">
                   <div className="space-y-3">
                     <div className="h-4 w-28 bg-muted rounded-[4px]" />
                     <div className="h-7 w-4/5 bg-muted rounded-[4px]" />

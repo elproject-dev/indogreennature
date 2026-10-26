@@ -102,50 +102,50 @@ export interface InsightSettingsData {
 export const DEFAULT_INSIGHT_SETTINGS: InsightSettingsData = {
   // Badge
   bannerBadgeText: "Riset, Regulasi & Tren Bisnis Herbal Terkini",
-  bannerBadgeShow: true,
-  bannerBadgeColor: "#15803d", // Hijau Hutan
-  bannerBadgeBg: "#15803d1a", // Hijau Hutan 10%
-  bannerBadgeBorderColor: "#15803d4d", // Hijau Hutan 30%
+  bannerBadgeShow: false,
+  bannerBadgeColor: "#047857",
+  bannerBadgeBg: "#10b9811a",
+  bannerBadgeBorderColor: "#0596694d",
   bannerBadgeFont: "outfit",
   bannerBadgeSize: 12,
 
   // Title
   bannerTitleLine1: "Insight & Riset Herbal",
-  bannerTitleLine2: "CV. Indo Green Nature",
-  bannerTitleColor: "", // inherits foreground
+  bannerTitleLine2: "Indo Green Nature",
+  bannerTitleColor: "#ed790c",
   bannerTitleHighlightColor: "#15803d",
   bannerTitleUseGradient: true,
-  bannerTitleGradientFrom: "#166534", // Hijau Hutan Gelap
-  bannerTitleGradientTo: "#15803d", // Hijau Hutan
-  bannerTitleFont: "outfit",
-  bannerTitleSize: 44,
-  bannerTitleWeight: "800",
+  bannerTitleGradientFrom: "#15803d",
+  bannerTitleGradientTo: "#15803d",
+  bannerTitleFont: "poppins",
+  bannerTitleSize: 54,
+  bannerTitleWeight: "700",
   bannerTitleAlign: "left",
 
   // Desc
   bannerDesc:
     "Kumpulan artikel mendalam, panduan maklon sediaan alami, standar Cara Pembuatan Obat Tradisional yang Baik (CPOTB), regulasi BPOM & Halal, serta inspirasi inovasi formulasi herbal bernilai jual tinggi.",
   bannerDescShow: true,
-  bannerDescColor: "", // inherits muted-foreground
+  bannerDescColor: "#1c1c1c",
   bannerDescFont: "poppins",
-  bannerDescSize: 15,
+  bannerDescSize: 16,
   bannerDescMaxWidth: 896, // 4xl
 
   // Background
-  bannerBgType: "gradient",
-  bannerBgGradientFrom: "#15803d1a", // Hijau Hutan 10%
-  bannerBgGradientVia: "#15803d0d", // Hijau Hutan 5%
+  bannerBgType: "solid",
+  bannerBgGradientFrom: "#10b9811a",
+  bannerBgGradientVia: "#10b9810d",
   bannerBgGradientTo: "transparent",
   bannerBgSolidColor: "#ffffff",
   bannerBgImage: "",
-  bannerShowPattern: true,
+  bannerShowPattern: false,
   bannerPatternColor: "#15803d",
   bannerPatternOpacity: 15,
 
   // Search & Categories
   bannerSearchPlaceholder: "Cari insight, bahan, regulasi...",
-  bannerShowSearch: true,
-  bannerShowCategories: true,
+  bannerShowSearch: false,
+  bannerShowCategories: false,
   bannerCategoryActiveBg: "#15803d",
   bannerCategoryActiveColor: "#ffffff",
   bannerCategoryInactiveBg: "",
@@ -160,19 +160,19 @@ export const DEFAULT_INSIGHT_SETTINGS: InsightSettingsData = {
 
   // Logo Banner (Transparan) Pojok Kanan
   bannerFrameShow: true,
-  bannerFrameImage: "/logo.png",
-  bannerFrameAlt: "Logo CV. Indo Green Nature",
-  bannerFrameSize: 320,
-  bannerFrameFit: "contain",
-  bannerFrameAlign: "center",
+  bannerFrameImage: "https://ivtpcjwwenjdatxxtjqm.supabase.co/storage/v1/object/public/media/insight/frame/1792833866524-u50pxq.webp",
+  bannerFrameAlt: "Fasilitas Riset Ekstraksi & CPOTB CV. Indo Green Nature",
+  bannerFrameSize: 210,
+  bannerFrameFit: "cover",
+  bannerFrameAlign: "top",
   bannerFrameOffsetY: 0,
-  bannerFrameRounded: 0,
-  bannerFrameBorderWidth: 0,
-  bannerFrameBorderColor: "transparent",
-  bannerFrameBg: "transparent",
-  bannerFrameShadow: false,
-  bannerFrameGlow: false,
-  bannerFrameGlowColor: "transparent",
+  bannerFrameRounded: 5,
+  bannerFrameBorderWidth: 1,
+  bannerFrameBorderColor: "#15803d33",
+  bannerFrameBg: "#ffffff",
+  bannerFrameShadow: true,
+  bannerFrameGlow: true,
+  bannerFrameGlowColor: "#15803d26",
   bannerFrameLink: "",
 
   // Widget Formulasi Serupa (Sidebar Artikel)
@@ -181,17 +181,17 @@ export const DEFAULT_INSIGHT_SETTINGS: InsightSettingsData = {
   sidebarCtaTitle: "Punya Ide Formulasi Serupa?",
   sidebarCtaDesc:
     "Tim R&D dan apoteker CV. Indo Green Nature siap membantu memformulasikan produk herbal Anda hingga izin edar BPOM dan sertifikat Halal terbit.",
-  sidebarCtaBtnText: "Hubungi Tim R&D via WA",
+  sidebarCtaBtnText: "Hubungi kami",
   sidebarCtaBtnLink:
     "https://wa.me/6281234567890?text=Halo%20CV.%20Indo%20Green%20Nature%2C%20saya%20tertarik%20konsultasi%20maklon%20produk%20herbal%20setelah%20membaca%20artikel%20insight.",
   sidebarCtaBtnBg: "#ffffff",
-  sidebarCtaBtnColor: "#15803d",
+  sidebarCtaBtnColor: "#065f46",
   sidebarCtaSublinkText: "Jelajahi Produk Kami",
   sidebarCtaSublinkUrl: "/our-products",
 
   // Card Kembangkan Brand Herbal (Bottom CTA)
   bottomCtaShow: true,
-  bottomCtaTitle: "Kembangkan Brand Herbal Anda Bersama CV. Indo Green Nature",
+  bottomCtaTitle: "Kembangkan Brand Herbal Anda Bersama \nIndo Green Nature",
   bottomCtaDesc:
     "Dukungan lengkap mulai dari perancangan formula terstandar, uji laboratorium, legalitas izin edar BPOM & Halal, hingga produksi massal bersertifikat CPOTB.",
   bottomCtaBtnText: "Konsultasi Maklon Sekarang",
