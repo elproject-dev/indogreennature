@@ -35,13 +35,20 @@ export function PWAInstallPrompt() {
             })
             .catch((err) => console.log("Service Worker registration failed: ", err));
 
-          let refreshing = false;
+          // Gunakan sessionStorage agar flag persisten antar render,
+          // mencegah loop reload tak berujung saat SW baru aktif setelah deploy.
           navigator.serviceWorker.addEventListener("controllerchange", () => {
-            if (!refreshing) {
-              refreshing = true;
+            if (!sessionStorage.getItem("sw-reloading")) {
+              sessionStorage.setItem("sw-reloading", "1");
               window.location.reload();
             }
           });
+
+          // Bersihkan flag setelah halaman selesai dimuat (setelah reload)
+          // agar update SW berikutnya tetap bisa mentrigger reload sekali lagi.
+          window.addEventListener("load", () => {
+            sessionStorage.removeItem("sw-reloading");
+          }, { once: true });
         }
       }
 
