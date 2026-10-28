@@ -49,6 +49,7 @@ import {
   fetchAboutSettings,
   saveAboutSettings,
   resetAboutSettings,
+  resolveAboutWhatsappUrl,
 } from "@/lib/about-settings"
 import { toast } from "@/components/ui/toast"
 import { supabase } from "@/lib/supabase"
@@ -728,9 +729,9 @@ export default function AboutUsPage() {
                 {/* CTA Buttons inside Hero - 2 Kolom di Mobile, Flex di Desktop */}
                 <div className="grid grid-cols-2 sm:flex sm:flex-wrap items-center gap-2 sm:gap-3 pt-2 w-full sm:w-auto">
                   <a
-                    href={aboutSettings.bannerBtn1Link || whatsappUrl}
-                    target={(aboutSettings.bannerBtn1Link || whatsappUrl).startsWith("http") ? "_blank" : undefined}
-                    rel={(aboutSettings.bannerBtn1Link || whatsappUrl).startsWith("http") ? "noopener noreferrer" : undefined}
+                    href={resolveAboutWhatsappUrl(aboutSettings.bannerBtn1Link || whatsappUrl)}
+                    target={resolveAboutWhatsappUrl(aboutSettings.bannerBtn1Link || whatsappUrl).startsWith("http") ? "_blank" : undefined}
+                    rel={resolveAboutWhatsappUrl(aboutSettings.bannerBtn1Link || whatsappUrl).startsWith("http") ? "noopener noreferrer" : undefined}
                     className={cn(
                       "inline-flex items-center justify-center gap-1.5 px-2.5 sm:px-5 py-2 sm:py-2.5 rounded-[5px] font-bold text-[11px] sm:text-xs md:text-sm text-center shadow-xs hover:shadow-md transition-all cursor-pointer",
                       !aboutSettings.bannerBtn1BgColor && "bg-primary hover:bg-primary/90",
@@ -2190,9 +2191,9 @@ export default function AboutUsPage() {
 
             <div className="grid grid-cols-2 sm:flex sm:flex-wrap items-center justify-center gap-2 sm:gap-3 w-full sm:w-auto shrink-0">
               <a
-                href={aboutSettings.ctaWhatsappUrl || whatsappUrl}
-                target="_blank"
-                rel="noopener noreferrer"
+                href={resolveAboutWhatsappUrl(aboutSettings.ctaWhatsappUrl || whatsappUrl)}
+                target={resolveAboutWhatsappUrl(aboutSettings.ctaWhatsappUrl || whatsappUrl).startsWith("http") ? "_blank" : undefined}
+                rel={resolveAboutWhatsappUrl(aboutSettings.ctaWhatsappUrl || whatsappUrl).startsWith("http") ? "noopener noreferrer" : undefined}
                 className={cn(
                   "inline-flex items-center justify-center gap-1.5 sm:gap-2 px-2.5 sm:px-6 py-2.5 sm:py-3.5 font-bold text-xs sm:text-sm md:text-base shadow-lg transition-all cursor-pointer w-full sm:w-auto text-center",
                   aboutSettings.ctaButtonFullRounded ? "rounded-full" : "rounded-[5px]",

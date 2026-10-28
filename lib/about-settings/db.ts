@@ -4,6 +4,7 @@ import {
   DEFAULT_ABOUT_SETTINGS,
   ABOUT_SETTINGS_KEY,
   ABOUT_DB_CONFIG_KEY,
+  resolveAboutWhatsappUrl,
 } from "./types"
 
 export const ABOUT_SETTINGS_TABLE = "about_us_config"
@@ -81,6 +82,13 @@ export function sanitizeAboutSettings(raw: any): AboutSettingsData {
         cleaned[field] = ""
       }
     }
+  }
+
+  if (cleaned.ctaWhatsappUrl && typeof cleaned.ctaWhatsappUrl === "string") {
+    cleaned.ctaWhatsappUrl = resolveAboutWhatsappUrl(cleaned.ctaWhatsappUrl)
+  }
+  if (cleaned.bannerBtn1Link && typeof cleaned.bannerBtn1Link === "string") {
+    cleaned.bannerBtn1Link = resolveAboutWhatsappUrl(cleaned.bannerBtn1Link)
   }
 
   return {

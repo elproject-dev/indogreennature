@@ -61,7 +61,7 @@ export function getInitialSeoConfig(): SeoConfig {
       if (stored) {
         return { ...DEFAULT_SEO_CONFIG, ...JSON.parse(stored) }
       }
-    } catch {}
+    } catch { }
   }
   return DEFAULT_SEO_CONFIG
 }
@@ -74,7 +74,7 @@ export const fetchSeoConfig = cache(async function fetchSeoConfig(): Promise<Seo
       if (stored) {
         localData = JSON.parse(stored)
       }
-    } catch {}
+    } catch { }
   }
 
   try {
@@ -90,7 +90,7 @@ export const fetchSeoConfig = cache(async function fetchSeoConfig(): Promise<Seo
       if (typeof window !== "undefined") {
         try {
           localStorage.setItem(SEO_CONFIG_KEY, JSON.stringify(merged))
-        } catch {}
+        } catch { }
       }
       return merged
     }
@@ -108,7 +108,7 @@ export async function saveSeoConfig(config: SeoConfig): Promise<boolean> {
     try {
       localStorage.setItem(SEO_CONFIG_KEY, JSON.stringify(merged))
       window.dispatchEvent(new CustomEvent("seo-config-updated", { detail: merged }))
-    } catch {}
+    } catch { }
   }
 
   try {

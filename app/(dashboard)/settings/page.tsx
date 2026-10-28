@@ -6,7 +6,7 @@ import { FaFacebook, FaYoutube } from "react-icons/fa"
 import { BsBrowserChrome } from "react-icons/bs"
 import { uploadMedia, uploadLogoMedia } from "@/lib/storage"
 import { cn } from "@/lib/utils"
-import { HERO_FONTS, getHeroFontClass, getHeroFontFamily, HERO_FONT_SIZES, getHeroFontSizeClass, getHeroFontSizeStyle, parseHeroFontSizeNumber, HERO_IMAGE_ASPECTS, getHeroImageAspectClass, parseHeroImageSizeNumber, getHeroImageContainerStyle, HERO_FONT_WEIGHTS, parseHeroFontWeightNumber, getHeroFontWeightClass } from "@/lib/fonts"
+import { HERO_FONTS, getHeroFontClass, getHeroFontFamily, preloadHeroFont, HERO_FONT_SIZES, getHeroFontSizeClass, getHeroFontSizeStyle, parseHeroFontSizeNumber, HERO_IMAGE_ASPECTS, getHeroImageAspectClass, parseHeroImageSizeNumber, getHeroImageContainerStyle, HERO_FONT_WEIGHTS, parseHeroFontWeightNumber, getHeroFontWeightClass } from "@/lib/fonts"
 import { COLOR_PRESETS, BACKGROUND_PRESETS, DEFAULT_THEME, generateThemeColors, getStoredTheme, saveStoredTheme, applyGlobalTheme } from "@/lib/theme"
 import {
     Dialog,
@@ -5361,7 +5361,10 @@ export default function SettingsPage() {
                         if (!isNaN(num)) setPengenalanTitleSize(num);
                     }
                     if (item.key === 'pengenalan_title_color' && item.value) setPengenalanTitleColor(item.value);
-                    if (item.key === 'pengenalan_title_font' && item.value) setPengenalanTitleFont(item.value);
+                    if (item.key === 'pengenalan_title_font' && item.value) {
+                        setPengenalanTitleFont(item.value);
+                        preloadHeroFont(item.value);
+                    }
                     if (item.key === 'pengenalan_title_font_weight' && item.value) setPengenalanTitleFontWeight(item.value);
                     if (item.key === 'pengenalan_desc' && item.value) setPengenalanDesc(item.value);
                     if (item.key === 'pengenalan_desc_size' && item.value) {
@@ -9961,6 +9964,7 @@ export default function SettingsPage() {
                                                             onValueChange={(val) => {
                                                                 if (val) {
                                                                     setPengenalanTitleFont(val);
+                                                                    preloadHeroFont(val);
                                                                     updatePengenalanLive({ titleFont: val });
                                                                 }
                                                             }}
@@ -10541,6 +10545,7 @@ export default function SettingsPage() {
                                                             color: pengenalanTitleColor || DEFAULT_PENGENALAN_TITLE_COLOR,
                                                             fontSize: `${Math.min(32, Math.max(16, Math.round(pengenalanTitleSize * 0.55)))}px`,
                                                             fontWeight: parseHeroFontWeightNumber(pengenalanTitleFontWeight),
+                                                            fontFamily: getHeroFontFamily(pengenalanTitleFont),
                                                         }}
                                                     >
                                                         {pengenalanTitle || DEFAULT_PENGENALAN_TITLE}

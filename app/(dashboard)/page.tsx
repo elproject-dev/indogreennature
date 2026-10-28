@@ -11,7 +11,7 @@ import {
   OUR_PRODUCTS_SETTINGS_KEY,
   OUR_PRODUCTS_PREVIEW_CHANNEL,
 } from "@/lib/our-products-settings";
-import { outfit, jockey, poppins, getHeroFontClass, getHeroFontSizeClass, getHeroFontSizeStyle, getHeroImageAspectClass, parseHeroImageSizeNumber, getHeroImageContainerStyle, parseHeroFontWeightNumber, getHeroFontWeightClass } from "@/lib/fonts"
+import { outfit, jockey, poppins, getHeroFontClass, getHeroFontFamily, preloadHeroFont, getHeroFontSizeClass, getHeroFontSizeStyle, getHeroImageAspectClass, parseHeroImageSizeNumber, getHeroImageContainerStyle, parseHeroFontWeightNumber, getHeroFontWeightClass } from "@/lib/fonts"
 import { cn } from "@/lib/utils";
 import { supabase } from "@/lib/supabase";
 import {
@@ -610,7 +610,10 @@ export default function HomePage() {
         const pPTitleColor = localStorage.getItem("pengenalan_preview_title_color");
         if (pPTitleColor !== null) setPengenalanTitleColor(pPTitleColor);
         const pPTitleFont = localStorage.getItem("pengenalan_preview_title_font");
-        if (pPTitleFont !== null) setPengenalanTitleFont(pPTitleFont);
+        if (pPTitleFont !== null) {
+          setPengenalanTitleFont(pPTitleFont);
+          preloadHeroFont(pPTitleFont);
+        }
         const pPTitleWeight = localStorage.getItem("pengenalan_preview_title_font_weight");
         if (pPTitleWeight !== null) setPengenalanTitleFontWeight(pPTitleWeight);
         const pPDesc = localStorage.getItem("pengenalan_preview_desc");
@@ -1026,7 +1029,10 @@ export default function HomePage() {
         const sPTitleColor = localStorage.getItem("pengenalan_title_color");
         if (sPTitleColor !== null) setPengenalanTitleColor(sPTitleColor);
         const sPTitleFont = localStorage.getItem("pengenalan_title_font");
-        if (sPTitleFont !== null) setPengenalanTitleFont(sPTitleFont);
+        if (sPTitleFont !== null) {
+          setPengenalanTitleFont(sPTitleFont);
+          preloadHeroFont(sPTitleFont);
+        }
         const sPTitleWeight = localStorage.getItem("pengenalan_title_font_weight");
         if (sPTitleWeight !== null) setPengenalanTitleFontWeight(sPTitleWeight);
         const sPDesc = localStorage.getItem("pengenalan_desc");
@@ -1508,7 +1514,10 @@ export default function HomePage() {
           if (data.title !== undefined) setPengenalanTitle(data.title);
           if (data.titleSize !== undefined) setPengenalanTitleSize(data.titleSize);
           if (data.titleColor !== undefined) setPengenalanTitleColor(data.titleColor);
-          if (data.titleFont !== undefined) setPengenalanTitleFont(data.titleFont);
+          if (data.titleFont !== undefined) {
+            setPengenalanTitleFont(data.titleFont);
+            preloadHeroFont(data.titleFont);
+          }
           if (data.titleFontWeight !== undefined) setPengenalanTitleFontWeight(data.titleFontWeight);
           if (data.desc !== undefined) setPengenalanDesc(data.desc);
           if (data.descSize !== undefined) setPengenalanDescSize(data.descSize);
@@ -2273,6 +2282,7 @@ export default function HomePage() {
             else if (item.key === 'pengenalan_title_font' && item.value) {
               if (!isPreview) {
                 setPengenalanTitleFont(item.value);
+                preloadHeroFont(item.value);
                 localStorage.setItem('pengenalan_title_font', item.value);
               }
             }
@@ -3687,10 +3697,10 @@ export default function HomePage() {
                     : undefined,
                   color: pengenalanTitleColor || undefined,
                   fontWeight: parseHeroFontWeightNumber(pengenalanTitleFontWeight),
+                  fontFamily: getHeroFontFamily(pengenalanTitleFont),
                 }}
                 className={cn(
                   "w-full text-left mb-4 sm:mb-[30px] leading-tight sm:leading-snug lg:leading-[58px] tracking-tight break-words font-semibold",
-                  poppins.className,
                   getHeroFontClass(pengenalanTitleFont),
                   getHeroFontWeightClass(pengenalanTitleFontWeight),
                   !pengenalanTitleSize && "text-xl sm:text-3xl lg:text-[48px]",

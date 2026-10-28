@@ -600,3 +600,50 @@ export const DEFAULT_ABOUT_SETTINGS: AboutSettingsData = {
 export const ABOUT_SETTINGS_KEY = "about_us_custom_settings"
 export const ABOUT_DB_CONFIG_KEY = "about_us_main"
 export const ABOUT_PREVIEW_CHANNEL = "about_us_preview_channel"
+
+/**
+ * Memformat link / URL WhatsApp untuk About Us. Jika pengguna memasukkan nomor telepon murni
+ * (misal: 6283867180887 atau 083867180887), otomatis dikonversi menjadi URL WhatsApp valid
+ * agar tidak menjadi tautan relatif rusak (misal: https://domain/6283867180887).
+ */
+export function resolveAboutWhatsappUrl(
+  urlOrPhone?: string,
+  defaultFallback: string = "https://wa.me/6282136368880?text=Halo%20Tim%20CV.%20Indo%20Green%20Nature,%20saya%20ingin%20konsultasi%20mengenai%20layanan%20maklon%20herbal."
+): string {
+  const raw = urlOrPhone?.trim()
+  if (!raw) return defaultFallback
+
+  // Jika sudah merupakan link protokol (http/https/tel/mailto) atau anchor / rute internal
+  if (
+    raw.startsWith("http://") ||
+    raw.startsWith("https://") ||
+    raw.startsWith("tel:") ||
+    raw.startsWith("mailto:") ||
+    raw.startsWith("/") ||
+    raw.startsWith("#")
+  ) {
+    return raw
+  }
+
+  // Jika domain seperti wa.me/...
+  if (raw.startsWith("wa.me/")) {
+    return `https://${raw}`
+  }
+
+  // Cek jika nomor HP (terdiri dari angka, simbol +, strip, atau spasi)
+  const digitsOnly = raw.replace(/[^0-9]/g, "")
+  if (digitsOnly.length >= 7) {
+    let cleanNumber = digitsOnly
+    if (cleanNumber.startsWith("0")) {
+      cleanNumber = "62" + cleanNumber.slice(1)
+    } else if (!cleanNumber.startsWith("62")) {
+      cleanNumber = "62" + cleanNumber
+    }
+    const defaultMsg = encodeURIComponent("Halo Tim CV. Indo Green Nature, saya ingin berkonsultasi mengenai layanan maklon herbal.")
+    return `https://wa.me/${cleanNumber}?text=${defaultMsg}`
+  }
+
+  // Fallback ke https
+  return `https://${raw}`
+}
+

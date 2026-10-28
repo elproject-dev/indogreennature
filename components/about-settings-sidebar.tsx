@@ -6745,14 +6745,17 @@ export function AboutSettingsSidebar({
                       />
                     </div>
                     <div className="flex flex-col gap-1.5">
-                      <label className="text-[11px] font-semibold text-foreground/80">Custom Link WhatsApp (Opsional)</label>
+                      <label className="text-[11px] font-semibold text-foreground/80">Custom Link WhatsApp / No. HP (Opsional)</label>
                       <input
                         type="text"
                         value={data.ctaWhatsappUrl || ""}
                         onChange={(e) => handleFieldChange("ctaWhatsappUrl", e.target.value)}
-                        placeholder="Default nomor WA perusahaan"
+                        placeholder="https://wa.me/... atau 083867180887"
                         className="w-full px-3 py-1.5 rounded-[5px] text-xs bg-background border border-border font-mono text-[11px] focus:outline-none focus:ring-1 focus:ring-[#15803D]"
                       />
+                      <span className="text-[10px] text-muted-foreground">
+                        Bisa link langsung (https://wa.me/...) atau nomor HP (contoh: 083867180887).
+                      </span>
                     </div>
                   </div>
 
