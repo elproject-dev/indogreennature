@@ -32,6 +32,8 @@ import {
 } from "@/lib/contact-settings"
 import { renderFormattedText } from "@/lib/home-blocks"
 import { trackButtonClick } from "@/lib/track-click"
+import { supabase } from "@/lib/supabase"
+import { isUserAdmin } from "@/lib/auth-admin"
 
 function FaqItem({
   item,
@@ -173,7 +175,7 @@ function ContactForm({
             Pesan Anda berhasil terkirim ke
           </p>
           <span className="font-semibold text-primary text-sm sm:text-base">
-            {receiverEmail || "marketing@indogreennature.com"}
+            {receiverEmail || "admin@indogreennature.com"}
           </span>
         </div>
 
@@ -402,7 +404,7 @@ export default function ContactPage() {
           if (draft && isMounted) {
             setSettings(JSON.parse(draft))
           }
-        } catch {}
+        } catch { }
       }
     }
 
@@ -434,7 +436,9 @@ export default function ContactPage() {
 
   // Event listener untuk membuka modal dari AdminFAB atau URL query
   useEffect(() => {
-    const handleOpenSettings = () => {
+    const handleOpenSettings = async () => {
+      const { data: { session } } = await supabase.auth.getSession()
+      if (!session?.user || !isUserAdmin(session.user.email)) return
       setIsSettingsOpen(true)
     }
 
@@ -444,7 +448,14 @@ export default function ContactPage() {
       const params = new URLSearchParams(window.location.search)
       const isPrev = params.get("preview") === "true"
       if (!isPrev && (params.get("edit") === "true" || params.get("settings") === "contact")) {
-        setIsSettingsOpen(true)
+        supabase.auth.getSession().then(({ data: { session } }) => {
+          if (session?.user && isUserAdmin(session.user.email)) {
+            setIsSettingsOpen(true)
+          } else {
+            setIsSettingsOpen(false)
+            window.history.replaceState({}, "", window.location.pathname)
+          }
+        })
       }
     }
 
@@ -465,14 +476,14 @@ export default function ContactPage() {
             setSettings(event.data.data)
           }
         }
-      } catch {}
+      } catch { }
     }
 
     const handleStorage = (e: StorageEvent) => {
       if (e.key === CONTACT_SETTINGS_KEY && e.newValue) {
         try {
           setSettings(JSON.parse(e.newValue))
-        } catch {}
+        } catch { }
       }
     }
 
@@ -525,499 +536,499 @@ export default function ContactPage() {
           poppins.className
         )}
       >
-      {/* Banner Indikator Mode Pratinjau (preview=true) */}
-      {isPreview && (
-        <div className="w-full bg-[#15803D] text-white py-2 px-4 sm:px-6 text-xs font-semibold flex items-center justify-between sticky top-[60px] z-40 shadow-sm border-b border-white/20 animate-in fade-in">
-          <div className="flex items-center gap-2">
-            <span className="w-2 h-2 rounded-full bg-emerald-300 animate-pulse" />
-            <span>Mode Pratinjau Halaman Contact Aktif</span>
+        {/* Banner Indikator Mode Pratinjau (preview=true) */}
+        {isPreview && (
+          <div className="w-full bg-[#15803D] text-white py-2 px-4 sm:px-6 text-xs font-semibold flex items-center justify-between sticky top-[60px] z-40 shadow-sm border-b border-white/20 animate-in fade-in">
+            <div className="flex items-center gap-2">
+              <span className="w-2 h-2 rounded-full bg-emerald-300 animate-pulse" />
+              <span>Mode Pratinjau Halaman Contact Aktif</span>
+            </div>
+            <div className="flex items-center gap-3">
+              <span className="text-[11px] opacity-90 hidden md:inline">
+                Data pratinjau draft ditampilkan secara real-time
+              </span>
+              <button
+                type="button"
+                onClick={() => window.close()}
+                className="px-2.5 py-1 bg-white/20 hover:bg-white/30 rounded text-[11px] transition-colors cursor-pointer font-bold"
+              >
+                Tutup Tab Pratinjau
+              </button>
+            </div>
           </div>
-          <div className="flex items-center gap-3">
-            <span className="text-[11px] opacity-90 hidden md:inline">
-              Data pratinjau draft ditampilkan secara real-time
-            </span>
-            <button
-              type="button"
-              onClick={() => window.close()}
-              className="px-2.5 py-1 bg-white/20 hover:bg-white/30 rounded text-[11px] transition-colors cursor-pointer font-bold"
-            >
-              Tutup Tab Pratinjau
-            </button>
-          </div>
-        </div>
-      )}
+        )}
 
-      <main
-        suppressHydrationWarning
-        className="w-full max-w-[1440px] px-4 lg:px-[20px] pt-[10px] pb-16 flex flex-col relative z-10 gap-10 md:gap-14"
-      >
-
-        {/* Breadcrumb */}
-        <div className="flex items-center gap-1.5 sm:gap-2 py-2 border-b border-primary/10 text-xs md:text-sm text-zinc-700 dark:text-zinc-300">
-          <Link href="/" className="hover:text-primary transition-colors">
-            Beranda
-          </Link>
-          <ChevronRight className="w-3.5 h-3.5 text-zinc-500" />
-          <span className="text-primary font-semibold">Contact &amp; Kemitraan</span>
-        </div>
-
-        {/* ─── 01. Hero Banner ─── */}
-        <section
-          id="banner-utama"
-          className="relative w-full flex flex-col md:flex-row items-center justify-between gap-6 sm:gap-8 md:gap-10 pt-2 scroll-mt-24"
+        <main
+          suppressHydrationWarning
+          className="w-full max-w-[1440px] px-4 lg:px-[20px] pt-[10px] pb-16 flex flex-col relative z-10 gap-10 md:gap-14"
         >
-          <div className="flex flex-col gap-3 flex-1 items-center text-center md:items-start md:text-left">
-            <div className="flex flex-col gap-2 items-center md:items-start text-center md:text-left w-full">
-              <h1
-                className={cn(
-                  "text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold leading-tight tracking-tight text-center md:text-left",
-                  !settings.bannerTitleColor && "text-primary"
-                )}
-                style={{
-                  fontFamily: getHeroFontFamily(settings.bannerTitleFont),
-                  color: settings.bannerTitleColor || undefined,
-                  fontSize: settings.bannerTitleSize
-                    ? `clamp(20px, 4.5vw, ${settings.bannerTitleSize}px)`
-                    : undefined,
-                }}
-              >
-                {renderFormattedText(settings.bannerTitle)}
-              </h1>
-              <p
-                className={cn(
-                  "text-xs sm:text-[13px] md:text-sm leading-relaxed max-w-2xl whitespace-pre-line text-center md:text-left mx-auto md:mx-0",
-                  !settings.bannerDescColor && "text-foreground/85"
-                )}
-                style={{
-                  fontFamily: getHeroFontFamily(settings.bannerDescFont),
-                  color: settings.bannerDescColor || undefined,
-                  fontSize: settings.bannerDescSize
-                    ? `clamp(12px, 2.5vw, ${settings.bannerDescSize}px)`
-                    : undefined,
-                }}
-              >
-                {renderFormattedText(settings.bannerDesc)}
+
+          {/* Breadcrumb */}
+          <div className="flex items-center gap-1.5 sm:gap-2 py-2 border-b border-primary/10 text-xs md:text-sm text-zinc-700 dark:text-zinc-300">
+            <Link href="/" className="hover:text-primary transition-colors">
+              Beranda
+            </Link>
+            <ChevronRight className="w-3.5 h-3.5 text-zinc-500" />
+            <span className="text-primary font-semibold">Contact &amp; Kemitraan</span>
+          </div>
+
+          {/* ─── 01. Hero Banner ─── */}
+          <section
+            id="banner-utama"
+            className="relative w-full flex flex-col md:flex-row items-center justify-between gap-6 sm:gap-8 md:gap-10 pt-2 scroll-mt-24"
+          >
+            <div className="flex flex-col gap-3 flex-1 items-center text-center md:items-start md:text-left">
+              <div className="flex flex-col gap-2 items-center md:items-start text-center md:text-left w-full">
+                <h1
+                  className={cn(
+                    "text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold leading-tight tracking-tight text-center md:text-left",
+                    !settings.bannerTitleColor && "text-primary"
+                  )}
+                  style={{
+                    fontFamily: getHeroFontFamily(settings.bannerTitleFont),
+                    color: settings.bannerTitleColor || undefined,
+                    fontSize: settings.bannerTitleSize
+                      ? `clamp(20px, 4.5vw, ${settings.bannerTitleSize}px)`
+                      : undefined,
+                  }}
+                >
+                  {renderFormattedText(settings.bannerTitle)}
+                </h1>
+                <p
+                  className={cn(
+                    "text-xs sm:text-[13px] md:text-sm leading-relaxed max-w-2xl whitespace-pre-line text-center md:text-left mx-auto md:mx-0",
+                    !settings.bannerDescColor && "text-foreground/85"
+                  )}
+                  style={{
+                    fontFamily: getHeroFontFamily(settings.bannerDescFont),
+                    color: settings.bannerDescColor || undefined,
+                    fontSize: settings.bannerDescSize
+                      ? `clamp(12px, 2.5vw, ${settings.bannerDescSize}px)`
+                      : undefined,
+                  }}
+                >
+                  {renderFormattedText(settings.bannerDesc)}
+                </p>
+              </div>
+              <div className="flex flex-wrap items-center justify-center md:justify-start gap-2 mt-1 w-full md:w-auto">
+                <a
+                  href={waConsultUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className={cn(
+                    "inline-flex items-center justify-center gap-1.5 px-4 py-2 rounded-full text-xs font-semibold bg-primary text-primary-foreground hover:bg-primary/90 transition-all shadow-sm active:scale-95 cursor-pointer",
+                    poppins.className
+                  )}
+                >
+                  <WhatsAppIcon className="w-3.5 h-3.5 fill-current shrink-0" />
+                  <span>{settings.bannerBtn1Text || "WhatsApp Bisnis"}</span>
+                </a>
+                <a
+                  href="#form-email"
+                  onClick={(e) => {
+                    e.preventDefault()
+                    const target = document.getElementById("form-email")
+                    if (target) {
+                      target.scrollIntoView({ behavior: "smooth" })
+                      setTimeout(() => {
+                        document.getElementById("contact-name")?.focus()
+                      }, 400)
+                    }
+                  }}
+                  className={cn(
+                    "inline-flex items-center gap-2 px-4 py-2 rounded-full text-xs font-semibold border border-primary/30 text-primary hover:bg-primary/10 transition-all cursor-pointer",
+                    poppins.className
+                  )}
+                >
+                  <Mail className="w-3.5 h-3.5" />
+                  {settings.bannerBtn2Text || "Kirim Pesan"}
+                </a>
+              </div>
+            </div>
+
+            {/* Logo Perusahaan (Rasio 1:1, Tanpa Frame / Stroke / BG) dengan Skala Gambar */}
+            <div
+              className="aspect-square shrink-0 flex items-center justify-center transition-all duration-200"
+              style={{
+                width: `min(100%, ${Math.max(120, Math.round(288 * ((settings.bannerLogoScale ?? 100) / 100)))}px)`,
+                height: `min(100%, ${Math.max(120, Math.round(288 * ((settings.bannerLogoScale ?? 100) / 100)))}px)`,
+              }}
+            >
+              <div className="relative w-full h-full">
+                <Image
+                  src={settings.bannerLogo || "/logo.png"}
+                  alt="Logo CV. Indo Green Nature"
+                  fill
+                  sizes="(max-width: 640px) 176px, (max-width: 768px) 224px, 288px"
+                  className="object-contain"
+                  priority
+                />
+              </div>
+            </div>
+          </section>
+
+          {/* Garis Pembatas Putus-putus di Atas Informasi Kontak */}
+          <div className="w-full flex items-center justify-center -my-2 sm:-my-3">
+            <hr
+              className="w-full transition-colors border-dashed border-black/20 dark:border-white/15"
+              style={{ borderTopWidth: "1px", borderBottomWidth: "0px" }}
+            />
+          </div>
+
+          {/* ─── 02. Kontak Langsung Grid ─── */}
+          <section id="kontak-langsung" className="w-full flex flex-col gap-6 scroll-mt-24">
+            <div className="flex flex-col gap-1">
+              <h2 className={cn("text-lg sm:text-xl font-bold text-foreground", poppins.className)}>
+                {settings.kontakSectionTitle || "Informasi Kontak Langsung"}
+              </h2>
+              <p className={cn("text-sm text-foreground/85", poppins.className)}>
+                {settings.kontakSectionSubtitle || "Pilih metode komunikasi yang paling mudah bagi Anda."}
               </p>
             </div>
-            <div className="flex flex-wrap items-center justify-center md:justify-start gap-2 mt-1 w-full md:w-auto">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+              {/* WhatsApp Umum */}
+              <a
+                href={waGeneralUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="group flex flex-col gap-1.5 p-5 rounded-[5px] border border-border bg-card hover:border-primary/30 hover:shadow-md transition-all duration-200 cursor-pointer"
+              >
+                <span className={cn("text-xs font-semibold text-muted-foreground uppercase tracking-wider", poppins.className)}>
+                  WhatsApp Umum
+                </span>
+                <span className={cn("text-sm sm:text-base font-bold text-primary transition-colors", poppins.className)}>
+                  {settings.whatsappDisplay}
+                </span>
+                <span className={cn("text-xs text-foreground/80", poppins.className)}>
+                  {settings.whatsappSubtitle || "Pertanyaan & Info Produk"}
+                </span>
+              </a>
+
+              {/* WhatsApp Bisnis */}
               <a
                 href={waConsultUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className={cn(
-                  "inline-flex items-center justify-center gap-1.5 px-4 py-2 rounded-full text-xs font-semibold bg-primary text-primary-foreground hover:bg-primary/90 transition-all shadow-sm active:scale-95 cursor-pointer",
-                  poppins.className
-                )}
-              >
-                <WhatsAppIcon className="w-3.5 h-3.5 fill-current shrink-0" />
-                <span>{settings.bannerBtn1Text || "WhatsApp Bisnis"}</span>
-              </a>
-              <a
-                href="#form-email"
-                onClick={(e) => {
-                  e.preventDefault()
-                  const target = document.getElementById("form-email")
-                  if (target) {
-                    target.scrollIntoView({ behavior: "smooth" })
-                    setTimeout(() => {
-                      document.getElementById("contact-name")?.focus()
-                    }, 400)
-                  }
+                onClick={() => {
+                  trackButtonClick({
+                    buttonType: "whatsapp_contact",
+                    itemName: "WhatsApp Bisnis (Kemitraan & Maklon)",
+                    pagePath: "/contact",
+                  })
                 }}
+                className="group flex flex-col gap-1.5 p-5 rounded-[5px] border border-border bg-card hover:border-primary/30 hover:shadow-md transition-all duration-200 cursor-pointer"
+              >
+                <span className={cn("text-xs font-semibold text-muted-foreground uppercase tracking-wider", poppins.className)}>
+                  WhatsApp Bisnis
+                </span>
+                <span className={cn("text-sm sm:text-base font-bold text-primary transition-colors", poppins.className)}>
+                  {settings.whatsappBisnisDisplay}
+                </span>
+                <span className={cn("text-xs text-foreground/80", poppins.className)}>
+                  {settings.whatsappBisnisSubtitle || "Kemitraan & Maklon"}
+                </span>
+              </a>
+
+              {/* Email */}
+              <a
+                href={`mailto:${settings.emailBisnis}`}
+                className="group flex flex-col gap-1.5 p-5 rounded-[5px] border border-border bg-card hover:border-primary/30 hover:shadow-md transition-all duration-200 cursor-pointer"
+              >
+                <span className={cn("text-xs font-semibold text-muted-foreground uppercase tracking-wider", poppins.className)}>
+                  Email Bisnis
+                </span>
+                <span className={cn("text-sm sm:text-base font-bold text-primary transition-colors break-all", poppins.className)}>
+                  {settings.emailBisnis}
+                </span>
+                <span className={cn("text-xs text-foreground/80", poppins.className)}>
+                  {settings.emailSubtitle || "Proposal & Dokumen Resmi"}
+                </span>
+              </a>
+
+              {/* Lokasi */}
+              <a
+                href={settings.mapsUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="group flex flex-col gap-1.5 p-5 rounded-[5px] border border-border bg-card hover:border-primary/30 hover:shadow-md transition-all duration-200 cursor-pointer"
+              >
+                <span className={cn("text-xs font-semibold text-muted-foreground uppercase tracking-wider", poppins.className)}>
+                  Lokasi Pabrik
+                </span>
+                <span className={cn("text-sm sm:text-base font-bold text-primary transition-colors leading-snug", poppins.className)}>
+                  {settings.lokasiKota}
+                </span>
+                <span className={cn("text-xs text-foreground/80", poppins.className)}>
+                  {settings.lokasiProvinsi}
+                </span>
+              </a>
+            </div>
+
+            {/* Alamat Pabrik Full Width */}
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 p-4 rounded-[5px] border border-border bg-card">
+              <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-3 flex-1">
+                <span className={cn("text-sm font-semibold text-primary shrink-0", poppins.className)}>
+                  Alamat Pabrik
+                </span>
+                <span className="hidden sm:inline text-muted-foreground/40">|</span>
+                <span className={cn("text-sm text-foreground/80 leading-relaxed", poppins.className)}>
+                  {settings.alamatPabrik}
+                </span>
+              </div>
+              <a
+                href={settings.mapsUrl}
+                target="_blank"
+                rel="noopener noreferrer"
                 className={cn(
-                  "inline-flex items-center gap-2 px-4 py-2 rounded-full text-xs font-semibold border border-primary/30 text-primary hover:bg-primary/10 transition-all cursor-pointer",
+                  "shrink-0 inline-flex items-center px-4 py-1.5 rounded-full border border-primary/30 text-primary text-xs font-semibold hover:bg-primary/10 transition-colors cursor-pointer",
                   poppins.className
                 )}
               >
-                <Mail className="w-3.5 h-3.5" />
-                {settings.bannerBtn2Text || "Kirim Pesan"}
+                Buka di Maps
               </a>
             </div>
-          </div>
 
-          {/* Logo Perusahaan (Rasio 1:1, Tanpa Frame / Stroke / BG) dengan Skala Gambar */}
-          <div
-            className="aspect-square shrink-0 flex items-center justify-center transition-all duration-200"
-            style={{
-              width: `min(100%, ${Math.max(120, Math.round(288 * ((settings.bannerLogoScale ?? 100) / 100)))}px)`,
-              height: `min(100%, ${Math.max(120, Math.round(288 * ((settings.bannerLogoScale ?? 100) / 100)))}px)`,
-            }}
-          >
-            <div className="relative w-full h-full">
-              <Image
-                src={settings.bannerLogo || "/logo.png"}
-                alt="Logo CV. Indo Green Nature"
-                fill
-                sizes="(max-width: 640px) 176px, (max-width: 768px) 224px, 288px"
-                className="object-contain"
-                priority
-              />
-            </div>
-          </div>
-        </section>
-
-        {/* Garis Pembatas Putus-putus di Atas Informasi Kontak */}
-        <div className="w-full flex items-center justify-center -my-2 sm:-my-3">
-          <hr
-            className="w-full transition-colors border-dashed border-black/20 dark:border-white/15"
-            style={{ borderTopWidth: "1px", borderBottomWidth: "0px" }}
-          />
-        </div>
-
-        {/* ─── 02. Kontak Langsung Grid ─── */}
-        <section id="kontak-langsung" className="w-full flex flex-col gap-6 scroll-mt-24">
-          <div className="flex flex-col gap-1">
-            <h2 className={cn("text-lg sm:text-xl font-bold text-foreground", poppins.className)}>
-              {settings.kontakSectionTitle || "Informasi Kontak Langsung"}
-            </h2>
-            <p className={cn("text-sm text-foreground/85", poppins.className)}>
-              {settings.kontakSectionSubtitle || "Pilih metode komunikasi yang paling mudah bagi Anda."}
-            </p>
-          </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            {/* WhatsApp Umum */}
-            <a
-              href={waGeneralUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="group flex flex-col gap-1.5 p-5 rounded-[5px] border border-border bg-card hover:border-primary/30 hover:shadow-md transition-all duration-200 cursor-pointer"
-            >
-              <span className={cn("text-xs font-semibold text-muted-foreground uppercase tracking-wider", poppins.className)}>
-                WhatsApp Umum
-              </span>
-              <span className={cn("text-sm sm:text-base font-bold text-primary transition-colors", poppins.className)}>
-                {settings.whatsappDisplay}
-              </span>
-              <span className={cn("text-xs text-foreground/80", poppins.className)}>
-                {settings.whatsappSubtitle || "Pertanyaan & Info Produk"}
-              </span>
-            </a>
-
-            {/* WhatsApp Bisnis */}
-            <a
-              href={waConsultUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              onClick={() => {
-                trackButtonClick({
-                  buttonType: "whatsapp_contact",
-                  itemName: "WhatsApp Bisnis (Kemitraan & Maklon)",
-                  pagePath: "/contact",
-                })
-              }}
-              className="group flex flex-col gap-1.5 p-5 rounded-[5px] border border-border bg-card hover:border-primary/30 hover:shadow-md transition-all duration-200 cursor-pointer"
-            >
-              <span className={cn("text-xs font-semibold text-muted-foreground uppercase tracking-wider", poppins.className)}>
-                WhatsApp Bisnis
-              </span>
-              <span className={cn("text-sm sm:text-base font-bold text-primary transition-colors", poppins.className)}>
-                {settings.whatsappBisnisDisplay}
-              </span>
-              <span className={cn("text-xs text-foreground/80", poppins.className)}>
-                {settings.whatsappBisnisSubtitle || "Kemitraan & Maklon"}
-              </span>
-            </a>
-
-            {/* Email */}
-            <a
-              href={`mailto:${settings.emailBisnis}`}
-              className="group flex flex-col gap-1.5 p-5 rounded-[5px] border border-border bg-card hover:border-primary/30 hover:shadow-md transition-all duration-200 cursor-pointer"
-            >
-              <span className={cn("text-xs font-semibold text-muted-foreground uppercase tracking-wider", poppins.className)}>
-                Email Bisnis
-              </span>
-              <span className={cn("text-sm sm:text-base font-bold text-primary transition-colors break-all", poppins.className)}>
-                {settings.emailBisnis}
-              </span>
-              <span className={cn("text-xs text-foreground/80", poppins.className)}>
-                {settings.emailSubtitle || "Proposal & Dokumen Resmi"}
-              </span>
-            </a>
-
-            {/* Lokasi */}
-            <a
-              href={settings.mapsUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="group flex flex-col gap-1.5 p-5 rounded-[5px] border border-border bg-card hover:border-primary/30 hover:shadow-md transition-all duration-200 cursor-pointer"
-            >
-              <span className={cn("text-xs font-semibold text-muted-foreground uppercase tracking-wider", poppins.className)}>
-                Lokasi Pabrik
-              </span>
-              <span className={cn("text-sm sm:text-base font-bold text-primary transition-colors leading-snug", poppins.className)}>
-                {settings.lokasiKota}
-              </span>
-              <span className={cn("text-xs text-foreground/80", poppins.className)}>
-                {settings.lokasiProvinsi}
-              </span>
-            </a>
-          </div>
-
-          {/* Alamat Pabrik Full Width */}
-          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 p-4 rounded-[5px] border border-border bg-card">
-            <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-3 flex-1">
+            {/* Jam Operasional */}
+            <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 p-4 rounded-[5px] bg-primary/5 border border-primary/15">
               <span className={cn("text-sm font-semibold text-primary shrink-0", poppins.className)}>
-                Alamat Pabrik
+                Jam Operasional
               </span>
-              <span className="hidden sm:inline text-muted-foreground/40">|</span>
-              <span className={cn("text-sm text-foreground/80 leading-relaxed", poppins.className)}>
-                {settings.alamatPabrik}
-              </span>
-            </div>
-            <a
-              href={settings.mapsUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className={cn(
-                "shrink-0 inline-flex items-center px-4 py-1.5 rounded-full border border-primary/30 text-primary text-xs font-semibold hover:bg-primary/10 transition-colors cursor-pointer",
-                poppins.className
-              )}
-            >
-              Buka di Maps
-            </a>
-          </div>
-
-          {/* Jam Operasional */}
-          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 p-4 rounded-[5px] bg-primary/5 border border-primary/15">
-            <span className={cn("text-sm font-semibold text-primary shrink-0", poppins.className)}>
-              Jam Operasional
-            </span>
-            <div className={cn("text-sm text-foreground/80 flex flex-wrap gap-x-4 gap-y-1", poppins.className)}>
-              <span>{settings.jamOperasional}</span>
-              <span className="text-muted-foreground hidden sm:inline">|</span>
-              <span>{settings.jamSabtu}</span>
-            </div>
-          </div>
-        </section>
-
-        {/* Garis Pembatas Putus-putus di Atas Kirim Pesan Kami */}
-        <div className="w-full flex items-center justify-center -my-2 sm:-my-3">
-          <hr
-            className="w-full transition-colors border-dashed border-black/20 dark:border-white/15"
-            style={{ borderTopWidth: "1px", borderBottomWidth: "0px" }}
-          />
-        </div>
-
-        {/* ─── 03 & 04. Form & Maps ─── */}
-        <section id="form-email" className="w-full grid grid-cols-1 lg:grid-cols-2 gap-8 scroll-mt-24">
-          {/* Formulir Kontak */}
-          <div className="flex flex-col gap-5">
-            <div className="flex flex-col gap-1">
-              <h2 className={cn("text-lg sm:text-xl font-bold text-foreground", poppins.className)}>
-                {settings.formTitle || "Kirim Pesan ke Kami"}
-              </h2>
-              <p className={cn("text-sm text-foreground/85", poppins.className)}>
-                {settings.formSubtitle || "Isi formulir di bawah dan tim kami akan segera menghubungi Anda."}
-              </p>
-            </div>
-            <div className="p-5 sm:p-6 rounded-[5px] border border-border bg-card">
-              <ContactForm
-                receiverEmail={settings.formReceiverEmail}
-                footnote={settings.formFootnote}
-              />
-            </div>
-          </div>
-
-          {/* Alamat & Maps */}
-          <div id="lokasi-maps" className="flex flex-col gap-5 scroll-mt-24">
-            <div className="flex flex-col gap-1">
-              <h2 className={cn("text-lg sm:text-xl font-bold text-foreground", poppins.className)}>
-                {settings.mapsTitle || "Alamat & Lokasi"}
-              </h2>
-              <p className={cn("text-sm text-foreground/85", poppins.className)}>
-                {settings.mapsSubtitle || "Kunjungi fasilitas produksi kami langsung di Wates, Kulon Progo."}
-              </p>
-            </div>
-
-            {/* Maps Embed */}
-            <div className="relative rounded-[5px] overflow-hidden border border-border shadow-sm w-full h-[360px] sm:h-[420px] lg:h-full lg:min-h-[460px] group">
-              <iframe
-                title="Lokasi CV. Indo Green Nature"
-                src={settings.mapsEmbedUrl}
-                width="100%"
-                height="100%"
-                style={{ border: 0 }}
-                allowFullScreen
-                loading="lazy"
-                referrerPolicy="no-referrer-when-downgrade"
-              />
-              <div className="absolute bottom-3 right-3 z-10">
-                <a
-                  href={settings.mapsUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className={cn(
-                    "inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-background/95 hover:bg-background text-foreground text-xs font-semibold shadow-md border border-border/80 hover:text-primary transition-all",
-                    poppins.className
-                  )}
-                >
-                  <MapPin className="w-3.5 h-3.5 text-primary" />
-                  Buka Google Maps
-                  <ExternalLink className="w-3 h-3 text-muted-foreground" />
-                </a>
+              <div className={cn("text-sm text-foreground/80 flex flex-wrap gap-x-4 gap-y-1", poppins.className)}>
+                <span>{settings.jamOperasional}</span>
+                <span className="text-muted-foreground hidden sm:inline">|</span>
+                <span>{settings.jamSabtu}</span>
               </div>
             </div>
-          </div>
-        </section>
+          </section>
 
-        {/* Garis Pembatas Putus-putus di Atas Layanan Kemitraan */}
-        <div className="w-full flex items-center justify-center -my-2 sm:-my-3">
-          <hr
-            className="w-full transition-colors border-dashed border-black/20 dark:border-white/15"
-            style={{ borderTopWidth: "1px", borderBottomWidth: "0px" }}
-          />
-        </div>
-
-        {/* ─── 05. Layanan Kemitraan & Maklon CTA ─── */}
-        <section id="layanan-kemitraan" className="w-full flex flex-col gap-6 scroll-mt-24">
-          <div className="flex flex-col gap-1">
-            <h2 className={cn("text-lg sm:text-xl font-bold text-foreground", poppins.className)}>
-              {settings.layananSectionTitle || "Layanan Kemitraan & Maklon"}
-            </h2>
-            <p className={cn("text-sm text-foreground/85", poppins.className)}>
-              {settings.layananSectionSubtitle || "Kami menyediakan solusi terpadu untuk kebutuhan kemitraan bisnis dan produksi maklon herbal Anda."}
-            </p>
+          {/* Garis Pembatas Putus-putus di Atas Kirim Pesan Kami */}
+          <div className="w-full flex items-center justify-center -my-2 sm:-my-3">
+            <hr
+              className="w-full transition-colors border-dashed border-black/20 dark:border-white/15"
+              style={{ borderTopWidth: "1px", borderBottomWidth: "0px" }}
+            />
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            {settings.serviceCards.map((card, idx) => {
-              const waTargetUrl = `https://wa.me/${settings.whatsappBisnisNumber}?text=${encodeURIComponent(card.waText || "Halo, saya tertarik dengan layanan CV. Indo Green Nature.")}`
+          {/* ─── 03 & 04. Form & Maps ─── */}
+          <section id="form-email" className="w-full grid grid-cols-1 lg:grid-cols-2 gap-8 scroll-mt-24">
+            {/* Formulir Kontak */}
+            <div className="flex flex-col gap-5">
+              <div className="flex flex-col gap-1">
+                <h2 className={cn("text-lg sm:text-xl font-bold text-foreground", poppins.className)}>
+                  {settings.formTitle || "Kirim Pesan ke Kami"}
+                </h2>
+                <p className={cn("text-sm text-foreground/85", poppins.className)}>
+                  {settings.formSubtitle || "Isi formulir di bawah dan tim kami akan segera menghubungi Anda."}
+                </p>
+              </div>
+              <div className="p-5 sm:p-6 rounded-[5px] border border-border bg-card">
+                <ContactForm
+                  receiverEmail={settings.formReceiverEmail}
+                  footnote={settings.formFootnote}
+                />
+              </div>
+            </div>
 
-              return (
-                <div
-                  key={card.id || idx}
-                  className="group flex flex-col gap-4 p-6 rounded-[5px] border border-border bg-card hover:border-primary/30 hover:shadow-md transition-all duration-200"
-                >
-                  {card.iconType === "handshake" ? (
-                    <Handshake className="w-7 h-7 text-primary group-hover:scale-105 transition-transform" />
-                  ) : card.iconType === "package" ? (
-                    <Package className="w-7 h-7 text-primary group-hover:scale-105 transition-transform" />
-                  ) : (
-                    <Leaf className="w-7 h-7 text-primary group-hover:scale-105 transition-transform" />
-                  )}
+            {/* Alamat & Maps */}
+            <div id="lokasi-maps" className="flex flex-col gap-5 scroll-mt-24">
+              <div className="flex flex-col gap-1">
+                <h2 className={cn("text-lg sm:text-xl font-bold text-foreground", poppins.className)}>
+                  {settings.mapsTitle || "Alamat & Lokasi"}
+                </h2>
+                <p className={cn("text-sm text-foreground/85", poppins.className)}>
+                  {settings.mapsSubtitle || "Kunjungi fasilitas produksi kami langsung di Wates, Kulon Progo."}
+                </p>
+              </div>
 
-                  <div className="flex flex-col gap-2">
-                    <h3 className={cn("font-bold text-base text-foreground", poppins.className)}>
-                      {card.title}
-                    </h3>
-                    <p className={cn("text-sm text-foreground/85 leading-relaxed", poppins.className)}>
-                      {card.desc}
-                    </p>
-                    <ul className={cn("flex flex-col gap-1.5 mt-1", poppins.className)}>
-                      {card.points.map((point) => (
-                        <li key={point} className="flex items-center gap-2 text-xs text-foreground/80">
-                          <CheckCircle2 className="w-3.5 h-3.5 text-primary shrink-0" />
-                          {point}
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-
+              {/* Maps Embed */}
+              <div className="relative rounded-[5px] overflow-hidden border border-border shadow-sm w-full h-[360px] sm:h-[420px] lg:h-full lg:min-h-[460px] group">
+                <iframe
+                  title="Lokasi CV. Indo Green Nature"
+                  src={settings.mapsEmbedUrl}
+                  width="100%"
+                  height="100%"
+                  style={{ border: 0 }}
+                  allowFullScreen
+                  loading="lazy"
+                  referrerPolicy="no-referrer-when-downgrade"
+                />
+                <div className="absolute bottom-3 right-3 z-10">
                   <a
-                    href={waTargetUrl}
+                    href={settings.mapsUrl}
                     target="_blank"
                     rel="noopener noreferrer"
-                    onClick={() => {
-                      trackButtonClick({
-                        buttonType: "whatsapp_contact",
-                        itemName: `Layanan: ${card.title || card.btnText || "Konsultasi"}`,
-                        pagePath: "/contact",
-                      })
-                    }}
                     className={cn(
-                      "mt-auto flex items-center justify-center gap-2 px-5 py-2.5 rounded-full bg-primary text-primary-foreground text-sm font-semibold hover:bg-primary/90 transition-colors active:scale-95 cursor-pointer",
+                      "inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-background/95 hover:bg-background text-foreground text-xs font-semibold shadow-md border border-border/80 hover:text-primary transition-all",
                       poppins.className
                     )}
                   >
-                    <WhatsAppIcon className="w-4 h-4 fill-current shrink-0" />
-                    <span>{card.btnText || "Konsultasi"}</span>
+                    <MapPin className="w-3.5 h-3.5 text-primary" />
+                    Buka Google Maps
+                    <ExternalLink className="w-3 h-3 text-muted-foreground" />
                   </a>
                 </div>
-              )
-            })}
-          </div>
-        </section>
-
-        {/* Garis Pembatas Putus-putus di Atas Pertanyaan yang Sering Diajukan (FAQ) */}
-        <div className="w-full flex items-center justify-center -my-2 sm:-my-3">
-          <hr
-            className="w-full transition-colors border-dashed border-black/20 dark:border-white/15"
-            style={{ borderTopWidth: "1px", borderBottomWidth: "0px" }}
-          />
-        </div>
-
-        {/* ─── 06. FAQ ─── */}
-        <section id="faq-section" className="w-full flex flex-col items-center gap-8 sm:gap-10 scroll-mt-24">
-          {/* Header FAQ Center */}
-          <div className="w-full flex flex-col items-center text-center max-w-3xl mx-auto px-2 sm:px-4">
-            <h2 className={cn("w-full text-center tracking-tight leading-tight text-xl sm:text-2xl md:text-3xl font-bold text-foreground", poppins.className)}>
-              {settings.faqTitle || "Pertanyaan yang Sering Diajukan"}
-            </h2>
-            <p className={cn("mt-2.5 sm:mt-3 max-w-[720px] w-full leading-relaxed text-foreground/85 text-xs sm:text-sm md:text-base text-center", poppins.className)}>
-              {settings.faqSubtitle || "Temukan jawaban cepat untuk pertanyaan umum seputar layanan kami."}
-            </p>
-          </div>
-
-          {/* Daftar Accordion FAQ - Lebar penuh (full) & Center */}
-          <div className="w-full max-w-[1100px] mx-auto flex flex-col gap-3 sm:gap-4 px-0">
-            {settings.faqItems.map((item, idx) => {
-              const isOpen = openFaqId === item.id
-              return (
-                <FaqItem
-                  key={item.id || idx}
-                  item={item}
-                  isOpen={isOpen}
-                  onToggle={() => setOpenFaqId(isOpen ? null : item.id)}
-                />
-              )
-            })}
-          </div>
-
-          {/* Box Bantuan Tanya Langsung - Center */}
-          <div className="w-full max-w-[1100px] mx-auto flex flex-col sm:flex-row items-center justify-between gap-4 p-5 sm:p-6 rounded-[5px] bg-primary/5 border border-primary/15 text-center sm:text-left">
-            <div className="flex flex-col gap-0.5 flex-1 text-center sm:text-left">
-              <span className={cn("text-sm sm:text-base font-semibold text-foreground", poppins.className)}>
-                {settings.faqCtaTitle || "Tidak menemukan jawaban yang Anda cari?"}
-              </span>
-              <span className={cn("text-xs sm:text-sm text-foreground/80", poppins.className)}>
-                {settings.faqCtaSubtitle || "Tim kami siap menjawab pertanyaan Anda secara langsung."}
-              </span>
+              </div>
             </div>
-            <a
-              href={`https://wa.me/${settings.whatsappBisnisNumber}?text=${encodeURIComponent(settings.faqCtaWaText || "Halo CV. Indo Green Nature, saya memiliki pertanyaan seputar produk & kemitraan.")}`}
-              target="_blank"
-              rel="noopener noreferrer"
-              onClick={() => {
-                trackButtonClick({
-                  buttonType: "whatsapp_contact",
-                  itemName: "FAQ Tanya Langsung",
-                  pagePath: "/contact",
-                })
-              }}
-              className={cn(
-                "shrink-0 inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-primary text-primary-foreground text-sm font-semibold hover:bg-primary/90 transition-colors active:scale-95 cursor-pointer shadow-xs",
-                poppins.className
-              )}
-            >
-              <WhatsAppIcon className="w-4 h-4 fill-current shrink-0" />
-              <span>{settings.faqCtaBtnText || "Tanya Langsung"}</span>
-            </a>
+          </section>
+
+          {/* Garis Pembatas Putus-putus di Atas Layanan Kemitraan */}
+          <div className="w-full flex items-center justify-center -my-2 sm:-my-3">
+            <hr
+              className="w-full transition-colors border-dashed border-black/20 dark:border-white/15"
+              style={{ borderTopWidth: "1px", borderBottomWidth: "0px" }}
+            />
           </div>
-        </section>
 
-      </main>
+          {/* ─── 05. Layanan Kemitraan & Maklon CTA ─── */}
+          <section id="layanan-kemitraan" className="w-full flex flex-col gap-6 scroll-mt-24">
+            <div className="flex flex-col gap-1">
+              <h2 className={cn("text-lg sm:text-xl font-bold text-foreground", poppins.className)}>
+                {settings.layananSectionTitle || "Layanan Kemitraan & Maklon"}
+              </h2>
+              <p className={cn("text-sm text-foreground/85", poppins.className)}>
+                {settings.layananSectionSubtitle || "Kami menyediakan solusi terpadu untuk kebutuhan kemitraan bisnis dan produksi maklon herbal Anda."}
+              </p>
+            </div>
 
-      {/* ─── Popup Modal Pengaturan Contact (Model Clone About Us) ─── */}
-      <ContactSettingsSidebar
-        isOpen={isSettingsOpen}
-        onClose={() => setIsSettingsOpen(false)}
-        data={settings}
-        onChange={setSettings}
-        onSave={handleSaveSettings}
-        onReset={handleResetSettings}
-        isSaving={isSaving}
-      />
-    </div>
-  </>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              {settings.serviceCards.map((card, idx) => {
+                const waTargetUrl = `https://wa.me/${settings.whatsappBisnisNumber}?text=${encodeURIComponent(card.waText || "Halo, saya tertarik dengan layanan CV. Indo Green Nature.")}`
+
+                return (
+                  <div
+                    key={card.id || idx}
+                    className="group flex flex-col gap-4 p-6 rounded-[5px] border border-border bg-card hover:border-primary/30 hover:shadow-md transition-all duration-200"
+                  >
+                    {card.iconType === "handshake" ? (
+                      <Handshake className="w-7 h-7 text-primary group-hover:scale-105 transition-transform" />
+                    ) : card.iconType === "package" ? (
+                      <Package className="w-7 h-7 text-primary group-hover:scale-105 transition-transform" />
+                    ) : (
+                      <Leaf className="w-7 h-7 text-primary group-hover:scale-105 transition-transform" />
+                    )}
+
+                    <div className="flex flex-col gap-2">
+                      <h3 className={cn("font-bold text-base text-foreground", poppins.className)}>
+                        {card.title}
+                      </h3>
+                      <p className={cn("text-sm text-foreground/85 leading-relaxed", poppins.className)}>
+                        {card.desc}
+                      </p>
+                      <ul className={cn("flex flex-col gap-1.5 mt-1", poppins.className)}>
+                        {card.points.map((point) => (
+                          <li key={point} className="flex items-center gap-2 text-xs text-foreground/80">
+                            <CheckCircle2 className="w-3.5 h-3.5 text-primary shrink-0" />
+                            {point}
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+
+                    <a
+                      href={waTargetUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      onClick={() => {
+                        trackButtonClick({
+                          buttonType: "whatsapp_contact",
+                          itemName: `Layanan: ${card.title || card.btnText || "Konsultasi"}`,
+                          pagePath: "/contact",
+                        })
+                      }}
+                      className={cn(
+                        "mt-auto flex items-center justify-center gap-2 px-5 py-2.5 rounded-full bg-primary text-primary-foreground text-sm font-semibold hover:bg-primary/90 transition-colors active:scale-95 cursor-pointer",
+                        poppins.className
+                      )}
+                    >
+                      <WhatsAppIcon className="w-4 h-4 fill-current shrink-0" />
+                      <span>{card.btnText || "Konsultasi"}</span>
+                    </a>
+                  </div>
+                )
+              })}
+            </div>
+          </section>
+
+          {/* Garis Pembatas Putus-putus di Atas Pertanyaan yang Sering Diajukan (FAQ) */}
+          <div className="w-full flex items-center justify-center -my-2 sm:-my-3">
+            <hr
+              className="w-full transition-colors border-dashed border-black/20 dark:border-white/15"
+              style={{ borderTopWidth: "1px", borderBottomWidth: "0px" }}
+            />
+          </div>
+
+          {/* ─── 06. FAQ ─── */}
+          <section id="faq-section" className="w-full flex flex-col items-center gap-8 sm:gap-10 scroll-mt-24">
+            {/* Header FAQ Center */}
+            <div className="w-full flex flex-col items-center text-center max-w-3xl mx-auto px-2 sm:px-4">
+              <h2 className={cn("w-full text-center tracking-tight leading-tight text-xl sm:text-2xl md:text-3xl font-bold text-foreground", poppins.className)}>
+                {settings.faqTitle || "Pertanyaan yang Sering Diajukan"}
+              </h2>
+              <p className={cn("mt-2.5 sm:mt-3 max-w-[720px] w-full leading-relaxed text-foreground/85 text-xs sm:text-sm md:text-base text-center", poppins.className)}>
+                {settings.faqSubtitle || "Temukan jawaban cepat untuk pertanyaan umum seputar layanan kami."}
+              </p>
+            </div>
+
+            {/* Daftar Accordion FAQ - Lebar penuh (full) & Center */}
+            <div className="w-full max-w-[1100px] mx-auto flex flex-col gap-3 sm:gap-4 px-0">
+              {settings.faqItems.map((item, idx) => {
+                const isOpen = openFaqId === item.id
+                return (
+                  <FaqItem
+                    key={item.id || idx}
+                    item={item}
+                    isOpen={isOpen}
+                    onToggle={() => setOpenFaqId(isOpen ? null : item.id)}
+                  />
+                )
+              })}
+            </div>
+
+            {/* Box Bantuan Tanya Langsung - Center */}
+            <div className="w-full max-w-[1100px] mx-auto flex flex-col sm:flex-row items-center justify-between gap-4 p-5 sm:p-6 rounded-[5px] bg-primary/5 border border-primary/15 text-center sm:text-left">
+              <div className="flex flex-col gap-0.5 flex-1 text-center sm:text-left">
+                <span className={cn("text-sm sm:text-base font-semibold text-foreground", poppins.className)}>
+                  {settings.faqCtaTitle || "Tidak menemukan jawaban yang Anda cari?"}
+                </span>
+                <span className={cn("text-xs sm:text-sm text-foreground/80", poppins.className)}>
+                  {settings.faqCtaSubtitle || "Tim kami siap menjawab pertanyaan Anda secara langsung."}
+                </span>
+              </div>
+              <a
+                href={`https://wa.me/${settings.whatsappBisnisNumber}?text=${encodeURIComponent(settings.faqCtaWaText || "Halo CV. Indo Green Nature, saya memiliki pertanyaan seputar produk & kemitraan.")}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                onClick={() => {
+                  trackButtonClick({
+                    buttonType: "whatsapp_contact",
+                    itemName: "FAQ Tanya Langsung",
+                    pagePath: "/contact",
+                  })
+                }}
+                className={cn(
+                  "shrink-0 inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-primary text-primary-foreground text-sm font-semibold hover:bg-primary/90 transition-colors active:scale-95 cursor-pointer shadow-xs",
+                  poppins.className
+                )}
+              >
+                <WhatsAppIcon className="w-4 h-4 fill-current shrink-0" />
+                <span>{settings.faqCtaBtnText || "Tanya Langsung"}</span>
+              </a>
+            </div>
+          </section>
+
+        </main>
+
+        {/* ─── Popup Modal Pengaturan Contact (Model Clone About Us) ─── */}
+        <ContactSettingsSidebar
+          isOpen={isSettingsOpen}
+          onClose={() => setIsSettingsOpen(false)}
+          data={settings}
+          onChange={setSettings}
+          onSave={handleSaveSettings}
+          onReset={handleResetSettings}
+          isSaving={isSaving}
+        />
+      </div>
+    </>
   )
 }

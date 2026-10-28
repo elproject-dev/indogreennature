@@ -1,8 +1,23 @@
 import { MetadataRoute } from "next"
 import { fetchInsights } from "@/lib/insight/db"
+import { fetchSeoConfig } from "@/lib/seo-settings"
+
+// Memastikan sitemap selalu dievaluasi secara dinamis dan real-time dari Supabase
+export const dynamic = "force-dynamic"
+export const revalidate = 0
+
+function escapeXml(str: string): string {
+  return str.replace(/&/g, "&amp;")
+}
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://www.indogreennature.com"
+  let baseUrl = "https://www.indogreennature.com"
+  try {
+    const seo = await fetchSeoConfig()
+    baseUrl = (process.env.NEXT_PUBLIC_SITE_URL || seo?.canonicalUrl || baseUrl).replace(/\/+$/, "")
+  } catch {
+    baseUrl = (process.env.NEXT_PUBLIC_SITE_URL || baseUrl).replace(/\/+$/, "")
+  }
 
   // 1. Static Pages
   const staticRoutes: MetadataRoute.Sitemap = [
@@ -44,16 +59,22 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     },
   ]
 
-  // 2. Dynamic Insight Articles from Supabase
+  // 2. Dynamic Insight Articles from Supabase (Selalu update saat artikel dibuat, diedit, atau dihapus)
   let articleRoutes: MetadataRoute.Sitemap = []
   try {
     const articles = await fetchInsights({ onlyActive: true })
-    articleRoutes = articles.map((art) => ({
-      url: `${baseUrl}/insight/${art.slug}`,
-      lastModified: art.updated_at ? new Date(art.updated_at) : new Date(art.created_at || Date.now()),
-      changeFrequency: "weekly",
-      priority: 0.7,
-    }))
+    articleRoutes = articles
+      .filter((art) => art.slug)
+      .map((art) => {
+        const coverImg = art.cover_image || art.src
+        return {
+          url: `${baseUrl}/insight/${art.slug}`,
+          lastModified: art.updated_at ? new Date(art.updated_at) : new Date(art.created_at || Date.now()),
+          changeFrequency: "weekly" as const,
+          priority: 0.7,
+          images: coverImg ? [escapeXml(coverImg)] : undefined,
+        }
+      })
   } catch (err) {
     console.warn("Gagal membuat sitemap artikel dinamis:", err)
   }

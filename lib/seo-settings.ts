@@ -11,6 +11,19 @@ export interface SeoConfig {
   robotsIndex: boolean
   author: string
   companyName: string
+  // Organization Schema & Contact Data
+  streetAddress?: string
+  addressLocality?: string
+  addressRegion?: string
+  postalCode?: string
+  addressCountry?: string
+  telephone?: string
+  email?: string
+  instagramUrl?: string
+  facebookUrl?: string
+  tiktokUrl?: string
+  youtubeUrl?: string
+  linkedinUrl?: string
 }
 
 export const SEO_CONFIG_KEY = "seo_config"
@@ -26,6 +39,19 @@ export const DEFAULT_SEO_CONFIG: SeoConfig = {
   robotsIndex: true,
   author: "CV. Indo Green Nature",
   companyName: "CV. Indo Green Nature",
+  // Organization Schema defaults
+  streetAddress: "Jl. Wahid Hasyim No. 123",
+  addressLocality: "Wates",
+  addressRegion: "Daerah Istimewa Yogyakarta",
+  postalCode: "55651",
+  addressCountry: "ID",
+  telephone: "+6285877669199",
+  email: "admin@indogreennature.com",
+  instagramUrl: "https://instagram.com/indogreennature",
+  facebookUrl: "https://facebook.com/indogreennature",
+  tiktokUrl: "https://tiktok.com/@indogreennature",
+  youtubeUrl: "",
+  linkedinUrl: "",
 }
 
 export function getInitialSeoConfig(): SeoConfig {

@@ -39,6 +39,8 @@ import {
   saveLegalitySettings,
   resetLegalitySettings,
 } from "@/lib/legality-settings"
+import { supabase } from "@/lib/supabase"
+import { isUserAdmin } from "@/lib/auth-admin"
 
 /** Render teks dengan dukungan **tebal** */
 function renderRich(text: string): React.ReactNode {
@@ -154,11 +156,22 @@ export default function LegalityPage() {
 
   // Buka modal dari AdminFAB atau query ?edit=true
   useEffect(() => {
-    const handleOpen = () => setIsSettingsOpen(true)
+    const handleOpen = async () => {
+      const { data: { session } } = await supabase.auth.getSession()
+      if (!session?.user || !isUserAdmin(session.user.email)) return
+      setIsSettingsOpen(true)
+    }
     window.addEventListener("open-legality-settings", handleOpen)
     const params = new URLSearchParams(window.location.search)
     if (params.get("preview") !== "true" && params.get("edit") === "true") {
-      setIsSettingsOpen(true)
+      supabase.auth.getSession().then(({ data: { session } }) => {
+        if (session?.user && isUserAdmin(session.user.email)) {
+          setIsSettingsOpen(true)
+        } else {
+          setIsSettingsOpen(false)
+          window.history.replaceState({}, "", window.location.pathname)
+        }
+      })
     }
     return () => window.removeEventListener("open-legality-settings", handleOpen)
   }, [])

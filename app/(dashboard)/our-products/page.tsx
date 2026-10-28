@@ -45,6 +45,8 @@ import {
 } from "@/lib/our-products-settings"
 import { renderFormattedText } from "@/lib/home-blocks"
 import { trackButtonClick } from "@/lib/track-click"
+import { supabase } from "@/lib/supabase"
+import { isUserAdmin } from "@/lib/auth-admin"
 
 export default function OurProductsPage() {
   const [isClientMounted, setIsClientMounted] = useState(false)
@@ -79,8 +81,21 @@ export default function OurProductsPage() {
     const hasPrev = params.get("preview") === "true"
 
     if (hasEdit) {
-      setIsSettingsOpen(true)
-      setIsPreview(false)
+      supabase.auth.getSession().then(({ data: { session } }) => {
+        if (session?.user && isUserAdmin(session.user.email)) {
+          if (isMounted) {
+            setIsSettingsOpen(true)
+            setIsPreview(false)
+          }
+        } else {
+          if (isMounted) {
+            setIsSettingsOpen(false)
+            if (typeof window !== "undefined") {
+              window.history.replaceState({}, "", window.location.pathname)
+            }
+          }
+        }
+      })
     } else if (hasPrev) {
       setIsPreview(true)
       setIsSettingsOpen(false)
@@ -142,7 +157,11 @@ export default function OurProductsPage() {
 
   // Event listener untuk membuka sidebar modal dari AdminFAB atau URL query
   useEffect(() => {
-    const handleOpenSettings = () => {
+    const handleOpenSettings = async () => {
+      const { data: { session } } = await supabase.auth.getSession()
+      if (!session?.user || !isUserAdmin(session.user.email)) {
+        return
+      }
       try {
         const draft =
           localStorage.getItem(OUR_PRODUCTS_DRAFT_KEY) ||
@@ -165,16 +184,25 @@ export default function OurProductsPage() {
       const hasPrev = params.get("preview") === "true"
 
       if (hasEdit) {
-        try {
-          const draft =
-            localStorage.getItem(OUR_PRODUCTS_DRAFT_KEY) ||
-            localStorage.getItem(OUR_PRODUCTS_SETTINGS_KEY)
-          if (draft) {
-            setSettings(sanitizeOurProductsSettings(JSON.parse(draft)))
+        supabase.auth.getSession().then(({ data: { session } }) => {
+          if (session?.user && isUserAdmin(session.user.email)) {
+            try {
+              const draft =
+                localStorage.getItem(OUR_PRODUCTS_DRAFT_KEY) ||
+                localStorage.getItem(OUR_PRODUCTS_SETTINGS_KEY)
+              if (draft) {
+                setSettings(sanitizeOurProductsSettings(JSON.parse(draft)))
+              }
+            } catch {}
+            setIsSettingsOpen(true)
+            setIsPreview(false)
+          } else {
+            setIsSettingsOpen(false)
+            if (typeof window !== "undefined") {
+              window.history.replaceState({}, "", window.location.pathname)
+            }
           }
-        } catch {}
-        setIsSettingsOpen(true)
-        setIsPreview(false)
+        })
       } else if (hasPrev) {
         setIsPreview(true)
         setIsSettingsOpen(false)

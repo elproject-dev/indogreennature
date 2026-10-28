@@ -43,6 +43,8 @@ import {
 } from "@/lib/insight-settings"
 import { getHeroFontClass, preloadHeroFont } from "@/lib/fonts"
 import { cn } from "@/lib/utils"
+import { supabase } from "@/lib/supabase"
+import { isUserAdmin } from "@/lib/auth-admin"
 
 function getArticleSnippet(article?: InsightArticle | null): string {
   if (!article) return ""
@@ -169,7 +171,9 @@ export default function InsightIndexPage() {
 
   // Listener Floating Button Admin & URL Query (?edit=true / ?settings=insight)
   React.useEffect(() => {
-    const handleOpenSettings = () => {
+    const handleOpenSettings = async () => {
+      const { data: { session } } = await supabase.auth.getSession()
+      if (!session?.user || !isUserAdmin(session.user.email)) return
       setIsSettingsOpen(true)
     }
 
@@ -179,7 +183,14 @@ export default function InsightIndexPage() {
       const params = new URLSearchParams(window.location.search)
       const isPrev = params.get("preview") === "true"
       if (!isPrev && (params.get("edit") === "true" || params.get("settings") === "insight")) {
-        setIsSettingsOpen(true)
+        supabase.auth.getSession().then(({ data: { session } }) => {
+          if (session?.user && isUserAdmin(session.user.email)) {
+            setIsSettingsOpen(true)
+          } else {
+            setIsSettingsOpen(false)
+            window.history.replaceState({}, "", window.location.pathname)
+          }
+        })
       }
     }
 

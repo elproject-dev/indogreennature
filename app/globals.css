@@ -319,3 +319,42 @@ body {
 .slide-down-track:hover {
   animation-play-state: paused;
 }
+
+/* ============================================================
+   GOOGLE TRANSLATE AUTO-TRANSLATION CLEANUP
+   ============================================================ */
+body > .skiptranslate,
+.goog-te-banner-frame.skiptranslate,
+iframe.goog-te-banner-frame,
+#goog-gt-tt,
+#goog-gt-vt,
+.goog-te-balloon-frame,
+.goog-tooltip,
+.goog-tooltip:hover,
+.goog-text-highlight,
+.VIpgJd-yAWneB-L7tpub,
+.VIpgJd-ZVi9od-aZ2wEe-wOHMyf,
+.VIpgJd-ZVi9od-ORHb-OEVmcd,
+.VIpgJd-ZVi9od-vLmrdf,
+[class*="VIpgJd"],
+[id*="goog-gt"] {
+  display: none !important;
+  visibility: hidden !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+}
+
+body {
+  top: 0px !important;
+  position: static !important;
+}
+
+#google_translate_element {
+  display: none !important;
+}
+
+font {
+  background-color: transparent !important;
+  box-shadow: none !important;
+  border: none !important;
+}

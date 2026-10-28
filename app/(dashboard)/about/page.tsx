@@ -51,6 +51,8 @@ import {
   resetAboutSettings,
 } from "@/lib/about-settings"
 import { toast } from "@/components/ui/toast"
+import { supabase } from "@/lib/supabase"
+import { isUserAdmin } from "@/lib/auth-admin"
 
 const timelineMilestones = [
   {
@@ -391,7 +393,9 @@ export default function AboutUsPage() {
 
   // Listener untuk membuka sidebar dari Floating Button Settings (AdminFAB)
   React.useEffect(() => {
-    const handleOpenFromFab = () => {
+    const handleOpenFromFab = async () => {
+      const { data: { session } } = await supabase.auth.getSession()
+      if (!session?.user || !isUserAdmin(session.user.email)) return
       setIsSettingsOpen(true)
     }
 
@@ -401,7 +405,14 @@ export default function AboutUsPage() {
       const params = new URLSearchParams(window.location.search)
       const isPrev = params.get("preview") === "true"
       if (!isPrev && (params.get("edit") === "true" || params.get("settings") === "about")) {
-        setIsSettingsOpen(true)
+        supabase.auth.getSession().then(({ data: { session } }) => {
+          if (session?.user && isUserAdmin(session.user.email)) {
+            setIsSettingsOpen(true)
+          } else {
+            setIsSettingsOpen(false)
+            window.history.replaceState({}, "", window.location.pathname)
+          }
+        })
       }
     }
 

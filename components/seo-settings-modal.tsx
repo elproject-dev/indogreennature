@@ -30,6 +30,14 @@ import {
   Trash2,
   Image as ImageIcon,
   ClipboardCheck,
+  Code,
+  Eye,
+  EyeOff,
+  FileJson,
+  Building2,
+  MapPin,
+  Phone,
+  Mail,
 } from "lucide-react"
 import { toast } from "sonner"
 import { Button } from "@/components/ui/button"
@@ -55,9 +63,11 @@ interface SeoSettingsModalProps {
 export function SeoSettingsModal({ isOpen, onClose }: SeoSettingsModalProps) {
   const [config, setConfig] = useState<SeoConfig>(getInitialSeoConfig)
   const [isSaving, setIsSaving] = useState(false)
-  const [activeTab, setActiveTab] = useState<"meta" | "social" | "google" | "pagespeed" | "preview">("meta")
+  const [activeTab, setActiveTab] = useState<"meta" | "schema" | "preview" | "social" | "google" | "pagespeed">("meta")
   const [previewDevice, setPreviewDevice] = useState<"desktop" | "mobile">("desktop")
   const [isUploadingOg, setIsUploadingOg] = useState(false)
+  const [copiedSchema, setCopiedSchema] = useState(false)
+  const [showSchemaPreview, setShowSchemaPreview] = useState(false)
   const fileInputRef = React.useRef<HTMLInputElement>(null)
 
   useEffect(() => {
@@ -139,6 +149,77 @@ export function SeoSettingsModal({ isOpen, onClose }: SeoSettingsModalProps) {
   const gscInspectUrl = `https://search.google.com/search-console/inspect?resource_id=${encodeURIComponent(targetUrl + "/")}&id=${encodeURIComponent(targetUrl + "/")}`
   const gscSitemapsUrl = `https://search.google.com/search-console/sitemaps?resource_id=${encodeURIComponent(targetUrl + "/")}`
   const richResultsUrl = `https://search.google.com/test/rich-results?url=${encodeURIComponent(targetUrl)}`
+  const richResultsCodeUrl = `https://search.google.com/test/rich-results`
+  const schemaValidatorUrl = `https://validator.schema.org/`
+
+  // Generate current JSON-LD Schema.org structure for testing
+  const siteSchemaJson = JSON.stringify(
+    [
+      {
+        "@context": "https://schema.org",
+        "@type": "WebSite",
+        "@id": `${targetUrl}/#website`,
+        "url": targetUrl,
+        "name": config.companyName || "CV. Indo Green Nature",
+        "description": config.siteDescription,
+        "publisher": {
+          "@id": `${targetUrl}/#organization`,
+        },
+        "inLanguage": "id-ID",
+        "potentialAction": {
+          "@type": "SearchAction",
+          "target": {
+            "@type": "EntryPoint",
+            "urlTemplate": `${targetUrl}/our-products?q={search_term_string}`
+          },
+          "query-input": "required name=search_term_string"
+        }
+      },
+      {
+        "@context": "https://schema.org",
+        "@type": "Organization",
+        "@id": `${targetUrl}/#organization`,
+        "name": config.companyName || "CV. Indo Green Nature",
+        "url": targetUrl,
+        "logo": {
+          "@type": "ImageObject",
+          "url": `${targetUrl}/pwa-icon-512.png`,
+          "width": 512,
+          "height": 512
+        },
+        "image": config.ogImageUrl || `${targetUrl}/pwa-icon-512.png`,
+        "description": config.siteDescription,
+        "address": {
+          "@type": "PostalAddress",
+          "streetAddress": config.streetAddress || "Jl. Wahid Hasyim No. 123",
+          "addressLocality": config.addressLocality || "Wates",
+          "addressRegion": config.addressRegion || "Daerah Istimewa Yogyakarta",
+          "postalCode": config.postalCode || "55651",
+          "addressCountry": config.addressCountry || "ID"
+        },
+        "telephone": config.telephone || "+6285877669199",
+        "email": config.email || "admin@indogreennature.com",
+        "sameAs": [
+          config.instagramUrl || "https://instagram.com/indogreennature",
+          config.facebookUrl || "https://facebook.com/indogreennature",
+          config.tiktokUrl || "https://tiktok.com/@indogreennature",
+          config.youtubeUrl,
+          config.linkedinUrl,
+        ].filter(Boolean) as string[]
+      }
+    ],
+    null,
+    2
+  )
+
+  const handleCopySchema = () => {
+    navigator.clipboard.writeText(siteSchemaJson)
+    setCopiedSchema(true)
+    toast.success("Script JSON-LD berhasil disalin!", {
+      description: "Tempelkan pada tab 'Cuplikan Kode' di Google Rich Results Test atau Schema.org Validator.",
+    })
+    setTimeout(() => setCopiedSchema(false), 2500)
+  }
 
   return (
     <AnimatePresence>
@@ -231,6 +312,20 @@ export function SeoSettingsModal({ isOpen, onClose }: SeoSettingsModalProps) {
               >
                 <Search className="w-3.5 h-3.5" />
                 <span>Meta Tags & Konten</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setActiveTab("schema")}
+                className={cn(
+                  "py-3 px-3.5 text-xs font-medium border-b-2 transition-colors flex items-center gap-1.5 cursor-pointer whitespace-nowrap",
+                  activeTab === "schema"
+                    ? "border-primary text-primary font-semibold"
+                    : "border-transparent text-muted-foreground hover:text-foreground"
+                )}
+              >
+                <Building2 className="w-3.5 h-3.5" />
+                <span>Profil Organisasi & Schema</span>
               </button>
 
               <button
@@ -484,6 +579,319 @@ export function SeoSettingsModal({ isOpen, onClose }: SeoSettingsModalProps) {
                 </div>
               )}
 
+              {/* TAB: PROFIL ORGANISASI & SCHEMA JSON-LD */}
+              {activeTab === "schema" && (
+                <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+                  {/* Kolom Kiri: Form Input Pengaturan Organisasi */}
+                  <div className="lg:col-span-7 xl:col-span-8 space-y-5">
+                    {/* Card 1: Identitas & Kontak */}
+                    <div className="p-5 rounded-[5px] border border-border/80 bg-card space-y-4">
+                      <div className="flex items-center gap-2 pb-2 border-b border-border/60">
+                        <Building2 className="w-4 h-4 text-primary" />
+                        <div>
+                          <h4 className="text-xs font-semibold text-foreground">Identitas & Kontak Resmi Perusahaan</h4>
+                          <p className="text-[11px] text-muted-foreground">
+                            Data ini disuntikkan langsung ke skema <code>Schema.org/Organization</code> untuk Google Knowledge Graph.
+                          </p>
+                        </div>
+                      </div>
+
+                      <div className="space-y-3">
+                        <div className="space-y-1.5">
+                          <Label htmlFor="org-name" className="text-xs font-medium">
+                            Nama Resmi Perusahaan (Badan Usaha)
+                          </Label>
+                          <Input
+                            id="org-name"
+                            value={config.companyName || ""}
+                            onChange={(e) => setConfig((prev) => ({ ...prev, companyName: e.target.value }))}
+                            placeholder="CV. Indo Green Nature"
+                            className="text-xs rounded-[5px] h-9"
+                          />
+                        </div>
+
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                          <div className="space-y-1.5">
+                            <Label htmlFor="org-phone" className="text-xs font-medium flex items-center gap-1.5">
+                              <Phone className="w-3 h-3 text-muted-foreground" />
+                              <span>No. Telepon / WhatsApp Resmi</span>
+                            </Label>
+                            <Input
+                              id="org-phone"
+                              value={config.telephone || ""}
+                              onChange={(e) => setConfig((prev) => ({ ...prev, telephone: e.target.value }))}
+                              placeholder="+6285877669199"
+                              className="text-xs rounded-[5px] h-9 font-mono"
+                            />
+                            <p className="text-[10px] text-muted-foreground">Format internasional diawali kode negara (+62).</p>
+                          </div>
+
+                          <div className="space-y-1.5">
+                            <Label htmlFor="org-email" className="text-xs font-medium flex items-center gap-1.5">
+                              <Mail className="w-3 h-3 text-muted-foreground" />
+                              <span>Email Resmi Perusahaan</span>
+                            </Label>
+                            <Input
+                              id="org-email"
+                              type="email"
+                              value={config.email || ""}
+                              onChange={(e) => setConfig((prev) => ({ ...prev, email: e.target.value }))}
+                              placeholder="admin@indogreennature.com"
+                              className="text-xs rounded-[5px] h-9 font-mono"
+                            />
+                            <p className="text-[10px] text-muted-foreground">Email domain resmi untuk verifikasi entitas bisnis.</p>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Card 2: Alamat Fisik / Lokasi Pabrik (PostalAddress) */}
+                    <div className="p-5 rounded-[5px] border border-border/80 bg-card space-y-4">
+                      <div className="flex items-center gap-2 pb-2 border-b border-border/60">
+                        <MapPin className="w-4 h-4 text-primary" />
+                        <div>
+                          <h4 className="text-xs font-semibold text-foreground">Alamat Pabrik & Kantor (Schema PostalAddress)</h4>
+                          <p className="text-[11px] text-muted-foreground">
+                            Digunakan mesin pencari untuk SEO lokal dan pemetaan Google Maps bisnis.
+                          </p>
+                        </div>
+                      </div>
+
+                      <div className="space-y-3">
+                        <div className="space-y-1.5">
+                          <Label htmlFor="org-street" className="text-xs font-medium">
+                            Alamat Jalan & No. Bangunan
+                          </Label>
+                          <Input
+                            id="org-street"
+                            value={config.streetAddress || ""}
+                            onChange={(e) => setConfig((prev) => ({ ...prev, streetAddress: e.target.value }))}
+                            placeholder="Jl. Wahid Hasyim No. 123"
+                            className="text-xs rounded-[5px] h-9"
+                          />
+                        </div>
+
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                          <div className="space-y-1.5">
+                            <Label htmlFor="org-locality" className="text-xs font-medium">
+                              Kota / Kabupaten
+                            </Label>
+                            <Input
+                              id="org-locality"
+                              value={config.addressLocality || ""}
+                              onChange={(e) => setConfig((prev) => ({ ...prev, addressLocality: e.target.value }))}
+                              placeholder="Wates"
+                              className="text-xs rounded-[5px] h-9"
+                            />
+                          </div>
+
+                          <div className="space-y-1.5">
+                            <Label htmlFor="org-region" className="text-xs font-medium">
+                              Provinsi / Wilayah
+                            </Label>
+                            <Input
+                              id="org-region"
+                              value={config.addressRegion || ""}
+                              onChange={(e) => setConfig((prev) => ({ ...prev, addressRegion: e.target.value }))}
+                              placeholder="Daerah Istimewa Yogyakarta"
+                              className="text-xs rounded-[5px] h-9"
+                            />
+                          </div>
+                        </div>
+
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                          <div className="space-y-1.5">
+                            <Label htmlFor="org-postal" className="text-xs font-medium">
+                              Kode Pos
+                            </Label>
+                            <Input
+                              id="org-postal"
+                              value={config.postalCode || ""}
+                              onChange={(e) => setConfig((prev) => ({ ...prev, postalCode: e.target.value }))}
+                              placeholder="55651"
+                              className="text-xs rounded-[5px] h-9 font-mono"
+                            />
+                          </div>
+
+                          <div className="space-y-1.5">
+                            <Label htmlFor="org-country" className="text-xs font-medium">
+                              Kode Negara (ISO 3166-1 alpha-2)
+                            </Label>
+                            <Input
+                              id="org-country"
+                              value={config.addressCountry || ""}
+                              onChange={(e) => setConfig((prev) => ({ ...prev, addressCountry: e.target.value.toUpperCase() }))}
+                              placeholder="ID"
+                              maxLength={2}
+                              className="text-xs rounded-[5px] h-9 font-mono"
+                            />
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Card 3: Tautan Sosial Media Resmi (sameAs) */}
+                    <div className="p-5 rounded-[5px] border border-border/80 bg-card space-y-4">
+                      <div className="flex items-center gap-2 pb-2 border-b border-border/60">
+                        <Share2 className="w-4 h-4 text-primary" />
+                        <div>
+                          <h4 className="text-xs font-semibold text-foreground">Akun Media Sosial Resmi Perusahaan (Schema sameAs)</h4>
+                          <p className="text-[11px] text-muted-foreground">
+                            Google akan menautkan profil media sosial ini ke panel pengetahuan brand Anda di hasil pencarian.
+                          </p>
+                        </div>
+                      </div>
+
+                      <div className="space-y-3">
+                        <div className="space-y-1.5">
+                          <Label htmlFor="org-ig" className="text-xs font-medium">
+                            Instagram URL
+                          </Label>
+                          <Input
+                            id="org-ig"
+                            value={config.instagramUrl || ""}
+                            onChange={(e) => setConfig((prev) => ({ ...prev, instagramUrl: e.target.value }))}
+                            placeholder="https://instagram.com/indogreennature"
+                            className="text-xs rounded-[5px] h-9 font-mono"
+                          />
+                        </div>
+
+                        <div className="space-y-1.5">
+                          <Label htmlFor="org-fb" className="text-xs font-medium">
+                            Facebook URL
+                          </Label>
+                          <Input
+                            id="org-fb"
+                            value={config.facebookUrl || ""}
+                            onChange={(e) => setConfig((prev) => ({ ...prev, facebookUrl: e.target.value }))}
+                            placeholder="https://facebook.com/indogreennature"
+                            className="text-xs rounded-[5px] h-9 font-mono"
+                          />
+                        </div>
+
+                        <div className="space-y-1.5">
+                          <Label htmlFor="org-tt" className="text-xs font-medium">
+                            TikTok URL
+                          </Label>
+                          <Input
+                            id="org-tt"
+                            value={config.tiktokUrl || ""}
+                            onChange={(e) => setConfig((prev) => ({ ...prev, tiktokUrl: e.target.value }))}
+                            placeholder="https://tiktok.com/@indogreennature"
+                            className="text-xs rounded-[5px] h-9 font-mono"
+                          />
+                        </div>
+
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                          <div className="space-y-1.5">
+                            <Label htmlFor="org-yt" className="text-xs font-medium">
+                              YouTube URL (Opsional)
+                            </Label>
+                            <Input
+                              id="org-yt"
+                              value={config.youtubeUrl || ""}
+                              onChange={(e) => setConfig((prev) => ({ ...prev, youtubeUrl: e.target.value }))}
+                              placeholder="https://youtube.com/@indogreennature"
+                              className="text-xs rounded-[5px] h-9 font-mono"
+                            />
+                          </div>
+
+                          <div className="space-y-1.5">
+                            <Label htmlFor="org-in" className="text-xs font-medium">
+                              LinkedIn URL (Opsional)
+                            </Label>
+                            <Input
+                              id="org-in"
+                              value={config.linkedinUrl || ""}
+                              onChange={(e) => setConfig((prev) => ({ ...prev, linkedinUrl: e.target.value }))}
+                              placeholder="https://linkedin.com/company/indogreennature"
+                              className="text-xs rounded-[5px] h-9 font-mono"
+                            />
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Kolom Kanan: Pratinjau Visual Entitas & JSON-LD Otomatis */}
+                  <div className="lg:col-span-5 xl:col-span-4 space-y-4 lg:sticky lg:top-0">
+                    {/* Visual Entity Card */}
+                    <div className="p-4 rounded-[5px] border border-border/80 bg-card shadow-sm space-y-3">
+                      <div className="flex items-center justify-between pb-2 border-b border-border/60">
+                        <span className="text-xs font-semibold text-foreground flex items-center gap-1.5">
+                          <Building2 className="w-3.5 h-3.5 text-primary" />
+                          <span>Pratinjau Entitas Bisnis Google</span>
+                        </span>
+                        <span className="text-[10px] text-muted-foreground font-mono">Knowledge Graph</span>
+                      </div>
+
+                      <div className="space-y-2 text-xs">
+                        <div className="flex items-start gap-3">
+                          <div className="w-10 h-10 rounded-[5px] bg-primary/10 text-primary flex items-center justify-center shrink-0 font-bold text-sm">
+                            IGN
+                          </div>
+                          <div className="min-w-0">
+                            <h5 className="font-semibold text-foreground text-sm truncate">
+                              {config.companyName || "CV. Indo Green Nature"}
+                            </h5>
+                            <p className="text-[11px] text-muted-foreground">Pabrik & Jasa Maklon Herbal</p>
+                          </div>
+                        </div>
+
+                        <div className="pt-2 border-t border-border/50 space-y-1.5 text-[11px] text-muted-foreground">
+                          <div className="flex items-start gap-2">
+                            <MapPin className="w-3.5 h-3.5 text-muted-foreground shrink-0 mt-0.5" />
+                            <span>
+                              {config.streetAddress || "Jl. Wahid Hasyim No. 123"},{" "}
+                              {config.addressLocality || "Wates"},{" "}
+                              {config.addressRegion || "D.I. Yogyakarta"}{" "}
+                              {config.postalCode || "55651"}
+                            </span>
+                          </div>
+
+                          <div className="flex items-center gap-2">
+                            <Phone className="w-3.5 h-3.5 text-muted-foreground shrink-0" />
+                            <span className="font-mono">{config.telephone || "+6285877669199"}</span>
+                          </div>
+
+                          <div className="flex items-center gap-2">
+                            <Mail className="w-3.5 h-3.5 text-muted-foreground shrink-0" />
+                            <span className="font-mono truncate">{config.email || "admin@indogreennature.com"}</span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* JSON-LD Live Script Box */}
+                    <div className="p-4 rounded-[5px] border border-border/80 bg-muted/40 space-y-3">
+                      <div className="flex items-center justify-between">
+                        <span className="text-xs font-semibold text-foreground flex items-center gap-1.5">
+                          <Code className="w-3.5 h-3.5 text-primary" />
+                          <span>Generated Schema JSON-LD</span>
+                        </span>
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          onClick={handleCopySchema}
+                          className="h-7 text-[10px] gap-1 rounded-[5px]"
+                        >
+                          {copiedSchema ? <ClipboardCheck className="w-3 h-3 text-emerald-600" /> : <Copy className="w-3 h-3" />}
+                          <span>{copiedSchema ? "Tersalin!" : "Salin"}</span>
+                        </Button>
+                      </div>
+
+                      <pre className="text-[10px] font-mono text-muted-foreground bg-card p-3 rounded-[5px] border border-border/60 overflow-x-auto max-h-64 leading-relaxed">
+                        <code>{siteSchemaJson}</code>
+                      </pre>
+                      <p className="text-[10px] text-muted-foreground leading-normal">
+                        Perubahan input di sebelah kiri langsung merefleksikan kode Schema.org di atas secara otomatis tanpa perlu modifikasi kode manual.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              )}
+
               {/* TAB 2: SIMULASI PRATINJAU GOOGLE LEBAR */}
               {activeTab === "preview" && (
                 <div className="space-y-4 max-w-5xl mx-auto">
@@ -672,7 +1080,7 @@ export function SeoSettingsModal({ isOpen, onClose }: SeoSettingsModalProps) {
                             alt="Social Share Thumbnail"
                             className="w-full h-full object-cover"
                             onError={(e) => {
-                              ;(e.target as HTMLElement).style.display = "none"
+                              ; (e.target as HTMLElement).style.display = "none"
                             }}
                           />
                         </div>
@@ -913,28 +1321,107 @@ export function SeoSettingsModal({ isOpen, onClose }: SeoSettingsModalProps) {
 
                   {/* 2 Kolom: Rich Results & Audit Status */}
                   <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 items-start">
-                    {/* Card 2: Google Rich Results Test */}
-                    <div className="p-5 rounded-[5px] border border-border/80 bg-card space-y-3">
+                    {/* Card 2: Google Rich Results & Structured Data Validator (Option 1) */}
+                    <div className="p-5 rounded-[5px] border border-border/80 bg-card space-y-3.5">
                       <div>
-                        <h4 className="text-xs font-semibold text-foreground flex items-center gap-1.5">
-                          <Sparkles className="w-4 h-4 text-amber-500" />
-                          <span>Google Rich Results & Structured Data Validator</span>
-                        </h4>
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <h4 className="text-xs font-semibold text-foreground flex items-center gap-1.5">
+                            <Code className="w-3.5 h-3.5 text-primary" />
+                            <span>Google Rich Results & Structured Data</span>
+                          </h4>
+                          <span className="px-1.5 py-0.5 rounded text-[9px] font-semibold bg-amber-500/10 text-amber-600 border border-amber-500/20">
+                            Mode Dev: Uji Cuplikan Kode
+                          </span>
+                        </div>
                         <p className="text-[11px] text-muted-foreground mt-1">
-                          Periksa validitas format Schema.org JSON-LD (Organisasi, Artikel Insight) untuk memunculkan cuplikan kaya di hasil pencarian.
+                          Karena website saat ini masih tahap pengembangan (localhost), crawler URL Google belum dapat mengakses server lokal. Salin kode JSON-LD di bawah dan uji langsung pada tab <strong>Cuplikan Kode (Code Snippet)</strong> di Google Rich Results Test.
                         </p>
                       </div>
 
-                      <a
-                        href={richResultsUrl}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="inline-flex items-center gap-2 px-3.5 py-2 rounded-[5px] border border-border bg-card hover:bg-muted text-xs font-medium text-foreground transition-colors shrink-0"
-                      >
-                        <Search className="w-3.5 h-3.5 text-muted-foreground" />
-                        <span>Uji Cuplikan Kaya Google</span>
-                        <ExternalLink className="w-3 h-3 opacity-80" />
-                      </a>
+                      {/* Tombol Aksi */}
+                      <div className="flex flex-wrap items-center gap-2 pt-1">
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          onClick={handleCopySchema}
+                          className="h-8 text-xs gap-1.5 rounded-[5px] bg-primary/5 hover:bg-primary/10 border-primary/20 text-primary hover:text-primary font-medium"
+                        >
+                          {copiedSchema ? (
+                            <ClipboardCheck className="w-3.5 h-3.5 text-emerald-600" />
+                          ) : (
+                            <Copy className="w-3.5 h-3.5" />
+                          )}
+                          <span>{copiedSchema ? "Tersalin ke Clipboard!" : "Salin JSON-LD"}</span>
+                        </Button>
+
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => setShowSchemaPreview((prev) => !prev)}
+                          className="h-8 text-xs gap-1.5 rounded-[5px] text-muted-foreground hover:text-foreground border border-border/60"
+                        >
+                          {showSchemaPreview ? (
+                            <>
+                              <EyeOff className="w-3.5 h-3.5" />
+                              <span>Tutup Kode</span>
+                            </>
+                          ) : (
+                            <>
+                              <Eye className="w-3.5 h-3.5" />
+                              <span>Lihat Kode</span>
+                            </>
+                          )}
+                        </Button>
+
+                        <a
+                          href={richResultsCodeUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-[5px] border border-border bg-card hover:bg-muted text-xs font-medium text-foreground transition-colors shrink-0 h-8"
+                          title="Buka Google Rich Results Test (pilih tab Cuplikan Kode untuk paste)"
+                        >
+                          <Search className="w-3.5 h-3.5 text-muted-foreground" />
+                          <span>Buka Uji Google</span>
+                          <ExternalLink className="w-3 h-3 opacity-70" />
+                        </a>
+
+                        <a
+                          href={schemaValidatorUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-[5px] border border-border bg-card hover:bg-muted text-xs font-medium text-foreground transition-colors shrink-0 h-8"
+                          title="Buka Schema.org Official Validator"
+                        >
+                          <FileJson className="w-3.5 h-3.5 text-muted-foreground" />
+                          <span>Schema.org</span>
+                          <ExternalLink className="w-3 h-3 opacity-70" />
+                        </a>
+                      </div>
+
+                      {/* Preview Box JSON-LD */}
+                      {showSchemaPreview && (
+                        <div className="mt-3 relative rounded-[5px] border border-border/80 bg-muted/60 p-3 overflow-hidden">
+                          <div className="flex items-center justify-between pb-2 mb-2 border-b border-border/50 text-[10px] text-muted-foreground font-mono">
+                            <span className="flex items-center gap-1.5">
+                              <FileJson className="w-3 h-3 text-primary" />
+                              schema.org-structured-data.json
+                            </span>
+                            <button
+                              type="button"
+                              onClick={handleCopySchema}
+                              className="inline-flex items-center gap-1 text-[10px] text-primary hover:underline font-sans cursor-pointer"
+                            >
+                              <Copy className="w-3 h-3" />
+                              <span>Salin Kode</span>
+                            </button>
+                          </div>
+                          <pre className="text-[10px] font-mono text-muted-foreground overflow-x-auto max-h-52 leading-relaxed selection:bg-primary/20">
+                            <code>{siteSchemaJson}</code>
+                          </pre>
+                        </div>
+                      )}
                     </div>
 
                     {/* Card 3: Audit Optimasi yang Sudah Aktif di Website */}

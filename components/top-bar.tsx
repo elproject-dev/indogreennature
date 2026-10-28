@@ -24,6 +24,8 @@ import {
     AvatarFallback,
     AvatarImage,
 } from "@/components/ui/avatar";
+// [FITUR BAHASA]: Hapus tanda komentar baris di bawah ini jika ingin mengaktifkan kembali tombol pilihan bahasa di TopBar
+// import { LanguageSwitcher } from "@/components/language-switcher";
 
 
 const DEFAULT_TOPBAR_CONFIG = {
@@ -270,7 +272,7 @@ export function TopBar() {
                                     ...(logoConfig.menuTextColor && logoConfig.menuTextColor !== "default" ? { color: logoConfig.menuTextColor } : {})
                                 }}
                                 className={cn(
-                                    "font-sans font-[700] leading-none transition-colors tracking-wide",
+                                    "font-sans font-[700] leading-none transition-colors tracking-wide notranslate",
                                     (!logoConfig.menuTextColor || logoConfig.menuTextColor === "default") && "text-primary-foreground group-hover:text-primary-soft"
                                 )}
                             >
@@ -329,7 +331,15 @@ export function TopBar() {
                 </div>
 
                 {/* Right side: Avatar & User Dropdown */}
-                <div className="flex items-center gap-2.5 sm:gap-3 lg:gap-[16px]" suppressHydrationWarning>
+                <div className="flex items-center gap-2 sm:gap-2.5 lg:gap-3 notranslate" translate="no" suppressHydrationWarning>
+                    {/* ========================================================================= */}
+                    {/* [PANDUAN MENGAKTIFKAN BUTTON PILIHAN BAHASA / TRANSLATE]:                 */}
+                    {/* Saat ini disembunyikan sementara. Untuk mengaktifkannya kembali:          */}
+                    {/* 1. Hapus tanda komentar (uncomment) pada baris: <LanguageSwitcher />       */}
+                    {/* 2. Hapus tanda komentar pada baris import di baris 28 di atas file ini:   */}
+                    {/*    import { LanguageSwitcher } from "@/components/language-switcher";    */}
+                    {/* ========================================================================= */}
+                    {/* <LanguageSwitcher /> */}
                     <DropdownMenu>
                         <DropdownMenuTrigger
                             className="flex items-center justify-center outline-none cursor-pointer"

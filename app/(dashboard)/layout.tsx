@@ -14,19 +14,27 @@ import { isUserAdmin } from "@/lib/auth-admin"
 import { processAuthTokensFromUrl } from "@/lib/auth-callback"
 
 
-const ADMIN_ROUTES = ["/analytics", "/broadcast", "/settings", "/linked"]
+const ADMIN_ROUTES = ["/analytics", "/broadcast", "/settings", "/linked", "/dashboard", "/insight/create"]
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
     const router = useRouter()
     const pathname = usePathname()
     const [isAdmin, setIsAdmin] = useState(false)
-    const isTryingToAccessAdminRoute = Boolean(pathname && ADMIN_ROUTES.some(route => pathname.startsWith(route)))
-    const [isCheckingRole, setIsCheckingRole] = useState(isTryingToAccessAdminRoute)
+    const isStaticAdminRoute = Boolean(pathname && ADMIN_ROUTES.some(route => pathname.startsWith(route)))
+    const [isTryingToAccessAdminRoute, setIsTryingToAccessAdminRoute] = useState(isStaticAdminRoute)
+    const [isCheckingRole, setIsCheckingRole] = useState(isStaticAdminRoute)
 
     useEffect(() => {
         let mounted = true
 
-        const isAccessingAdmin = Boolean(pathname && ADMIN_ROUTES.some(route => pathname.startsWith(route)))
+        const currentSearch = typeof window !== "undefined" ? window.location.search : ""
+        const currentIsEdit = currentSearch.includes("edit=true") || currentSearch.includes("settings=")
+        const isAccessingAdmin = Boolean(
+            (pathname && ADMIN_ROUTES.some(route => pathname.startsWith(route))) || currentIsEdit
+        )
+
+        setIsTryingToAccessAdminRoute(isAccessingAdmin)
+
         if (!isAccessingAdmin) {
             setIsCheckingRole(false)
         } else {
@@ -67,8 +75,23 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             setIsAdmin(userIsAdmin)
 
             if (isAccessingAdmin && !userIsAdmin) {
-                toast.add({ title: "Akses Ditolak", description: "Halaman ini khusus untuk Admin.", type: "error" })
-                router.replace("/")
+                toast.add({
+                    title: "Akses Ditolak",
+                    description: session?.user
+                        ? (currentIsEdit ? "Mode edit ini khusus untuk Admin." : "Halaman ini khusus untuk Admin.")
+                        : "Silakan login terlebih dahulu untuk mengakses mode ini.",
+                    type: "error"
+                })
+                if (!session?.user) {
+                    const fullUrl = pathname + (typeof window !== "undefined" ? window.location.search : "")
+                    router.replace(`/login?next=${encodeURIComponent(fullUrl)}`)
+                } else {
+                    if (currentIsEdit) {
+                        router.replace(pathname)
+                    } else {
+                        router.replace("/")
+                    }
+                }
             } else {
                 setIsCheckingRole(false)
             }

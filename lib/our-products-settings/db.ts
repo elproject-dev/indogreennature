@@ -1,4 +1,5 @@
 import { supabase, isSupabaseConfigured } from "@/lib/supabase"
+import { isUserAdmin } from "@/lib/auth-admin"
 import {
   OurProductsSettingsData,
   DEFAULT_OUR_PRODUCTS_SETTINGS,
@@ -147,6 +148,15 @@ export async function fetchOurProductsSettings(): Promise<OurProductsSettingsDat
 export async function saveOurProductsSettings(
   settings: OurProductsSettingsData
 ): Promise<{ success: boolean; error?: string }> {
+  // 1. Verifikasi hak akses admin
+  const { data: { session } } = await supabase.auth.getSession()
+  if (!session?.user?.email || !isUserAdmin(session.user.email)) {
+    return {
+      success: false,
+      error: "Akses ditolak: Anda harus login sebagai Admin resmi untuk menyimpan pengaturan produk.",
+    }
+  }
+
   if (typeof window !== "undefined") {
     try {
       localStorage.setItem(OUR_PRODUCTS_SETTINGS_KEY, JSON.stringify(settings))
@@ -209,6 +219,15 @@ export async function saveOurProductsSettings(
  * Mengembalikan pengaturan Our Products ke default.
  */
 export async function resetOurProductsSettings(): Promise<{ success: boolean; error?: string }> {
+  // 1. Verifikasi hak akses admin
+  const { data: { session } } = await supabase.auth.getSession()
+  if (!session?.user?.email || !isUserAdmin(session.user.email)) {
+    return {
+      success: false,
+      error: "Akses ditolak: Anda harus login sebagai Admin resmi untuk mereset pengaturan produk.",
+    }
+  }
+
   if (typeof window !== "undefined") {
     try {
       localStorage.removeItem(OUR_PRODUCTS_SETTINGS_KEY)

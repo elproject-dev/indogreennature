@@ -10,6 +10,7 @@ import { PWAInstallPrompt } from "@/components/pwa-install-prompt"
 import { GoogleAnalytics } from "@/components/google-analytics"
 import { DeferredPushNotificationManager } from "@/components/deferred-widgets"
 import { GlobalThemeApplier } from "@/components/global-theme-applier"
+import { GoogleTranslator } from "@/components/google-translator"
 
 
 // const moderustic = Moderustic({ subsets: ['latin'], variable: '--font-moderustic', preload: false });
@@ -151,19 +152,21 @@ export default async function RootLayout({ children }: { children: React.ReactNo
       "description": seo.siteDescription,
       "address": {
         "@type": "PostalAddress",
-        "streetAddress": "Jl. Wahid Hasyim No. 123",
-        "addressLocality": "Wates",
-        "addressRegion": "Daerah Istimewa Yogyakarta",
-        "postalCode": "55651",
-        "addressCountry": "ID"
+        "streetAddress": seo.streetAddress || "Jl. Wahid Hasyim No. 123",
+        "addressLocality": seo.addressLocality || "Wates",
+        "addressRegion": seo.addressRegion || "Daerah Istimewa Yogyakarta",
+        "postalCode": seo.postalCode || "55651",
+        "addressCountry": seo.addressCountry || "ID"
       },
-      "telephone": "+6285877669199",
-      "email": "marketing@indogreennature.com",
+      "telephone": seo.telephone || "+6285877669199",
+      "email": seo.email || "admin@indogreennature.com",
       "sameAs": [
-        "https://instagram.com/indogreennature",
-        "https://facebook.com/indogreennature",
-        "https://tiktok.com/@indogreennature"
-      ]
+        seo.instagramUrl || "https://instagram.com/indogreennature",
+        seo.facebookUrl || "https://facebook.com/indogreennature",
+        seo.tiktokUrl || "https://tiktok.com/@indogreennature",
+        seo.youtubeUrl,
+        seo.linkedinUrl,
+      ].filter(Boolean) as string[]
     }
   ];
 
@@ -176,12 +179,6 @@ export default async function RootLayout({ children }: { children: React.ReactNo
       <head>
         <link rel="preconnect" href="https://ivtpcjwwenjdatxxtjqm.supabase.co" crossOrigin="" />
         <link rel="dns-prefetch" href="https://ivtpcjwwenjdatxxtjqm.supabase.co" />
-        <script
-          id="hydration-suppress-filter"
-          dangerouslySetInnerHTML={{
-            __html: `(function(){try{var o=console.error;console.error=function(){var m=arguments[0];if(typeof m==="string"&&(m.indexOf("418")!==-1||m.indexOf("423")!==-1||m.indexOf("Hydration")!==-1))return;if(m&&m.message&&(m.message.indexOf("418")!==-1||m.message.indexOf("423")!==-1))return;o.apply(console,arguments)};window.addEventListener("error",function(e){if(e&&e.message&&(e.message.indexOf("418")!==-1||e.message.indexOf("423")!==-1)){e.preventDefault();e.stopImmediatePropagation();return true;}},true);}catch(err){}})();`,
-          }}
-        />
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
@@ -196,6 +193,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
           <PWAInstallPrompt />
           <DeferredPushNotificationManager />
           <GoogleAnalytics gaId={process.env.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID} />
+          <GoogleTranslator />
         </ThemeProvider>
       </body>
     </html>

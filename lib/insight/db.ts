@@ -1,4 +1,5 @@
 import { supabase } from "@/lib/supabase"
+import { isUserAdmin } from "@/lib/auth-admin"
 import { InsightArticle, ArticleBlock } from "./types"
 
 /**
@@ -346,6 +347,16 @@ export async function saveInsight(
   article: Partial<InsightArticle>
 ): Promise<{ success: boolean; data?: InsightArticle; message?: string; error?: string }> {
   try {
+    // 1. Verifikasi hak akses Admin sebelum menyimpan ke database
+    const { data: { session } } = await supabase.auth.getSession()
+    if (!session?.user?.email || !isUserAdmin(session.user.email)) {
+      return {
+        success: false,
+        message: "Akses ditolak: Anda harus login sebagai Admin resmi untuk membuat atau mengedit artikel.",
+        error: "Unauthorized",
+      }
+    }
+
     const title = article.title?.trim()
     if (!title) {
       return { success: false, message: "Judul artikel wajib diisi.", error: "Judul artikel wajib diisi." }
@@ -398,6 +409,13 @@ export async function saveInsight(
       savedData = data
     }
 
+    // Revalidasi cache SEO & Sitemap secara on-demand
+    if (savedData?.slug || slug) {
+      import("@/app/actions/revalidate")
+        .then((mod) => mod.revalidateInsightContent(savedData?.slug || slug))
+        .catch(() => {})
+    }
+
     return {
       success: true,
       data: savedData,
@@ -421,6 +439,16 @@ export async function deleteInsight(
   slug?: string
 ): Promise<{ success: boolean; message?: string; error?: string }> {
   try {
+    // 1. Verifikasi hak akses Admin sebelum menghapus dari database
+    const { data: { session } } = await supabase.auth.getSession()
+    if (!session?.user?.email || !isUserAdmin(session.user.email)) {
+      return {
+        success: false,
+        message: "Akses ditolak: Anda harus login sebagai Admin resmi untuk menghapus artikel.",
+        error: "Unauthorized",
+      }
+    }
+
     let query = supabase.from("article").delete()
     if (id) {
       query = query.eq("id", id)
@@ -432,6 +460,12 @@ export async function deleteInsight(
 
     const { error } = await query
     if (error) throw error
+
+    // Revalidasi cache SEO & Sitemap saat artikel dihapus
+    import("@/app/actions/revalidate")
+      .then((mod) => mod.revalidateInsightContent(slug))
+      .catch(() => {})
+
     return { success: true, message: "Artikel berhasil dihapus." }
   } catch (err: any) {
     console.error("deleteInsight error:", err)
