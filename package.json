@@ -59,6 +59,7 @@
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "@types/trusted-types": "^2.0.7",
+    "critters": "^0.0.25",
     "eslint": "^9",
     "eslint-config-next": "16.3.0",
     "tailwindcss": "^4",
