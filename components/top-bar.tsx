@@ -24,8 +24,7 @@ import {
     AvatarFallback,
     AvatarImage,
 } from "@/components/ui/avatar";
-// [FITUR BAHASA]: Hapus tanda komentar baris di bawah ini jika ingin mengaktifkan kembali tombol pilihan bahasa di TopBar
-// import { LanguageSwitcher } from "@/components/language-switcher";
+import { LanguageSwitcher } from "@/components/language-switcher";
 
 
 const DEFAULT_TOPBAR_CONFIG = {
@@ -332,14 +331,7 @@ export function TopBar() {
 
                 {/* Right side: Avatar & User Dropdown */}
                 <div className="flex items-center gap-2 sm:gap-2.5 lg:gap-3 notranslate" translate="no" suppressHydrationWarning>
-                    {/* ========================================================================= */}
-                    {/* [PANDUAN MENGAKTIFKAN BUTTON PILIHAN BAHASA / TRANSLATE]:                 */}
-                    {/* Saat ini disembunyikan sementara. Untuk mengaktifkannya kembali:          */}
-                    {/* 1. Hapus tanda komentar (uncomment) pada baris: <LanguageSwitcher />       */}
-                    {/* 2. Hapus tanda komentar pada baris import di baris 28 di atas file ini:   */}
-                    {/*    import { LanguageSwitcher } from "@/components/language-switcher";    */}
-                    {/* ========================================================================= */}
-                    {/* <LanguageSwitcher /> */}
+                    <LanguageSwitcher />
                     <DropdownMenu>
                         <DropdownMenuTrigger
                             className="flex items-center justify-center outline-none cursor-pointer"
