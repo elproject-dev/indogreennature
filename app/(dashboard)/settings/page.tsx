@@ -6069,7 +6069,7 @@ export default function SettingsPage() {
         try {
             const { data } = await supabase.from('products').select('*').order('sort_order', { ascending: true, nullsFirst: false }).order('id', { ascending: true })
             if (data) {
-                const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://ivtpcjwwenjdatxxtjqm.supabase.co'
+                const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://api.indogreennature.com'
                 setProduks(data.map((item: any) => ({
                     id: item.id,
                     title: item.name,

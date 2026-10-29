@@ -66,12 +66,21 @@ const nextConfig: NextConfig = {
     formats: ['image/avif', 'image/webp'],
     // Hasil resize di-cache 1 tahun (override Cache-Control 1 jam dari Supabase storage lama)
     minimumCacheTTL: 31536000,
+    dangerouslyAllowSVG: true,
+    contentDispositionType: 'attachment',
+    contentSecurityPolicy: "default-src 'self'; script-src 'none'; sandbox;",
     deviceSizes: [360, 414, 640, 768, 1024, 1280, 1536, 1920],
     imageSizes: [48, 64, 96, 128, 160, 216, 256, 384],
     remotePatterns: [
       {
         protocol: 'https',
         hostname: 'ivtpcjwwenjdatxxtjqm.supabase.co',
+        port: '',
+        pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'api.indogreennature.com',
         port: '',
         pathname: '/**',
       },

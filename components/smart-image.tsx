@@ -22,7 +22,7 @@ function canOptimize(src: string): boolean {
   if (src.startsWith("/") && !src.startsWith("//")) return true;
   try {
     const u = new URL(src);
-    return u.protocol === "https:" && u.hostname.endsWith(".supabase.co");
+    return u.protocol === "https:" && (u.hostname.endsWith(".supabase.co") || u.hostname === "api.indogreennature.com");
   } catch {
     return false;
   }

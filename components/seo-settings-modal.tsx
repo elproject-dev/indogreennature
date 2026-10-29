@@ -1046,7 +1046,7 @@ export function SeoSettingsModal({ isOpen, onClose }: SeoSettingsModalProps) {
                           id="ogImageUrl"
                           value={config.ogImageUrl}
                           onChange={(e) => setConfig({ ...config, ogImageUrl: e.target.value })}
-                          placeholder="https://ivtpcjwwenjdatxxtjqm.supabase.co/storage/..."
+                          placeholder="https://api.indogreennature.com/storage/..."
                           className="text-xs font-mono h-8 rounded-[5px]"
                           disabled={isUploadingOg}
                         />

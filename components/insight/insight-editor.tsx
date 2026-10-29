@@ -31,6 +31,7 @@ import {
   HelpCircleIcon,
   XIcon,
   FileTextIcon,
+  SparklesIcon,
 } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
@@ -214,6 +215,67 @@ export function InsightEditor({ initialArticle, isEditMode = false }: InsightEdi
     initialArticle?.tags || ["Maklon Herbal", "Formulasi Alami"]
   )
   const [tagInput, setTagInput] = React.useState("")
+
+  // AI Article Generator State
+  const [isAiModalOpen, setIsAiModalOpen] = React.useState(false)
+  const [aiTopic, setAiTopic] = React.useState("")
+  const [isAiGenerating, setIsAiGenerating] = React.useState(false)
+
+  const handleAiGenerateArticle = async (selectedTopic?: string) => {
+    const promptTopic = (selectedTopic || aiTopic).trim()
+    if (!promptTopic) {
+      toast.error("Masukkan topik artikel terlebih dahulu")
+      return
+    }
+
+    setIsAiGenerating(true)
+    try {
+      const model = typeof window !== "undefined" ? localStorage.getItem("indogreen_ai_model") || "kc/kilo-auto/free" : "kc/kilo-auto/free"
+      const res = await fetch("/api/ai", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          task: "generate_insight_full",
+          model,
+          payload: { topic: promptTopic },
+        }),
+      })
+
+      const data = await res.json()
+      if (!res.ok || !data.success) {
+        throw new Error(data.error || "Gagal membuat artikel")
+      }
+
+      let parsedData: any = {}
+      try {
+        const cleaned = data.result.replace(/```json\n?|\n?```/g, "").trim()
+        parsedData = JSON.parse(cleaned)
+      } catch {
+        throw new Error("Respon AI tidak berupa format data artikel yang valid")
+      }
+
+      if (parsedData.title) setTitle(parsedData.title)
+      if (parsedData.category && categories.includes(parsedData.category)) {
+        setCategory(parsedData.category)
+      }
+      if (parsedData.pembahasan) setPembahasan(parsedData.pembahasan)
+      if (Array.isArray(parsedData.tags) && parsedData.tags.length > 0) {
+        setTags(parsedData.tags)
+      }
+      if (parsedData.markdown) {
+        const newBlocks = markdownToBlocks(parsedData.markdown)
+        setBlocks(newBlocks)
+      }
+
+      setIsAiModalOpen(false)
+      setAiTopic("")
+      toast.success("Artikel berhasil dibuat otomatis oleh AI! Silakan cek dan sesuaikan.")
+    } catch (err: any) {
+      toast.error(err.message || "Gagal generate artikel dengan AI")
+    } finally {
+      setIsAiGenerating(false)
+    }
+  }
 
   // Article blocks
   const [blocks, setBlocks] = React.useState<ArticleBlock[]>(() => {
@@ -743,8 +805,19 @@ export function InsightEditor({ initialArticle, isEditMode = false }: InsightEdi
             </p>
           </div>
 
-          {/* Action Header: Pratinjau Tab Baru + Batal + Terbitkan */}
-          <div className="flex items-center gap-2.5">
+          {/* Action Header: AI Generate + Pratinjau Tab Baru + Batal + Terbitkan */}
+          <div className="flex items-center gap-2 sm:gap-2.5 flex-wrap">
+            <Button
+              type="button"
+              size="sm"
+              onClick={() => setIsAiModalOpen(true)}
+              className="text-xs gap-1.5 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white font-semibold shadow-xs"
+              title="Buat seluruh draf artikel secara otomatis menggunakan AI"
+            >
+              <SparklesIcon className="size-3.5 animate-pulse" />
+              <span>AI Buat Artikel</span>
+            </Button>
+
             <Button
               type="button"
               variant="outline"
@@ -754,7 +827,7 @@ export function InsightEditor({ initialArticle, isEditMode = false }: InsightEdi
               title="Buka pratinjau hasil artikel secara penuh di tab baru"
             >
               <ExternalLinkIcon className="size-3.5" />
-              <span>Pratinjau di Tab Baru</span>
+              <span className="hidden sm:inline">Pratinjau di Tab Baru</span>
             </Button>
 
             <Button
@@ -1800,6 +1873,96 @@ export function InsightEditor({ initialArticle, isEditMode = false }: InsightEdi
               className="bg-[#15803d] hover:bg-[#166534] text-white font-semibold text-xs h-8 px-4 rounded-[5px]"
             >
               Selesai
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* MODAL AI PEMBUAT ARTIKEL OTOMATIS */}
+      <Dialog open={isAiModalOpen} onOpenChange={setIsAiModalOpen}>
+        <DialogContent className="sm:max-w-lg">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2 text-foreground">
+              <SparklesIcon className="size-4 text-emerald-600 animate-pulse" />
+              AI Pembuat Artikel Insight Maklon
+            </DialogTitle>
+            <DialogDescription className="text-xs">
+              Ketik topik yang diinginkan atau pilih salah satu ide cepat. AI akan otomatis meracik Judul, Kategori, Tags, dan seluruh isi konten artikel secara mendalam.
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-4 py-2">
+            <div className="space-y-1.5">
+              <label className="text-xs font-semibold text-foreground">Topik / Bahasan Artikel:</label>
+              <Input
+                placeholder="Contoh: Cara Memulai Bisnis Minuman Herbal Serbuk dengan Izin BPOM"
+                value={aiTopic}
+                onChange={(e) => setAiTopic(e.target.value)}
+                disabled={isAiGenerating}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" && !isAiGenerating) {
+                    handleAiGenerateArticle()
+                  }
+                }}
+              />
+            </div>
+
+            <div className="space-y-1.5">
+              <label className="text-[11px] text-muted-foreground font-medium">Ide Topik Cepat (Tinggal Klik):</label>
+              <div className="flex flex-col gap-1.5">
+                {[
+                  "Panduan Lengkap Memulai Bisnis Maklon Kapsul Herbal BPOM",
+                  "Perbedaan Izin Edar BPOM TR dan Pangan Olahan MD",
+                  "Keunggulan Maklon Herbal Berstandar CPOTB Resmi",
+                  "Tren Minuman Serbuk Herbal Alami & Kolagen 2026",
+                  "Tahapan Uji Laboratorium dan Sertifikasi Halal Produk Herbal",
+                ].map((topic, i) => (
+                  <button
+                    key={i}
+                    type="button"
+                    disabled={isAiGenerating}
+                    onClick={() => {
+                      setAiTopic(topic)
+                      handleAiGenerateArticle(topic)
+                    }}
+                    className="text-xs p-2 rounded-lg bg-secondary/60 hover:bg-secondary text-secondary-foreground hover:text-emerald-600 dark:hover:text-emerald-400 border border-border/50 text-left transition-all cursor-pointer flex items-center justify-between group disabled:opacity-50"
+                  >
+                    <span>{topic}</span>
+                    <SparklesIcon className="size-3 text-muted-foreground group-hover:text-emerald-600 shrink-0" />
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          <DialogFooter className="flex items-center justify-between gap-2 border-t border-border/60 pt-3">
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={() => setIsAiModalOpen(false)}
+              disabled={isAiGenerating}
+            >
+              Batal
+            </Button>
+            <Button
+              type="button"
+              size="sm"
+              onClick={() => handleAiGenerateArticle()}
+              disabled={!aiTopic.trim() || isAiGenerating}
+              className="bg-emerald-600 hover:bg-emerald-700 text-white gap-1.5"
+            >
+              {isAiGenerating ? (
+                <>
+                  <RefreshCwIcon className="size-3.5 animate-spin" />
+                  <span>Meracik Artikel...</span>
+                </>
+              ) : (
+                <>
+                  <SparklesIcon className="size-3.5" />
+                  <span>Generate Artikel</span>
+                </>
+              )}
             </Button>
           </DialogFooter>
         </DialogContent>

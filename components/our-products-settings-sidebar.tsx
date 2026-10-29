@@ -626,9 +626,9 @@ export function OurProductsSettingsSidebar({
       soldCount: "1RB+ Terjual",
       rating: 4.9,
       location: "D.I. Yogyakarta",
-      image: "https://ivtpcjwwenjdatxxtjqm.supabase.co/storage/v1/object/public/media/jenis_produk/1792475799445-79sbk9.webp",
+      image: "https://api.indogreennature.com/storage/v1/object/public/media/jenis_produk/1792475799445-79sbk9.webp",
       images: [
-        "https://ivtpcjwwenjdatxxtjqm.supabase.co/storage/v1/object/public/media/jenis_produk/1792475799445-79sbk9.webp",
+        "https://api.indogreennature.com/storage/v1/object/public/media/jenis_produk/1792475799445-79sbk9.webp",
       ],
       badge: "Official Shop",
       discount: "-23%",
@@ -3783,7 +3783,7 @@ export function OurProductsSettingsSidebar({
                                             <input
                                               type="text"
                                               value={imgUrl}
-                                              placeholder="https://ivtpcjwwenjdatxxtjqm.supabase.co/..."
+                                              placeholder="https://api.indogreennature.com/..."
                                               onChange={(e) =>
                                                 handleUpdateProductImageAt(originalIndex, imgIdx, e.target.value)
                                               }

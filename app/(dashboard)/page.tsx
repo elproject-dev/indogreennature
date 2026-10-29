@@ -3661,6 +3661,7 @@ export default function HomePage() {
                     fill
                     priority
                     fetchPriority="high"
+                    unoptimized={heroImage.includes('api.indogreennature.com')}
                     sizes="(max-width: 640px) 100vw, 540px"
                     className={heroImageFit === 'contain' ? "object-contain" : "object-cover"}
                   />

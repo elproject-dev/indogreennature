@@ -29,7 +29,7 @@ import { LanguageSwitcher } from "@/components/language-switcher";
 
 const DEFAULT_TOPBAR_CONFIG = {
     mode: "logo_and_text",
-    logoUrl: "https://ivtpcjwwenjdatxxtjqm.supabase.co/storage/v1/object/public/media/topbar_logo/1792167656711-logo.png",
+    logoUrl: "https://api.indogreennature.com/storage/v1/object/public/media/topbar_logo/1792167656711-logo.png",
     logoSize: 32,
     logoColor: "white",
     bgColor: "#338f1e",
@@ -70,11 +70,11 @@ export function TopBar() {
             if (cached) {
                 const parsed = JSON.parse(cached);
                 const isLegacyLogo = parsed.logoUrl && (
-                    parsed.logoUrl.startsWith("/logo")
+                    parsed.logoUrl.startsWith("/logo") || parsed.logoUrl.includes("1792167656711")
                 );
                 setLogoConfig({
                     mode: parsed.mode || DEFAULT_TOPBAR_CONFIG.mode,
-                    logoUrl: isLegacyLogo ? "" : (parsed.logoUrl !== undefined ? parsed.logoUrl : DEFAULT_TOPBAR_CONFIG.logoUrl),
+                    logoUrl: isLegacyLogo ? DEFAULT_TOPBAR_CONFIG.logoUrl : (parsed.logoUrl !== undefined ? parsed.logoUrl : DEFAULT_TOPBAR_CONFIG.logoUrl),
                     logoSize: parsed.logoSize ? Number(parsed.logoSize) : DEFAULT_TOPBAR_CONFIG.logoSize,
                     logoColor: parsed.logoColor || DEFAULT_TOPBAR_CONFIG.logoColor,
                     bgColor: parsed.bgColor || DEFAULT_TOPBAR_CONFIG.bgColor,
@@ -130,8 +130,8 @@ export function TopBar() {
                     });
                     setLogoConfig(prev => {
                         const rawUrl = cfg.topbar_logo_url !== undefined ? cfg.topbar_logo_url : prev.logoUrl;
-                        const isLegacy = rawUrl && (rawUrl.startsWith("/logo"));
-                        const cleanLogoUrl = isLegacy ? "" : rawUrl;
+                        const isLegacy = rawUrl && (rawUrl.startsWith("/logo") || rawUrl.includes("1792167656711"));
+                        const cleanLogoUrl = isLegacy ? DEFAULT_TOPBAR_CONFIG.logoUrl : rawUrl;
                         const updated = {
                             mode: cfg.topbar_display_mode || prev.mode,
                             logoUrl: cleanLogoUrl,

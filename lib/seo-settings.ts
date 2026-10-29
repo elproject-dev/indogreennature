@@ -34,7 +34,7 @@ export const DEFAULT_SEO_CONFIG: SeoConfig = {
   siteDescription: "Pabrik dan jasa maklon herbal terpercaya di Indonesia. Melayani formulasi minuman serbuk, kapsul herbal, teh herbal berstandar BPOM & Halal dengan legalitas lengkap.",
   siteKeywords: "maklon herbal, jasa maklon herbal, maklon herbal bpom, pabrik herbal, maklon minuman serbuk, maklon kapsul herbal, maklon teh herbal, cv indo green nature",
   canonicalUrl: "https://www.indogreennature.com",
-  ogImageUrl: "https://ivtpcjwwenjdatxxtjqm.supabase.co/storage/v1/object/public/media/hero_banner/1792330129667-hsobqa.webp",
+  ogImageUrl: "https://api.indogreennature.com/storage/v1/object/public/media/hero_banner/1792330129667-hsobqa.webp",
   googleVerification: "LGVKTK0moSrDgV9sOu-cy4n5hK3bPya07IQ_rB-WT50",
   robotsIndex: true,
   author: "CV. Indo Green Nature",

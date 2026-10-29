@@ -160,7 +160,7 @@ export const DEFAULT_INSIGHT_SETTINGS: InsightSettingsData = {
 
   // Logo Banner (Transparan) Pojok Kanan
   bannerFrameShow: true,
-  bannerFrameImage: "https://ivtpcjwwenjdatxxtjqm.supabase.co/storage/v1/object/public/media/insight/frame/1792833866524-u50pxq.webp",
+  bannerFrameImage: "https://api.indogreennature.com/storage/v1/object/public/media/insight/frame/1792833866524-u50pxq.webp",
   bannerFrameAlt: "Fasilitas Riset Ekstraksi & CPOTB CV. Indo Green Nature",
   bannerFrameSize: 210,
   bannerFrameFit: "cover",

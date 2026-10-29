@@ -17,11 +17,17 @@ import {
     PackageCheck,
     BookOpen,
     Globe,
+    Sparkles,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { SeoSettingsModal } from "@/components/seo-settings-modal"
 
 const adminMenus = [
+    {
+        name: "AI Asisten Maklon",
+        url: "/ai-assistant",
+        icon: Sparkles,
+    },
     {
         name: "Pengaturan SEO",
         url: "#",

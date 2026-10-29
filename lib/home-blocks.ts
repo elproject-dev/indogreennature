@@ -145,7 +145,7 @@ export const DEFAULT_HERO_POINTS: string[] = [
 ]
 export const DEFAULT_HERO_POINTS_FONT_WEIGHT = "semibold"
 export const DEFAULT_HERO_POINTS_COLOR = "#276259"
-export const DEFAULT_HERO_IMAGE = "https://ivtpcjwwenjdatxxtjqm.supabase.co/storage/v1/object/public/media/hero_banner/1792977972701-b9iar0.webp"
+export const DEFAULT_HERO_IMAGE = "https://api.indogreennature.com/storage/v1/object/public/media/hero_banner/1792977972701-b9iar0.webp"
 export const DEFAULT_HERO_IMAGE_POSITION: "left" | "right" = "right"
 export const DEFAULT_HERO_IMAGE_ASPECT = "square"
 export const DEFAULT_HERO_IMAGE_SIZE = "540"

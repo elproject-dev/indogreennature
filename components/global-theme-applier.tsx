@@ -68,6 +68,21 @@ export function GlobalThemeApplier() {
 
   // Terapkan konfigurasi setelah hidrasi selesai agar tidak memicu React error #418 pada elemen <html>
   useEffect(() => {
+    // Migrasi otomatis URL storage lama (ivtpcjwwenjdatxxtjqm.supabase.co) ke endpoint VPS baru (api.indogreennature.com)
+    try {
+      if (typeof window !== "undefined" && window.localStorage) {
+        for (let i = 0; i < localStorage.length; i++) {
+          const k = localStorage.key(i)
+          if (k) {
+            const val = localStorage.getItem(k)
+            if (val && val.includes("ivtpcjwwenjdatxxtjqm.supabase.co")) {
+              localStorage.setItem(k, val.replaceAll("https://ivtpcjwwenjdatxxtjqm.supabase.co", "https://api.indogreennature.com"))
+            }
+          }
+        }
+      }
+    } catch {}
+
     const cached = getStoredTheme()
     applyGlobalTheme(cached)
   }, [])

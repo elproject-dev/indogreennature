@@ -14,7 +14,7 @@ import { isUserAdmin } from "@/lib/auth-admin"
 import { processAuthTokensFromUrl } from "@/lib/auth-callback"
 
 
-const ADMIN_ROUTES = ["/analytics", "/broadcast", "/settings", "/linked", "/dashboard", "/insight/create"]
+const ADMIN_ROUTES = ["/analytics", "/broadcast", "/settings", "/linked", "/dashboard", "/insight/create", "/ai-assistant"]
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
     const router = useRouter()
