@@ -134,7 +134,7 @@ export const DEFAULT_CONTACT_SETTINGS: ContactSettingsData = {
   whatsappBisnisDisplay: "+62 821-3636-8880",
   whatsappBisnisSubtitle: "Kemitraan & Maklon",
 
-  emailBisnis: "marketing@indogreennature.com",
+  emailBisnis: "admin@indogreennature.com",
   emailSubtitle: "Proposal & Dokumen Resmi",
 
   lokasiKota: "Wates, Kulon Progo",
@@ -149,8 +149,8 @@ export const DEFAULT_CONTACT_SETTINGS: ContactSettingsData = {
   // Form
   formTitle: "Kirim Pesan ke Kami",
   formSubtitle: "Isi formulir di bawah dan tim kami akan segera menghubungi Anda.",
-  formReceiverEmail: "marketing@indogreennature.com",
-  formFootnote: "Pesan akan diarahkan ke email resmi marketing@indogreennature.com. Respon dalam 1×24 jam kerja.",
+  formReceiverEmail: "admin@indogreennature.com",
+  formFootnote: "Pesan akan diarahkan ke email resmi admin@indogreennature.com. Respon dalam 1×24 jam kerja.",
 
   // Maps
   mapsTitle: "Alamat & Lokasi",

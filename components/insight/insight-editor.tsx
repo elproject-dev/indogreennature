@@ -32,6 +32,14 @@ import {
   XIcon,
   FileTextIcon,
   SparklesIcon,
+  SendIcon,
+  BotIcon,
+  ChevronDownIcon,
+  SearchIcon,
+  CpuIcon,
+  ZapIcon,
+  Settings2Icon,
+  DicesIcon,
 } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
@@ -71,6 +79,8 @@ import {
   saveInsight,
 } from "@/lib/insight/db"
 import { InsightViewer } from "./insight-viewer"
+import { cn } from "@/lib/utils"
+import { getRandomHerbalImage } from "@/lib/insight/herbal-images"
 
 interface InsightEditorProps {
   initialArticle?: InsightArticle | null
@@ -216,17 +226,128 @@ export function InsightEditor({ initialArticle, isEditMode = false }: InsightEdi
   )
   const [tagInput, setTagInput] = React.useState("")
 
-  // AI Article Generator State
-  const [isAiModalOpen, setIsAiModalOpen] = React.useState(false)
+  // AI Article Chat Prompt & Model Selection State
   const [aiTopic, setAiTopic] = React.useState("")
   const [isAiGenerating, setIsAiGenerating] = React.useState(false)
+  const [activeModel, setActiveModel] = React.useState("kc/kilo-auto/free")
+  const [availableModels, setAvailableModels] = React.useState<string[]>([])
+  const [isLoadingModels, setIsLoadingModels] = React.useState(false)
+  const [isModelSelectorOpen, setIsModelSelectorOpen] = React.useState(false)
+  const [modelSearch, setModelSearch] = React.useState("")
+  const [customModelInput, setCustomModelInput] = React.useState("")
+  const [testingModelId, setTestingModelId] = React.useState<string | null>(null)
+  const [modelTestResults, setModelTestResults] = React.useState<
+    Record<string, { status: "success" | "error"; latencyMs?: number; error?: string }>
+  >({})
+  const [aiChatMessages, setAiChatMessages] = React.useState<
+    Array<{ role: "user" | "assistant"; text: string; time: string }>
+  >([])
+
+  const handleTestModel = async (modelId: string, e?: React.MouseEvent) => {
+    if (e) e.stopPropagation()
+    const targetModel = modelId.trim()
+    if (!targetModel) return
+
+    setTestingModelId(targetModel)
+    try {
+      const res = await fetch("/api/ai", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          task: "test_model",
+          model: targetModel,
+        }),
+      })
+
+      const data = await res.json()
+      if (res.ok && data.success) {
+        setModelTestResults((prev) => ({
+          ...prev,
+          [targetModel]: { status: "success", latencyMs: data.latencyMs || 0 },
+        }))
+        toast.success(`Model "${targetModel}" aktif! Respon: ${data.latencyMs}ms`)
+      } else {
+        const errMsg = data.error || "Gagal merespon"
+        setModelTestResults((prev) => ({
+          ...prev,
+          [targetModel]: { status: "error", error: errMsg },
+        }))
+        toast.error(`Model "${targetModel}" tidak aktif: ${errMsg}`)
+      }
+    } catch (err: any) {
+      setModelTestResults((prev) => ({
+        ...prev,
+        [targetModel]: { status: "error", error: err.message || "Network error" },
+      }))
+      toast.error(`Koneksi ke model "${targetModel}" gagal: ${err.message}`)
+    } finally {
+      setTestingModelId(null)
+    }
+  }
+
+  const fetchActiveModels = React.useCallback(async () => {
+    setIsLoadingModels(true)
+    try {
+      const res = await fetch("/api/ai")
+      const data = await res.json()
+      if (data.models && Array.isArray(data.models) && data.models.length > 0) {
+        setAvailableModels(data.models)
+      } else {
+        setAvailableModels([
+          "kc/kilo-auto/free",
+          "google/gemini-2.5-flash",
+          "deepseek/deepseek-chat",
+          "openai/gpt-4o-mini",
+        ])
+      }
+    } catch {
+      setAvailableModels([
+        "kc/kilo-auto/free",
+        "google/gemini-2.5-flash",
+        "deepseek/deepseek-chat",
+        "openai/gpt-4o-mini",
+      ])
+    } finally {
+      setIsLoadingModels(false)
+    }
+  }, [])
+
+  React.useEffect(() => {
+    if (typeof window !== "undefined") {
+      const stored = localStorage.getItem("indogreen_ai_model")
+      if (stored) setActiveModel(stored)
+    }
+    fetchActiveModels()
+  }, [fetchActiveModels])
+
+  const handleSelectModel = (modelId: string) => {
+    const cleanId = modelId.trim()
+    if (!cleanId) return
+    setActiveModel(cleanId)
+    try {
+      localStorage.setItem("indogreen_ai_model", cleanId)
+    } catch {}
+    setIsModelSelectorOpen(false)
+    toast.success(`Model AI aktif: ${cleanId}`)
+  }
 
   const handleAiGenerateArticle = async (selectedTopic?: string) => {
     const promptTopic = (selectedTopic || aiTopic).trim()
     if (!promptTopic) {
-      toast.error("Masukkan topik artikel terlebih dahulu")
+      toast.error("Masukkan topik atau instruksi artikel terlebih dahulu")
       return
     }
+
+    const nowTime = new Date().toLocaleTimeString("id-ID", { hour: "2-digit", minute: "2-digit" })
+    setAiChatMessages((prev) => [
+      ...prev,
+      { role: "user", text: promptTopic, time: nowTime },
+      {
+        role: "assistant",
+        text: "⏳ Sedang meracik draf artikel lengkap (judul, kategori, tags, & seluruh blok konten)...",
+        time: nowTime,
+      },
+    ])
 
     setIsAiGenerating(true)
     try {
@@ -237,7 +358,10 @@ export function InsightEditor({ initialArticle, isEditMode = false }: InsightEdi
         body: JSON.stringify({
           task: "generate_insight_full",
           model,
-          payload: { topic: promptTopic },
+          payload: {
+            topic: promptTopic,
+            usedImages: coverImage ? [coverImage] : [],
+          },
         }),
       })
 
@@ -254,7 +378,12 @@ export function InsightEditor({ initialArticle, isEditMode = false }: InsightEdi
         throw new Error("Respon AI tidak berupa format data artikel yang valid")
       }
 
-      if (parsedData.title) setTitle(parsedData.title)
+      if (parsedData.title) {
+        setTitle(parsedData.title)
+        if (!isEditMode) {
+          setSlug(generateSlug(parsedData.title))
+        }
+      }
       if (parsedData.category && categories.includes(parsedData.category)) {
         setCategory(parsedData.category)
       }
@@ -262,15 +391,56 @@ export function InsightEditor({ initialArticle, isEditMode = false }: InsightEdi
       if (Array.isArray(parsedData.tags) && parsedData.tags.length > 0) {
         setTags(parsedData.tags)
       }
-      if (parsedData.markdown) {
-        const newBlocks = markdownToBlocks(parsedData.markdown)
-        setBlocks(newBlocks)
+      // Arahkan gambar URL ke Cover Gambar Artikel saja
+      let extractedCoverUrl = ""
+      if (parsedData.cover_image && typeof parsedData.cover_image === "string" && parsedData.cover_image.trim()) {
+        extractedCoverUrl = parsedData.cover_image.trim()
       }
 
-      setIsAiModalOpen(false)
+      if (parsedData.markdown) {
+        let cleanMarkdown = parsedData.markdown
+        // Jika AI menyelipkan tag gambar di markdown, ambil URL-nya untuk cover jika belum ada, lalu hapus dari markdown
+        const firstImgMatch = cleanMarkdown.match(/!\[([^\]]*)\]\((https?:\/\/[^\s\)]+)[^)]*\)/)
+        if (firstImgMatch && !extractedCoverUrl) {
+          extractedCoverUrl = firstImgMatch[2].split("#")[0].trim()
+        }
+        cleanMarkdown = cleanMarkdown.replace(/!\[.*?\]\(.*?\)/g, "").trim()
+
+        const newBlocks = markdownToBlocks(cleanMarkdown)
+        // Saring agar TIDAK ada blok gambar baru di dalam konten artikel
+        const nonImageBlocks = newBlocks.filter((b) => b.type !== "image")
+        setBlocks(nonImageBlocks.length > 0 ? nonImageBlocks : newBlocks)
+      }
+
+      if (extractedCoverUrl) {
+        setCoverImage(extractedCoverUrl)
+      }
+
       setAiTopic("")
-      toast.success("Artikel berhasil dibuat otomatis oleh AI! Silakan cek dan sesuaikan.")
+      setAiChatMessages((prev) => {
+        const next = [...prev]
+        if (next.length > 0 && next[next.length - 1].role === "assistant") {
+          next[next.length - 1] = {
+            role: "assistant",
+            text: `✨ Berhasil meracik artikel: "${parsedData.title}". Gambar telah dimasukkan ke Cover Artikel saja tanpa membuat blok gambar baru di dalam konten!`,
+            time: new Date().toLocaleTimeString("id-ID", { hour: "2-digit", minute: "2-digit" }),
+          }
+        }
+        return next
+      })
+      toast.success("Artikel berhasil diracik! Cover gambar telah disematkan tanpa blok baru.")
     } catch (err: any) {
+      setAiChatMessages((prev) => {
+        const next = [...prev]
+        if (next.length > 0 && next[next.length - 1].role === "assistant") {
+          next[next.length - 1] = {
+            role: "assistant",
+            text: `❌ Gagal meracik artikel: ${err.message || "Terjadi kesalahan"}`,
+            time: new Date().toLocaleTimeString("id-ID", { hour: "2-digit", minute: "2-digit" }),
+          }
+        }
+        return next
+      })
       toast.error(err.message || "Gagal generate artikel dengan AI")
     } finally {
       setIsAiGenerating(false)
@@ -755,7 +925,7 @@ export function InsightEditor({ initialArticle, isEditMode = false }: InsightEdi
         slug: cleanSlug,
         category,
         excerpt: "",
-        cover_image: coverImage || "/images/banner-default.jpg",
+        cover_image: coverImage.trim() || "",
         content: compiledMarkdown,
         blocks,
         author: author.trim() || "Tim CV. Indo Green Nature",
@@ -777,7 +947,7 @@ export function InsightEditor({ initialArticle, isEditMode = false }: InsightEdi
         } catch (e) { }
 
         // Navigate to the article or insight directory
-        router.push(`/insight/${cleanSlug}`)
+        router.push(`/insight/${res.data?.slug || cleanSlug}`)
       } else {
         toast.error("Gagal menyimpan artikel:", { description: res.error || res.message })
       }
@@ -805,18 +975,8 @@ export function InsightEditor({ initialArticle, isEditMode = false }: InsightEdi
             </p>
           </div>
 
-          {/* Action Header: AI Generate + Pratinjau Tab Baru + Batal + Terbitkan */}
+          {/* Action Header: Pratinjau Tab Baru + Batal + Terbitkan */}
           <div className="flex items-center gap-2 sm:gap-2.5 flex-wrap">
-            <Button
-              type="button"
-              size="sm"
-              onClick={() => setIsAiModalOpen(true)}
-              className="text-xs gap-1.5 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white font-semibold shadow-xs"
-              title="Buat seluruh draf artikel secara otomatis menggunakan AI"
-            >
-              <SparklesIcon className="size-3.5 animate-pulse" />
-              <span>AI Buat Artikel</span>
-            </Button>
 
             <Button
               type="button"
@@ -859,6 +1019,109 @@ export function InsightEditor({ initialArticle, isEditMode = false }: InsightEdi
       {/* Main Studio Area (Full-Width Fokus Tanpa Konsep Bagi Layar, Sejajar Top Bar) */}
       <main className="w-full max-w-[1440px] mx-auto px-4 lg:px-[20px] py-6 sm:py-8">
         <div className="max-w-4xl mx-auto space-y-6">
+          {/* AI Chat Prompt Card - Clean Forest Green Version */}
+          <div className="rounded-[6px] border border-[#166534]/30 bg-card p-4 sm:p-5 shadow-xs space-y-3">
+            {/* Header: Clean Forest Green */}
+            <div className="flex items-center justify-between flex-wrap gap-2 pb-1 border-b border-border/50">
+              <div>
+                <h3 className="text-xs sm:text-sm font-bold text-foreground">
+                  Chat AI Pembuat Artikel
+                </h3>
+                <p className="text-[11px] text-muted-foreground">
+                  Ketik perintah atau topik artikel maklon herbal untuk mengisi otomatis seluruh draf di bawah.
+                </p>
+              </div>
+
+              {/* Model Selector Button */}
+              <button
+                type="button"
+                onClick={() => {
+                  fetchActiveModels()
+                  setIsModelSelectorOpen(true)
+                }}
+                title="Klik untuk memilih model AI yang aktif dari VPS"
+                className="flex items-center gap-1.5 text-[10px] text-[#166534] dark:text-emerald-400 bg-[#166534]/10 hover:bg-[#166534]/20 px-2.5 py-1 rounded border border-[#166534]/30 font-mono transition-colors cursor-pointer group"
+              >
+                <span className="w-1.5 h-1.5 rounded-full bg-[#166534] animate-pulse" />
+                <span className="font-semibold">{activeModel}</span>
+                <ChevronDownIcon className="size-3 opacity-60 group-hover:opacity-100 transition-opacity" />
+              </button>
+            </div>
+
+            {/* Chat History Messages (if any) */}
+            {aiChatMessages.length > 0 && (
+              <div className="space-y-2 max-h-48 overflow-y-auto p-3 rounded bg-muted/30 border border-border/60 text-xs">
+                {aiChatMessages.map((msg, i) => (
+                  <div
+                    key={i}
+                    className={cn(
+                      "flex gap-2 items-start",
+                      msg.role === "user" ? "justify-end" : "justify-start"
+                    )}
+                  >
+                    {msg.role === "assistant" && (
+                      <div className="w-5 h-5 rounded bg-[#166534] text-white flex items-center justify-center shrink-0 text-[10px] font-bold mt-0.5">
+                        <BotIcon className="size-3" />
+                      </div>
+                    )}
+                    <div
+                      className={cn(
+                        "rounded px-3 py-1.5 max-w-[85%] text-xs leading-relaxed",
+                        msg.role === "user"
+                          ? "bg-[#166534] text-white"
+                          : "bg-background text-foreground border border-border/60"
+                      )}
+                    >
+                      <p>{msg.text}</p>
+                      <span className="text-[9px] opacity-70 block text-right mt-0.5">{msg.time}</span>
+                    </div>
+                    {msg.role === "user" && (
+                      <div className="w-5 h-5 rounded bg-muted text-foreground flex items-center justify-center shrink-0 text-[10px] font-bold mt-0.5 border border-border/60">
+                        U
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {/* Prompt Input Box */}
+            <div className="relative flex items-center gap-2">
+              <Input
+                placeholder="Minta AI untuk membuatkan ide artikel..."
+                value={aiTopic}
+                onChange={(e) => setAiTopic(e.target.value)}
+                disabled={isAiGenerating}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" && !e.shiftKey && !isAiGenerating) {
+                    e.preventDefault()
+                    handleAiGenerateArticle()
+                  }
+                }}
+                className="pr-24 text-xs h-10 bg-background border-[#166534]/30 focus-visible:ring-[#166534] shadow-none rounded-[5px]"
+              />
+              <Button
+                type="button"
+                size="sm"
+                onClick={() => handleAiGenerateArticle()}
+                disabled={!aiTopic.trim() || isAiGenerating}
+                className="absolute right-1 top-1 bottom-1 h-8 px-3.5 bg-[#166534] hover:bg-[#14532D] text-white text-xs font-semibold shadow-none rounded-[4px] gap-1.5 disabled:opacity-50 cursor-pointer"
+              >
+                {isAiGenerating ? (
+                  <>
+                    <RefreshCwIcon className="size-3.5 animate-spin" />
+                    <span>Menulis...</span>
+                  </>
+                ) : (
+                  <>
+                    <SendIcon className="size-3.5" />
+                    <span>Generate</span>
+                  </>
+                )}
+              </Button>
+            </div>
+          </div>
+
           {/* Metadata Card */}
           <div className="rounded-[5px] border border-border bg-card p-5 shadow-xs space-y-4">
             <div className="flex items-center justify-between border-b border-border/60 pb-3">
@@ -1118,7 +1381,7 @@ export function InsightEditor({ initialArticle, isEditMode = false }: InsightEdi
                   <Input
                     value={coverImage}
                     onChange={(e) => setCoverImage(e.target.value)}
-                    placeholder="https://... atau klik upload"
+                    placeholder="https://... atau klik upload / pilih preset di bawah"
                     className="text-xs bg-background rounded-[5px]"
                   />
                   <label className="inline-flex cursor-pointer items-center justify-center gap-1.5 rounded-[5px] border border-[#15803d]/30 bg-green-50 dark:bg-green-950/30 px-3 py-2 text-xs font-semibold text-green-800 dark:text-green-300 hover:bg-green-100 transition-colors shrink-0">
@@ -1151,6 +1414,44 @@ export function InsightEditor({ initialArticle, isEditMode = false }: InsightEdi
                     </button>
                   </div>
                 )}
+              </div>
+
+              {/* Presets banner herbal resmi CV. Indo Green Nature & Acak Gambar */}
+              <div className="flex flex-wrap items-center gap-1.5 pt-1">
+                <span className="text-[10px] text-muted-foreground mr-1">Preset & Variasi:</span>
+                <button
+                  type="button"
+                  onClick={() => {
+                    const item = getRandomHerbalImage(undefined, coverImage ? [coverImage] : [])
+                    setCoverImage(item.url)
+                    toast.success(`Cover diubah ke: ${item.title}`)
+                  }}
+                  className="inline-flex items-center gap-1 text-[10px] px-2 py-0.5 rounded-[4px] border border-amber-600/30 bg-amber-500/10 text-amber-700 dark:text-amber-400 hover:bg-amber-500/20 font-medium transition-colors"
+                  title="Pilih gambar herbal berkualitas tinggi secara acak dari katalog terverifikasi"
+                >
+                  <DicesIcon className="size-3" />
+                  Acak Cover Herbal
+                </button>
+                {[
+                  { label: "Pabrik Herbal", url: "/images/about_hero_banner.jpg" },
+                  { label: "Cleanroom Ekstraksi", url: "/images/facilities/cleanroom_extraction.jpg" },
+                  { label: "Packaging Line", url: "/images/facilities/packaging_line.jpg" },
+                  { label: "Lab Formulasi R&D", url: "/images/ign_lab_video_thumb.jpg" },
+                ].map((preset) => (
+                  <button
+                    key={preset.url}
+                    type="button"
+                    onClick={() => setCoverImage(preset.url)}
+                    className={cn(
+                      "text-[10px] px-2 py-0.5 rounded-[4px] border transition-colors",
+                      coverImage === preset.url
+                        ? "border-[#15803d] bg-[#15803d]/15 text-green-800 dark:text-green-300 font-semibold"
+                        : "border-border/70 hover:border-[#15803d]/40 text-muted-foreground hover:text-foreground"
+                    )}
+                  >
+                    {preset.label}
+                  </button>
+                ))}
               </div>
             </div>
 
@@ -1877,92 +2178,192 @@ export function InsightEditor({ initialArticle, isEditMode = false }: InsightEdi
           </DialogFooter>
         </DialogContent>
       </Dialog>
-
-      {/* MODAL AI PEMBUAT ARTIKEL OTOMATIS */}
-      <Dialog open={isAiModalOpen} onOpenChange={setIsAiModalOpen}>
-        <DialogContent className="sm:max-w-lg">
-          <DialogHeader>
-            <DialogTitle className="flex items-center gap-2 text-foreground">
-              <SparklesIcon className="size-4 text-emerald-600 animate-pulse" />
-              AI Pembuat Artikel Insight Maklon
-            </DialogTitle>
-            <DialogDescription className="text-xs">
-              Ketik topik yang diinginkan atau pilih salah satu ide cepat. AI akan otomatis meracik Judul, Kategori, Tags, dan seluruh isi konten artikel secara mendalam.
+      {/* MODAL PILIH MODEL AI AKTIF (OMNIROUTE VPS) */}
+      <Dialog open={isModelSelectorOpen} onOpenChange={setIsModelSelectorOpen}>
+        <DialogContent className="sm:max-w-md max-h-[85vh] flex flex-col p-0 overflow-hidden">
+          <DialogHeader className="p-4 pb-3 border-b border-border/70 bg-muted/20">
+            <div className="flex items-center justify-between">
+              <DialogTitle className="text-sm font-bold text-foreground flex items-center gap-2">
+                <CpuIcon className="size-4 text-[#166534]" />
+                <span>Pilih Model AI Aktif (OmniRoute)</span>
+              </DialogTitle>
+              <Badge variant="outline" className="border-[#166534]/30 text-[#166534] text-[10px] font-mono">
+                {isLoadingModels ? "Memindai..." : `${availableModels.length} Model Terdeteksi`}
+              </Badge>
+            </div>
+            <DialogDescription className="text-xs text-muted-foreground pt-1">
+              Model yang dipilih akan digunakan otomatis untuk seluruh proses pembuatan artikel &amp; ide.
             </DialogDescription>
           </DialogHeader>
 
-          <div className="space-y-4 py-2">
-            <div className="space-y-1.5">
-              <label className="text-xs font-semibold text-foreground">Topik / Bahasan Artikel:</label>
+          <div className="p-4 space-y-3 flex-1 overflow-y-auto">
+            {/* Input Pencarian Model */}
+            <div className="relative">
+              <SearchIcon className="size-3.5 absolute left-2.5 top-1/2 -translate-y-1/2 text-muted-foreground" />
               <Input
-                placeholder="Contoh: Cara Memulai Bisnis Minuman Herbal Serbuk dengan Izin BPOM"
-                value={aiTopic}
-                onChange={(e) => setAiTopic(e.target.value)}
-                disabled={isAiGenerating}
-                onKeyDown={(e) => {
-                  if (e.key === "Enter" && !isAiGenerating) {
-                    handleAiGenerateArticle()
-                  }
-                }}
+                placeholder="Cari nama model... (mis: deepseek, gemini, free, gpt)"
+                value={modelSearch}
+                onChange={(e) => setModelSearch(e.target.value)}
+                className="pl-8 text-xs h-9 bg-background border-border"
               />
             </div>
 
-            <div className="space-y-1.5">
-              <label className="text-[11px] text-muted-foreground font-medium">Ide Topik Cepat (Tinggal Klik):</label>
-              <div className="flex flex-col gap-1.5">
-                {[
-                  "Panduan Lengkap Memulai Bisnis Maklon Kapsul Herbal BPOM",
-                  "Perbedaan Izin Edar BPOM TR dan Pangan Olahan MD",
-                  "Keunggulan Maklon Herbal Berstandar CPOTB Resmi",
-                  "Tren Minuman Serbuk Herbal Alami & Kolagen 2026",
-                  "Tahapan Uji Laboratorium dan Sertifikasi Halal Produk Herbal",
-                ].map((topic, i) => (
-                  <button
-                    key={i}
-                    type="button"
-                    disabled={isAiGenerating}
-                    onClick={() => {
-                      setAiTopic(topic)
-                      handleAiGenerateArticle(topic)
-                    }}
-                    className="text-xs p-2 rounded-lg bg-secondary/60 hover:bg-secondary text-secondary-foreground hover:text-emerald-600 dark:hover:text-emerald-400 border border-border/50 text-left transition-all cursor-pointer flex items-center justify-between group disabled:opacity-50"
-                  >
-                    <span>{topic}</span>
-                    <SparklesIcon className="size-3 text-muted-foreground group-hover:text-emerald-600 shrink-0" />
-                  </button>
-                ))}
-              </div>
+            {/* Input Kustom Manual */}
+            <div className="flex gap-2">
+              <Input
+                placeholder="Atau ketik nama model manual..."
+                value={customModelInput}
+                onChange={(e) => setCustomModelInput(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" && customModelInput.trim()) {
+                    handleSelectModel(customModelInput)
+                    setCustomModelInput("")
+                  }
+                }}
+                className="text-xs h-8 bg-background border-border font-mono text-[11px]"
+              />
+              <Button
+                type="button"
+                size="sm"
+                onClick={() => {
+                  if (customModelInput.trim()) {
+                    handleSelectModel(customModelInput)
+                    setCustomModelInput("")
+                  }
+                }}
+                disabled={!customModelInput.trim()}
+                className="h-8 px-3 text-xs bg-[#166534] hover:bg-[#14532D] text-white cursor-pointer"
+              >
+                Pilih
+              </Button>
+            </div>
+
+            {/* List Model Aktif dari VPS */}
+            <div className="space-y-1 max-h-60 overflow-y-auto pr-1">
+              {isLoadingModels ? (
+                <div className="py-6 flex flex-col items-center justify-center text-xs text-muted-foreground gap-2">
+                  <RefreshCwIcon className="size-4 animate-spin text-[#166534]" />
+                  <span>Mendeteksi model aktif dari server VPS...</span>
+                </div>
+              ) : (
+                (() => {
+                  const filtered = availableModels.filter((m) =>
+                    m.toLowerCase().includes(modelSearch.toLowerCase().trim())
+                  )
+                  if (filtered.length === 0) {
+                    return (
+                      <div className="py-6 text-center text-xs text-muted-foreground">
+                        Tidak ada model yang cocok dengan &quot;{modelSearch}&quot;
+                      </div>
+                    )
+                  }
+                  return filtered.map((m) => {
+                    const isSelected = activeModel === m
+                    const testResult = modelTestResults[m]
+                    const isTestingThis = testingModelId === m
+
+                    return (
+                      <div
+                        key={m}
+                        onClick={() => handleSelectModel(m)}
+                        className={cn(
+                          "w-full text-left p-2 rounded-[5px] text-xs transition-colors flex items-center justify-between gap-2 group cursor-pointer border",
+                          isSelected
+                            ? "bg-[#166534]/10 border-[#166534]/50 text-[#166534] dark:text-emerald-400 font-semibold"
+                            : "hover:bg-muted/60 border-transparent text-foreground"
+                        )}
+                      >
+                        <div className="flex items-center gap-2 min-w-0 flex-1">
+                          {isSelected && (
+                            <CheckCircle2Icon className="size-3.5 text-[#166534] shrink-0" />
+                          )}
+                          <span className="font-mono text-[11px] truncate">{m}</span>
+                        </div>
+
+                        {/* Test Status Indicator & Inline Test Button */}
+                        <div className="flex items-center gap-1.5 shrink-0" onClick={(e) => e.stopPropagation()}>
+                          {testResult?.status === "success" && (
+                            <span className="text-[10px] text-emerald-600 bg-emerald-50 dark:bg-emerald-950/40 px-1.5 py-0.5 rounded border border-emerald-500/30 font-mono font-medium">
+                              ✅ {testResult.latencyMs}ms
+                            </span>
+                          )}
+                          {testResult?.status === "error" && (
+                            <span
+                              className="text-[10px] text-rose-600 bg-rose-50 dark:bg-rose-950/40 px-1.5 py-0.5 rounded border border-rose-500/30 font-mono font-medium truncate max-w-[80px]"
+                              title={testResult.error}
+                            >
+                              ❌ Error
+                            </span>
+                          )}
+
+                          <button
+                            type="button"
+                            onClick={(e) => handleTestModel(m, e)}
+                            disabled={isTestingThis}
+                            className="px-2 py-0.5 rounded text-[10px] font-mono text-muted-foreground hover:text-foreground hover:bg-muted border border-border/60 transition-colors cursor-pointer disabled:opacity-50 flex items-center gap-1"
+                            title="Uji koneksi ping model ini sekarang"
+                          >
+                            {isTestingThis ? (
+                              <RefreshCwIcon className="size-2.5 animate-spin text-[#166534]" />
+                            ) : (
+                              <ZapIcon className="size-2.5" />
+                            )}
+                            <span>{isTestingThis ? "Tes..." : "Tes"}</span>
+                          </button>
+                        </div>
+                      </div>
+                    )
+                  })
+                })()
+              )}
             </div>
           </div>
 
-          <DialogFooter className="flex items-center justify-between gap-2 border-t border-border/60 pt-3">
+          <DialogFooter className="p-3 border-t border-border/70 bg-muted/20 flex flex-wrap gap-2 justify-between items-center text-xs text-muted-foreground">
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="font-mono text-[10px] truncate max-w-[140px] sm:max-w-[180px]">
+                Aktif: <strong className="text-foreground">{activeModel}</strong>
+              </span>
+              <Button
+                type="button"
+                size="sm"
+                onClick={() => handleTestModel(activeModel)}
+                disabled={testingModelId === activeModel}
+                className="h-6 px-2 text-[10px] bg-[#166534] hover:bg-[#14532D] text-white gap-1 cursor-pointer rounded"
+                title="Uji koneksi respon model yang sedang aktif"
+              >
+                {testingModelId === activeModel ? (
+                  <RefreshCwIcon className="size-2.5 animate-spin" />
+                ) : (
+                  <ZapIcon className="size-2.5" />
+                )}
+                <span>{testingModelId === activeModel ? "Menguji..." : "Uji Model Ini"}</span>
+              </Button>
+
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() => {
+                  setIsModelSelectorOpen(false)
+                  window.dispatchEvent(new CustomEvent("open-ai-settings"))
+                }}
+                className="h-6 px-2 text-[10px] gap-1 cursor-pointer rounded border-[#166534]/40 text-[#166534] dark:text-green-400 hover:bg-[#166534]/10"
+                title="Buka Pengaturan AI Gateway (URL, Key, Parameter)"
+              >
+                <Settings2Icon className="size-2.5" />
+                <span>Pengaturan AI</span>
+              </Button>
+            </div>
+
             <Button
               type="button"
               variant="outline"
               size="sm"
-              onClick={() => setIsAiModalOpen(false)}
-              disabled={isAiGenerating}
+              onClick={() => setIsModelSelectorOpen(false)}
+              className="text-xs h-7 px-3 cursor-pointer"
             >
-              Batal
-            </Button>
-            <Button
-              type="button"
-              size="sm"
-              onClick={() => handleAiGenerateArticle()}
-              disabled={!aiTopic.trim() || isAiGenerating}
-              className="bg-emerald-600 hover:bg-emerald-700 text-white gap-1.5"
-            >
-              {isAiGenerating ? (
-                <>
-                  <RefreshCwIcon className="size-3.5 animate-spin" />
-                  <span>Meracik Artikel...</span>
-                </>
-              ) : (
-                <>
-                  <SparklesIcon className="size-3.5" />
-                  <span>Generate Artikel</span>
-                </>
-              )}
+              Tutup
             </Button>
           </DialogFooter>
         </DialogContent>

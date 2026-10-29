@@ -717,7 +717,7 @@ export function ContactSettingsSidebar({
                       type="email"
                       value={data.emailBisnis}
                       onChange={(e) => handleFieldChange("emailBisnis", e.target.value)}
-                      placeholder="marketing@indogreennature.com"
+                      placeholder="admin@indogreennature.com"
                       className="w-full px-3 py-2 rounded-[5px] text-xs border border-border bg-background"
                     />
                   </div>
@@ -816,7 +816,7 @@ export function ContactSettingsSidebar({
                       value={data.formReceiverEmail}
                       onChange={(e) => handleFieldChange("formReceiverEmail", e.target.value)}
                       className="w-full px-3 py-2 rounded-[5px] text-xs border border-border bg-background"
-                      placeholder="marketing@indogreennature.com"
+                      placeholder="admin@indogreennature.com"
                     />
                     <p className="text-[11px] text-muted-foreground">
                       Pesan formulir akan otomatis ditujukan ke alamat email ini saat tombol Kirim ditekan.

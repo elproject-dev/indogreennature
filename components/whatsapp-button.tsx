@@ -7,11 +7,14 @@ import {
   X,
   Send,
   CheckCheck,
-  Handshake,
   Leaf,
-  ChevronRight,
-  RotateCcw,
+  ExternalLink,
+  MapPin,
+  Phone,
 } from "lucide-react"
+import ReactMarkdown from "react-markdown"
+import remarkGfm from "remark-gfm"
+import remarkBreaks from "remark-breaks"
 import {
   WhatsAppButtonSettings,
   DEFAULT_WHATSAPP_SETTINGS,
@@ -22,13 +25,40 @@ import {
   normalizeWhatsAppNumber,
 } from "@/lib/whatsapp-settings"
 
+interface Message {
+  id: string
+  role: "user" | "assistant"
+  content: string
+  time: string
+}
+
+const DEFAULT_WELCOME_MESSAGE = `Halo, selamat datang di **Indo Green Nature**.
+Ada yang bisa saya bantu?`
+
 export function WhatsAppButton() {
   const pathname = usePathname()
   const [settings, setSettings] = useState<WhatsAppButtonSettings>(DEFAULT_WHATSAPP_SETTINGS)
   const [isOpen, setIsOpen] = useState(false)
-  const [message, setMessage] = useState("")
-  const [selectedTopicId, setSelectedTopicId] = useState<string | null>(null)
+  const [inputMessage, setInputMessage] = useState("")
+  const [isLoading, setIsLoading] = useState(false)
+  const [messages, setMessages] = useState<Message[]>([
+    {
+      id: "initial-cs-welcome",
+      role: "assistant",
+      content: DEFAULT_WELCOME_MESSAGE,
+      time: "Baru saja",
+    },
+  ])
+
   const chatRef = useRef<HTMLDivElement>(null)
+  const messagesEndRef = useRef<HTMLDivElement>(null)
+
+  // Scroll to bottom whenever messages or loading state changes
+  useEffect(() => {
+    if (isOpen) {
+      messagesEndRef.current?.scrollIntoView({ behavior: "smooth" })
+    }
+  }, [messages, isLoading, isOpen])
 
   // Inisialisasi pengaturan WhatsApp dari cache & remote
   useEffect(() => {
@@ -108,46 +138,98 @@ export function WhatsAppButton() {
     setIsOpen((prev) => !prev)
   }
 
-  // Mendapatkan nomor tujuan WhatsApp aktif secara dinamis & dinormalisasi
+  // Nomor tujuan WhatsApp aktif dinormalisasi
   const getActivePhone = (): string => {
-    if (selectedTopicId) {
-      const currentTopic = settings.topics?.find((t) => t.id === selectedTopicId)
-      if (currentTopic?.phone) {
-        const norm = normalizeWhatsAppNumber(currentTopic.phone)
-        if (norm) return norm
-      }
-      if (selectedTopicId === "maklon") {
-        const normMaklon = normalizeWhatsAppNumber(settings.phoneMaklon || settings.phoneDefault)
-        if (normMaklon) return normMaklon
-      }
-      if (selectedTopicId === "produk") {
-        const normProduk = normalizeWhatsAppNumber(settings.phoneDefault || settings.phoneMaklon)
-        if (normProduk) return normProduk
-      }
-    }
-    return normalizeWhatsAppNumber(settings.phoneDefault || settings.phoneMaklon || "6285877669199")
+    return normalizeWhatsAppNumber(settings.phoneMaklon || settings.phoneDefault || "6285877669199")
   }
 
-  const handleSelectTopic = (topic: { id: string; phone?: string; template: string }) => {
-    setSelectedTopicId(topic.id)
-    setMessage(topic.template)
-  }
-
-  const handleResetTopic = () => {
-    setSelectedTopicId(null)
-    setMessage("")
-  }
-
-  const handleSendMessage = (e?: React.FormEvent) => {
-    if (e) e.preventDefault()
-    const textToSend = message.trim()
-      ? message
-      : "Halo CV. Indo Green Nature, saya ingin bertanya seputar layanan."
-
+  // Redirect ke WhatsApp CS dengan konteks pesan
+  const handleOpenRealWhatsApp = (contextText?: string) => {
     const targetPhone = getActivePhone()
-    const encodedText = encodeURIComponent(textToSend)
-    const waUrl = `https://wa.me/${targetPhone}?text=${encodedText}`
+    const summary = contextText || messages.filter((m) => m.role === "user").slice(-1)[0]?.content || "Halo CV. Indo Green Nature, saya ingin konsultasi maklon herbal."
+    const prefillText = `Halo Tim CV. Indo Green Nature, saya ingin konsultasi lebih lanjut:\n\n"${summary}"`
+    const waUrl = `https://wa.me/${targetPhone}?text=${encodeURIComponent(prefillText)}`
     window.open(waUrl, "_blank", "noopener,noreferrer")
+  }
+
+  // Kirim pesan ke API AI
+  const handleSendMessage = async (userPromptText?: string) => {
+    const query = (userPromptText || inputMessage).trim()
+    if (!query || isLoading) return
+
+    const now = new Date()
+    const timeStr = `${now.getHours().toString().padStart(2, "0")}:${now.getMinutes().toString().padStart(2, "0")}`
+
+    const newUserMsg: Message = {
+      id: "usr-" + Date.now(),
+      role: "user",
+      content: query,
+      time: timeStr,
+    }
+
+    const updatedMessages = [...messages, newUserMsg]
+    setMessages(updatedMessages)
+    setInputMessage("")
+    setIsLoading(true)
+
+    try {
+      const payloadMessages = updatedMessages
+        .filter((m) => m.id !== "initial-cs-welcome")
+        .map((m) => ({
+          role: m.role,
+          content: m.content,
+        }))
+
+      if (payloadMessages.length === 0) {
+        payloadMessages.push({ role: "user", content: query })
+      }
+
+      const res = await fetch("/api/ai", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          task: "chat",
+          messages: payloadMessages,
+        }),
+      })
+
+      const data = await res.json()
+
+      if (data.success && data.result) {
+        setMessages((prev) => [
+          ...prev,
+          {
+            id: "ai-" + Date.now(),
+            role: "assistant",
+            content: data.result,
+            time: `${new Date().getHours().toString().padStart(2, "0")}:${new Date().getMinutes().toString().padStart(2, "0")}`,
+          },
+        ])
+      } else {
+        setMessages((prev) => [
+          ...prev,
+          {
+            id: "err-" + Date.now(),
+            role: "assistant",
+            content: "Mohon maaf, saat ini sistem kami sedang ramai. Anda dapat langsung terhubung dengan tim kami via WhatsApp.",
+            time: timeStr,
+          },
+        ])
+      }
+    } catch (error) {
+      console.error("Chat error:", error)
+      setMessages((prev) => [
+        ...prev,
+        {
+          id: "err-" + Date.now(),
+          role: "assistant",
+          content: "Koneksi sedang sibuk. Silakan hubungi kami langsung via WhatsApp di bawah.",
+          time: timeStr,
+        },
+      ])
+    } finally {
+      setIsLoading(false)
+    }
   }
 
   const isHomePage = pathname === "/" || pathname === "/home"
@@ -156,7 +238,6 @@ export function WhatsAppButton() {
   }
 
   const isLeft = settings.position === "left"
-  const activeTopics = (settings.topics || []).filter((t) => t.enabled !== false)
 
   return (
     <div
@@ -167,26 +248,26 @@ export function WhatsAppButton() {
       <AnimatePresence>
         {isOpen && (
           <motion.div
-            initial={{ opacity: 0, y: 16, scale: 0.98 }}
+            initial={{ opacity: 0, y: 16, scale: 0.96 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: 12, scale: 0.98 }}
+            exit={{ opacity: 0, y: 12, scale: 0.96 }}
             transition={{ duration: 0.22, ease: [0.16, 1, 0.3, 1] }}
             style={{
               transformOrigin: isLeft ? "bottom left" : "bottom right",
             }}
-            className="mb-3 w-[calc(100vw-2rem)] sm:w-[380px] max-h-[82vh] bg-[#0c1317] border border-emerald-500/20 rounded-2xl shadow-2xl overflow-hidden flex flex-col will-change-transform"
+            className="mb-3 w-[calc(100vw-2rem)] sm:w-[410px] h-[560px] max-h-[85vh] bg-[#0c1317] border border-emerald-500/30 rounded-2xl shadow-2xl overflow-hidden flex flex-col will-change-transform"
           >
-            {/* Header */}
-            <div className="bg-gradient-to-r from-[#00a884] via-[#099273] to-[#128c7e] p-3.5 text-white flex items-center justify-between shadow-md">
-              <div className="flex items-center gap-3">
-                <div className="relative">
+            {/* Header WhatsApp Resmi */}
+            <div className="bg-[#008069] p-3.5 text-white flex items-center justify-between shadow-md shrink-0 border-b border-[#006e5a]">
+              <div className="flex items-center gap-3 min-w-0">
+                <div className="relative shrink-0">
                   <div className="w-10 h-10 rounded-full bg-white p-1 flex items-center justify-center overflow-hidden border border-white/80 shadow-sm">
                     <img
                       src="/logo.png"
                       alt="CV. Indo Green Nature"
                       className="w-full h-full object-contain"
                       onError={(e) => {
-                        ; (e.target as HTMLElement).style.display = "none"
+                        ;(e.target as HTMLElement).style.display = "none"
                       }}
                     />
                     <Leaf className="w-5 h-5 text-[#15803D] hidden" />
@@ -194,19 +275,20 @@ export function WhatsAppButton() {
                   {/* Status indicator dot */}
                   <span className="absolute bottom-0 right-0 w-3 h-3 bg-emerald-400 border-2 border-[#099273] rounded-full"></span>
                 </div>
-                <div>
-                  <h3 className="font-bold text-sm tracking-wide text-white flex items-center gap-1.5">
-                    {settings.headerTitle || "CV. Indo Green Nature Support"}
+                <div className="min-w-0">
+                  <h3 className="font-bold text-sm tracking-wide text-white truncate">
+                    INDO GREEN NATURE SUPPORT
                   </h3>
-                  <p className="text-[11px] text-emerald-100 font-medium flex items-center gap-1">
+                  <p className="text-[11px] text-emerald-100 font-medium flex items-center gap-1 truncate">
                     <span className="w-1.5 h-1.5 rounded-full bg-emerald-300 animate-pulse"></span>
-                    {settings.headerSubtitle || "Online • Siap Mendengarkan"}
+                    Online
                   </p>
                 </div>
               </div>
+
               <button
                 onClick={handleToggle}
-                className="w-7 h-7 rounded-lg bg-black/20 hover:bg-black/40 text-white/90 hover:text-white flex items-center justify-center transition-colors border border-white/10"
+                className="w-7 h-7 rounded-lg bg-black/20 hover:bg-black/40 text-white/90 hover:text-white flex items-center justify-center transition-colors border border-white/10 shrink-0"
                 aria-label="Tutup Chat"
               >
                 <X className="w-4 h-4" />
@@ -215,10 +297,10 @@ export function WhatsAppButton() {
 
             {/* Chat Body */}
             <div
-              className="p-3.5 flex-1 overflow-y-auto space-y-3.5 max-h-[360px] text-sm bg-[#0b141a] [scrollbar-width:thin] [scrollbar-color:#1e2a30_transparent]"
+              className="p-3.5 flex-1 overflow-y-auto space-y-3.5 text-sm bg-[#0b141a] [scrollbar-width:thin] [scrollbar-color:#1e2a30_transparent]"
               style={{
                 backgroundImage:
-                  "radial-gradient(circle at 50% 50%, rgba(37, 211, 102, 0.04) 0%, transparent 80%)",
+                  "radial-gradient(circle at 50% 50%, rgba(37, 211, 102, 0.03) 0%, transparent 80%)",
               }}
             >
               {/* Date Badge */}
@@ -228,105 +310,156 @@ export function WhatsAppButton() {
                 </span>
               </div>
 
-              {/* CS Greeting Bubble */}
-              <div className="flex items-start gap-2 max-w-[92%]">
-                <div className="bg-[#1e2a30] text-gray-100 p-3 rounded-2xl rounded-tl-sm border border-white/10 shadow-md space-y-1.5">
-                  <div className="flex items-center justify-between gap-2">
-                    <p className="text-xs font-semibold text-[#00a884] flex items-center gap-1">
-                      <span>🌿</span> CV. Indo Green Nature CS
-                    </p>
-                    <span className="text-[10px] text-gray-400 font-mono">Respon Cepat</span>
-                  </div>
-                  <p className="text-[12.5px] leading-relaxed text-gray-200">
-                    {settings.greetingMessage1 || "Halo! 👋 Selamat datang di CV. Indo Green Nature."}
-                  </p>
-                  <p className="text-[12.5px] leading-relaxed text-gray-300">
-                    {settings.greetingMessage2 || "Ada yang bisa kami bantu? Pilih topik layanan di bawah atau ketik pesan konsultasi Anda langsung ke tim kami."}
-                  </p>
-                  <div className="flex items-center justify-end gap-1 text-[10px] text-gray-400 pt-1">
-                    <span>Baru saja</span>
-                    <CheckCheck className="w-3.5 h-3.5 text-[#53bdeb]" />
-                  </div>
-                </div>
-              </div>
+              {/* Message List */}
+              {messages.map((msg) => {
+                const isUser = msg.role === "user"
 
-              {/* Quick Topics Container */}
-              <div className="pt-1 space-y-2">
-                <div className="flex items-center justify-between px-0.5">
-                  <p className="text-[11px] font-medium text-gray-400">
-                    {selectedTopicId ? "Topik Dipilih:" : "Pilih Topik Layanan Cepat:"}
-                  </p>
-                  {selectedTopicId && (
-                    <button
-                      onClick={handleResetTopic}
-                      className="text-[10px] text-emerald-400 hover:text-emerald-300 flex items-center gap-1 transition-colors cursor-pointer"
+                return (
+                  <div
+                    key={msg.id}
+                    className={`flex flex-col ${isUser ? "items-end" : "items-start"}`}
+                  >
+                    <div
+                      className={`max-w-[88%] p-3 rounded-2xl shadow-md text-[12.5px] leading-relaxed ${
+                        isUser
+                          ? "bg-[#005c4b] text-white rounded-tr-sm border border-emerald-400/20"
+                          : "bg-[#202c33] text-gray-100 rounded-tl-sm border border-white/10"
+                      }`}
                     >
-                      <RotateCcw className="w-3 h-3" />
-                      Ganti Topik
-                    </button>
-                  )}
-                </div>
-
-                <div className="flex flex-col gap-1.5">
-                  {activeTopics.map((topic) => {
-                    const isSelected = selectedTopicId === topic.id
-                    const Icon = topic.id === "maklon" ? Handshake : Leaf
-
-                    return (
-                      <button
-                        key={topic.id}
-                        onClick={() => handleSelectTopic(topic)}
-                        className={`text-xs p-2.5 rounded-xl border transition-all text-left flex items-center justify-between gap-2.5 cursor-pointer ${
-                          isSelected
-                            ? "bg-[#00a884]/20 border-[#00a884] text-emerald-300 shadow-sm"
-                            : "bg-[#182229] border-white/10 text-gray-300 hover:bg-[#222e35] hover:border-white/20"
-                        }`}
-                      >
-                        <div className="flex items-center gap-2.5 min-w-0">
-                          <div className="w-7 h-7 rounded-lg flex items-center justify-center shrink-0 bg-emerald-500/20 text-emerald-400">
-                            <Icon className="w-3.5 h-3.5" />
-                          </div>
-                          <div className="truncate">
-                            <span className="font-medium block truncate text-[12px]">
-                              {topic.title}
-                            </span>
-                            {topic.description && (
-                              <span className="text-[10px] text-gray-400 block truncate">
-                                {topic.description}
-                              </span>
-                            )}
-                          </div>
+                      {!isUser && (
+                        <div className="flex items-center gap-1.5 mb-1.5 pb-1 border-b border-white/10 text-emerald-400 font-semibold text-[11px]">
+                          <Leaf className="w-3.5 h-3.5 text-emerald-400" />
+                          <span>INDO GREEN NATURE SUPPORT</span>
                         </div>
-                        <ChevronRight className="w-3.5 h-3.5 opacity-60 shrink-0" />
-                      </button>
-                    )
-                  })}
+                      )}
+
+                      <div className="prose prose-invert prose-xs max-w-none break-words text-gray-100 [&_p]:mb-2 [&_p:last-child]:mb-0 [&_ul]:my-1.5 [&_ul]:pl-4 [&_li]:my-0.5 [&_strong]:text-emerald-400 [&_strong]:font-semibold">
+                        <ReactMarkdown
+                          remarkPlugins={[remarkGfm, remarkBreaks]}
+                          components={{
+                            a: ({ href, children }) => {
+                              const isMap =
+                                href?.includes("maps.google") ||
+                                href?.includes("google.com/maps") ||
+                                href?.includes("maps.app.goo.gl")
+                              const isWa =
+                                href?.includes("wa.me") ||
+                                href?.includes("whatsapp.com")
+
+                              if (isMap) {
+                                const cleanLabel =
+                                  typeof children === "string"
+                                    ? children.replace(/📍/g, "").trim()
+                                    : children
+
+                                return (
+                                  <a
+                                    href={href}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="not-prose inline-flex items-center justify-center px-3 py-1.5 my-1.5 text-[11.5px] font-semibold rounded-xl bg-[#008069] hover:bg-[#006e5a] text-white transition-all shadow-xs active:scale-95 no-underline cursor-pointer"
+                                  >
+                                    <span>{cleanLabel || "Buka Lokasi di Google Maps"}</span>
+                                  </a>
+                                )
+                              }
+
+                              if (isWa) {
+                                return (
+                                  <a
+                                    href={href}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="not-prose inline-flex items-center gap-1.5 px-3 py-1.5 my-1.5 text-[11.5px] font-semibold rounded-xl bg-[#25D366]/20 hover:bg-[#25D366]/30 text-[#25D366] border border-[#25D366]/40 transition-all shadow-xs active:scale-95 no-underline group cursor-pointer"
+                                  >
+                                    <Phone className="size-3.5 group-hover:scale-110 transition-transform" />
+                                    <span>{children || "Chat WhatsApp"}</span>
+                                  </a>
+                                )
+                              }
+
+                              return (
+                                <a
+                                  href={href}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="not-prose inline-flex items-center gap-1.5 px-2.5 py-1 my-1 text-[11.5px] font-medium rounded-lg bg-white/10 hover:bg-white/15 text-emerald-300 border border-white/10 transition-all no-underline cursor-pointer"
+                                >
+                                  <span>{children}</span>
+                                  <ExternalLink className="size-3 opacity-70" />
+                                </a>
+                              )
+                            },
+                          }}
+                        >
+                          {msg.content}
+                        </ReactMarkdown>
+                      </div>
+
+                      <div className="flex items-center justify-end gap-1 text-[10px] text-gray-400 pt-1.5 mt-1 border-t border-white/5">
+                        <span>{msg.time}</span>
+                        {isUser ? (
+                          <CheckCheck className="w-3.5 h-3.5 text-[#53bdeb]" />
+                        ) : (
+                          <CheckCheck className="w-3.5 h-3.5 text-gray-400" />
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                )
+              })}
+
+              {/* Typing indicator */}
+              {isLoading && (
+                <div className="flex items-start gap-2">
+                  <div className="bg-[#202c33] text-gray-100 px-3.5 py-2.5 rounded-2xl rounded-tl-sm border border-white/10 shadow-md flex items-center gap-2">
+                    <span className="w-2 h-2 rounded-full bg-emerald-400 animate-bounce"></span>
+                    <span className="w-2 h-2 rounded-full bg-emerald-400 animate-bounce [animation-delay:0.15s]"></span>
+                    <span className="w-2 h-2 rounded-full bg-emerald-400 animate-bounce [animation-delay:0.3s]"></span>
+                    <span className="text-xs text-gray-400 ml-1">Sedang mengetik...</span>
+                  </div>
                 </div>
-              </div>
+              )}
+
+              <div ref={messagesEndRef} />
+            </div>
+
+            {/* Bridge to WhatsApp Banner */}
+            <div className="px-3.5 py-2 bg-[#141d24] border-t border-white/5 flex items-center justify-between text-[11px] text-gray-400 shrink-0">
+              <span>Butuh konsultasi lebih lanjut?</span>
+              <button
+                onClick={() => handleOpenRealWhatsApp()}
+                className="text-emerald-400 hover:text-emerald-300 font-semibold flex items-center gap-1 cursor-pointer transition-colors"
+              >
+                <span>Hubungi kami via WhatsApp</span>
+              </button>
             </div>
 
             {/* Chat Footer / Input Form */}
             <form
-              onSubmit={handleSendMessage}
-              className="p-3 bg-[#182229] border-t border-white/10"
+              onSubmit={(e) => {
+                e.preventDefault()
+                handleSendMessage()
+              }}
+              className="p-3 bg-[#182229] border-t border-white/10 flex items-center gap-2 shrink-0"
             >
-              <div className="flex items-center gap-2">
-                <textarea
-                  rows={2}
-                  value={message}
-                  onChange={(e) => setMessage(e.target.value)}
-                  placeholder="Ketik pesan atau pertanyaan Anda..."
-                  className="flex-1 bg-[#0b141a] text-white placeholder-gray-500 text-xs px-3 py-2 rounded-xl border border-white/10 focus:border-[#00a884] focus:outline-none transition-colors resize-none leading-relaxed"
-                />
-                <button
-                  type="submit"
-                  className="bg-gradient-to-r from-[#00a884] to-[#128c7e] hover:brightness-110 text-white p-2.5 rounded-xl flex items-center justify-center transition-all duration-200 shadow-md active:scale-95 shrink-0 h-10 w-10 self-center cursor-pointer"
-                  aria-label="Kirim Pesan WhatsApp"
-                  title="Kirim ke WhatsApp"
-                >
-                  <Send className="w-4 h-4" />
-                </button>
-              </div>
+              <input
+                type="text"
+                value={inputMessage}
+                onChange={(e) => setInputMessage(e.target.value)}
+                placeholder="Ketik pesan konsultasi Anda..."
+                disabled={isLoading}
+                className="flex-1 bg-[#0b141a] text-white placeholder-gray-500 text-xs px-3.5 py-2.5 rounded-xl border border-white/10 focus:border-[#00a884] focus:outline-none transition-colors leading-relaxed disabled:opacity-50"
+              />
+              <button
+                type="submit"
+                disabled={!inputMessage.trim() || isLoading}
+                className="bg-gradient-to-r from-[#00a884] to-[#128c7e] hover:brightness-110 disabled:opacity-40 disabled:cursor-not-allowed text-white p-2.5 rounded-xl flex items-center justify-center transition-all duration-200 shadow-md active:scale-95 shrink-0 h-10 w-10 cursor-pointer"
+                aria-label="Kirim Pesan"
+                title="Kirim Pesan"
+              >
+                <Send className="w-4 h-4" />
+              </button>
             </form>
           </motion.div>
         )}
@@ -336,9 +469,9 @@ export function WhatsAppButton() {
       <div className="relative flex items-center group">
         {/* Tooltip on Desktop hover */}
         {!isOpen && (
-          <div className="hidden md:flex absolute right-16 items-center px-3 py-1.5 rounded-xl bg-zinc-900/90 text-white text-xs font-medium shadow-xl border border-white/10 backdrop-blur-md whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none gap-1.5">
+          <div className="hidden md:flex absolute right-16 items-center px-3 py-1.5 rounded-xl bg-zinc-900/90 text-white text-xs font-medium shadow-xl border border-white/10 backdrop-blur-md whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none gap-2">
             <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-            Chat WhatsApp CV. Indo Green Nature
+            <span>Chat WhatsApp CV. Indo Green Nature</span>
           </div>
         )}
 
@@ -377,11 +510,11 @@ export function WhatsAppButton() {
             </motion.div>
           </div>
 
-          {/* Unread badge dot */}
+          {/* Unread badge dot (Merah Notifikasi WhatsApp) */}
           {!isOpen && (
-            <span className="absolute -top-1 -right-0 flex h-5 w-5 pointer-events-none">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
-              <span className="relative inline-flex rounded-full h-3.5 w-3.5 bg-red-500 border-2 border-[#121b22]"></span>
+            <span className="absolute -top-0.5 -right-0.5 flex h-4 w-4 pointer-events-none">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-500 opacity-80"></span>
+              <span className="relative inline-flex rounded-full h-3.5 w-3.5 bg-red-500 border-2 border-[#121b22] shadow-sm"></span>
             </span>
           )}
         </button>

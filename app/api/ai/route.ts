@@ -1,12 +1,25 @@
 import { NextResponse } from 'next/server';
 import { callOmniRouteAI, ChatMessage } from '@/lib/ai';
+import {
+  getAiConfigServer,
+  saveAiConfigServer,
+  resetAiConfigServer,
+  getWhatsAppCsKnowledgeServer,
+  saveWhatsAppCsKnowledgeServer,
+  DEFAULT_AI_CONFIG,
+  DEFAULT_BASE_SYSTEM_PROMPT,
+} from '@/lib/ai-config';
+import { getDynamicImagePromptPool } from '@/lib/insight/herbal-images';
+import { supabase } from '@/lib/supabase';
+import { getFullWebsiteKnowledge } from '@/lib/website-knowledge';
 
-// GET: Mengambil daftar model dari OmniRoute dan model default saat ini
+// GET: Mengambil konfigurasi AI aktif dan daftar model yang tersedia
 export async function GET() {
   try {
-    const baseUrl = process.env.OMNIROUTE_BASE_URL || 'https://ai.indogreennature.com/v1';
-    const apiKey = process.env.OMNIROUTE_API_KEY;
-    const defaultModel = process.env.OMNIROUTE_MODEL || 'kc/kilo-auto/free';
+    const config = await getAiConfigServer();
+    const baseUrl = config.baseUrl;
+    const apiKey = config.apiKey;
+    const defaultModel = config.defaultModel;
 
     let availableModels: string[] = [];
 
@@ -29,10 +42,23 @@ export async function GET() {
       }
     }
 
+    const whatsappKnowledge = await getWhatsAppCsKnowledgeServer();
+
     return NextResponse.json({
       success: true,
       defaultModel,
       models: availableModels,
+      config: {
+        baseUrl: config.baseUrl,
+        defaultModel: config.defaultModel,
+        systemPrompt: config.systemPrompt,
+        temperature: config.temperature,
+        isKeySet: Boolean(config.apiKey),
+        maskedApiKey: config.apiKey
+          ? `${config.apiKey.slice(0, 8)}...${config.apiKey.slice(-4)}`
+          : '',
+      },
+      whatsappKnowledge,
     });
   } catch (error: any) {
     return NextResponse.json(
@@ -42,21 +68,160 @@ export async function GET() {
   }
 }
 
-// POST: Menangani pemrosesan prompt atau chat AI
+// POST: Menangani pemrosesan prompt, konfigurasi, atau chat AI
 export async function POST(req: Request) {
   try {
     const body = await req.json();
     const { task, payload, messages, model } = body;
-    const chosenModel = model || payload?.model;
 
-    const baseCompanyContext = `Anda adalah asisten AI profesional untuk "CV. Indo Green Nature", pabrik dan penyedia jasa Maklon Herbal terpercaya di Indonesia berstandar CPOTB (Cara Pembuatan Obat Tradisional yang Baik), izin edar BPOM (TR/MD), dan sertifikasi Halal MUI. Layanan meliputi formulasi custom R&D, produksi sediaan kapsul herbal, minuman serbuk (fiber, collagen, rempah), teh herbal/celup, cairan obat dalam/madu herbal, serta pengurusan izin edar BPOM, Halal, desain kemasan, dan pendaftaran HKI merek bagi calon brand owner herbal. Selalu berikan jawaban yang cerdas, solutif, berbasis regulasi, dan ramah bisnis.`;
+    // TUGAS MANAJEMEN KONFIGURASI WEB
+    if (task === 'save_config') {
+      const res = await saveAiConfigServer(payload || {});
+      return NextResponse.json(res);
+    }
 
-    // MODE 1: CHAT INTERAKTIF (MULTI-TURN) UNTUK HALAMAN KHUSUS AI ASSISTANT
+    if (task === 'reset_config') {
+      const res = await resetAiConfigServer();
+      return NextResponse.json(res);
+    }
+
+    if (task === 'save_cs_knowledge') {
+      const res = await saveWhatsAppCsKnowledgeServer(payload || {});
+      return NextResponse.json(res);
+    }
+
+    if (task === 'test_connection') {
+      const testBaseUrl = payload?.baseUrl?.trim() || (await getAiConfigServer()).baseUrl;
+      const testApiKey = payload?.apiKey?.trim() || (await getAiConfigServer()).apiKey;
+      const startTime = Date.now();
+
+      const res = await fetch(`${testBaseUrl.replace(/\/+$/, '')}/models`, {
+        headers: {
+          Authorization: `Bearer ${testApiKey}`,
+        },
+        cache: 'no-store',
+      });
+
+      const latencyMs = Date.now() - startTime;
+      if (!res.ok) {
+        const errorText = await res.text();
+        return NextResponse.json({
+          success: false,
+          error: `OmniRoute menolak koneksi (${res.status}): ${errorText}`,
+          latencyMs,
+        });
+      }
+
+      const data = await res.json();
+      const models = Array.isArray(data.data) ? data.data.map((m: any) => m.id) : [];
+      return NextResponse.json({
+        success: true,
+        latencyMs,
+        modelsCount: models.length,
+        models,
+      });
+    }
+
+    if (task === 'test_model') {
+      const activeConfig = await getAiConfigServer();
+      const testBaseUrl = payload?.baseUrl?.trim() || activeConfig.baseUrl;
+      const testApiKey = payload?.apiKey?.trim() || activeConfig.apiKey;
+      const testModel = payload?.model?.trim() || activeConfig.defaultModel;
+      const startTime = Date.now();
+
+      try {
+        const aiResult = await callOmniRouteAI({
+          baseUrl: testBaseUrl,
+          apiKey: testApiKey,
+          systemPrompt: 'Reply with "Pong" and your model status in 5 words.',
+          messages: [{ role: 'user', content: 'Ping' }],
+          temperature: 0.1,
+          model: testModel,
+        });
+
+        const latencyMs = Date.now() - startTime;
+        return NextResponse.json({
+          success: true,
+          latencyMs,
+          model: testModel,
+          sampleResponse: (aiResult || 'Pong').trim(),
+        });
+      } catch (err: any) {
+        const latencyMs = Date.now() - startTime;
+        return NextResponse.json({
+          success: false,
+          latencyMs,
+          model: testModel,
+          error: err.message || 'Model gagal merespons atau tidak aktif di provider.',
+        });
+      }
+    }
+
+    // AMBIL KONFIGURASI DINAMIS DARI DATABASE / CACHE
+    const activeConfig = await getAiConfigServer();
+    const chosenModel = model || payload?.model || activeConfig.defaultModel;
+    const baseCompanyContext = activeConfig.systemPrompt || DEFAULT_BASE_SYSTEM_PROMPT;
+    const activeTemperature =
+      typeof payload?.temperature === 'number'
+        ? payload.temperature
+        : activeConfig.temperature;
+
+    // MODE 1: CHAT INTERAKTIF CS WHATSAPP & ASSISTANT (BERBASIS KNOWLEDGE BASE LENGKAP)
     if (task === 'chat' && Array.isArray(messages) && messages.length > 0) {
+      const [csKnowledge, websiteKnowledge] = await Promise.all([
+        getWhatsAppCsKnowledgeServer(),
+        getFullWebsiteKnowledge(),
+      ]);
+
+      const csSystemPrompt = `Anda adalah "INDO GREEN NATURE SUPPORT", staf Customer Service resmi dari CV. Indo Green Nature.
+Perusahaan: CV. Indo Green Nature (Pabrik Maklon Herbal Berstandar CPOTB Tahap II, Halal MUI/BPJPH, Izin Edar BPOM TR/MD).
+
+=== BASIS PENGETAHUAN RESMI PERUSAHAAN ===
+- Alamat Pabrik / Fasilitas Produksi:
+  ${csKnowledge.pabrikAddress}
+- Jam Operasional Pabrik & Kantor:
+  ${csKnowledge.operatingHours}
+- Kontak Resmi:
+  WhatsApp: ${csKnowledge.contactPhone} | Email: ${csKnowledge.contactEmail}
+- Layanan & Katalog Sediaan Maklon:
+${csKnowledge.serviceCatalog}
+- Minimal Order (MOQ) & Biaya:
+${csKnowledge.moqAndPricing}
+
+=== SELURUH HALAMAN WEBSITE & KATALOG PRODUK RETAIL RESMI ===
+${websiteKnowledge}
+
+=== INSTRUKSI & PELATIHAN KHUSUS DARI ADMIN ===
+${csKnowledge.customTrainingNotes}
+
+=== ATURAN KOMUNIKASI CUSTOMER SERVICE ===
+1. Selalu gunakan tutur bahasa yang ramah, sopan, profesional, dan solutif layaknya CS resmi terpercaya.
+2. JIKA DITANYA PRODUK APA SAJA YANG DIJUAL:
+   - Jelaskan bahwa CV. Indo Green Nature memiliki 2 lini produk & layanan:
+     a) **Produk Herbal Retail Siap Pakai**: Seperti Jahe Merah Temulawak, Collagen Tripeptide Glow Drink, Kapsul Meniran, Teh Celup Bunga Telang & Kelor, Fiber Slimming Drink, Kunyit Asam Segar, Meal Replacement Oat Shake, Madu Murni Hutan, dll (berizin BPOM & Halal). Berikan tautan halaman: [Lihat Katalog Produk Kami](/our-products) atau beli di Shopee/Tokopedia resmi.
+     b) **Jasa Maklon Herbal OEM/ODM**: Pembuatan produk herbal dengan merk sendiri berstandar CPOTB Tahap II, MOQ mulai 1.000 pcs, formula sampel gratis, dan pendampingan izin BPOM TR/MD & Halal sampai terbit.
+3. JIKA DITANYA ALAMAT / LOKASI / PETA PABRIK:
+   - Berikan alamat pabrik dan jam operasional, serta WAJIB SELALU sertakan link peta Google Maps persis dengan format: [Buka Lokasi di Google Maps](https://maps.app.goo.gl/KWv4Axdh4eYWpnE6A). Tautan ini otomatis dirender sebagai tombol hijau resmi oleh sistem.
+4. JIKA DITANYA MENGENAI HALAMAN / FITUR WEBSITE:
+   - Berikan panduan dan tautan langsung ke halaman terkait:
+     - Produk Retail: [Halaman Produk Kami](/our-products)
+     - Legalitas & Izin Pabrik: [Halaman Legalitas](/legality)
+     - Profil Pabrik & Fasilitas: [Halaman Tentang Kami](/about)
+     - Kontak & Lokasi: [Halaman Kontak](/contact)
+     - Artikel Edukasi Herbal: [Halaman Insight Blog](/insight)
+5. JIKA DITANYA KONTAK:
+   - Berikan nomor WhatsApp resmi ${csKnowledge.contactPhone} dan email ${csKnowledge.contactEmail}.
+6. JIKA DITANYA MOQ / BIAYA MAKLON:
+   - Jelaskan bahwa MOQ sangat ramah untuk pengusaha pemula mulai dari 1.000 pcs per batch dengan konsultasi dan sampel formulasi R&D gratis revisi.
+7. Hindari klaim medis yang berlebihan/dilarang BPOM.
+8. Di akhir jawaban yang relevan, selalu tawarkan bantuan lebih lanjut melalui WhatsApp resmi secara hangat.`;
+
       const aiResult = await callOmniRouteAI({
-        systemPrompt: baseCompanyContext,
+        baseUrl: activeConfig.baseUrl,
+        apiKey: activeConfig.apiKey,
+        systemPrompt: csSystemPrompt,
         messages: messages as ChatMessage[],
-        temperature: 0.7,
+        temperature: activeTemperature,
         model: chosenModel,
       });
 
@@ -83,17 +248,42 @@ Respon HARUS HANYA berupa JSON valid tanpa blok markdown di luar kurung kurawal:
 
       case 'generate_insight_full': {
         const topic = payload?.topic || 'Panduan Memulai Bisnis Maklon Herbal Berizin BPOM';
+
+        // Ambil daftar cover image yang SUDAH pernah digunakan di artikel database
+        // agar gambar yang disodorkan ke AI dijamin 100% belum pernah ada di artikel mana pun
+        let usedImages: string[] = Array.isArray(payload?.usedImages) ? payload.usedImages : [];
+        if (usedImages.length === 0) {
+          try {
+            const { data: existingArticles } = await supabase.from('article').select('src');
+            if (existingArticles) {
+              usedImages = existingArticles.map((a: any) => a.src).filter(Boolean);
+            }
+          } catch (e) {
+            // fallback silently
+          }
+        }
+
+        const dynamicImagePool = getDynamicImagePromptPool(topic, usedImages);
+
         systemPrompt += ` Tugas Anda adalah merancang artikel insight blog lengkap yang terstruktur untuk website maklon herbal CV. Indo Green Nature.`;
         userPrompt = `Buatkan artikel edukasi lengkap dan komprehensif tentang: "${topic}".
 Kategori yang valid: "Panduan Bisnis", "Regulasi & Legalitas", "R&D & Formulasi", "Tren Pasar", atau "Studi Bahan Alam".
+
+Aturan Pemilihan Gambar:
+- WAJIB pilih SATU URL gambar berkualitas tinggi HANYA pada field "cover_image".
+- Pilih dari katalog gambar terverifikasi dari internet di bawah ini (daftar ini sudah disaring otomatis agar BELUM PERNAH digunakan di artikel website mana pun):
+${dynamicImagePool}
+- PENTING: DILARANG mengarang URL sembarangan di luar daftar di atas (karena akan menyebabkan link gambar rusak/404).
+- PENTING: DILARANG membuat tag gambar (![...](...)) di dalam isi teks "markdown". Semua gambar hanya boleh masuk ke field "cover_image" saja!
 
 Respon WAJIB HANYA berupa JSON valid tanpa teks atau blok markdown di luar kurung kurawal:
 {
   "title": "Judul artikel yang menarik dan bernilai bisnis tinggi",
   "category": "Pilih salah satu dari kategori valid di atas",
   "pembahasan": "Fokus bahasan utama misal CPOTB, BPOM, atau Formulasi Herbal",
+  "cover_image": "Pilih salah satu URL gambar herbal unik dari daftar di atas yang belum pernah digunakan",
   "tags": ["Maklon Herbal", "Izin BPOM", "Sediaan Herbal", "Indo Green Nature"],
-  "markdown": "Isi lengkap artikel terstruktur minimal 400 kata menggunakan Markdown. Buat subjudul (## Subjudul), poin-poin penjelasan (*), kutipan tips (>), serta solusi maklon bersama CV. Indo Green Nature."
+  "markdown": "Isi lengkap artikel terstruktur minimal 400 kata menggunakan Markdown murni TANPA gambar di dalamnya. Buat subjudul (## Subjudul), poin-poin penjelasan (*), kutipan tips (>), serta solusi maklon bersama CV. Indo Green Nature."
 }`;
         break;
       }
@@ -145,16 +335,25 @@ Tolong berikan:
         }
         break;
       }
+      case 'test_model': {
+        systemPrompt = 'Jawab hanya satu kata: OK';
+        userPrompt = 'Ping';
+        break;
+      }
     }
 
+    const startTime = Date.now();
     const aiResult = await callOmniRouteAI({
+      baseUrl: activeConfig.baseUrl,
+      apiKey: activeConfig.apiKey,
       systemPrompt,
       userPrompt,
-      temperature: 0.7,
+      temperature: task === 'test_model' ? 0.1 : activeTemperature,
       model: chosenModel,
     });
+    const latencyMs = Date.now() - startTime;
 
-    return NextResponse.json({ success: true, result: aiResult });
+    return NextResponse.json({ success: true, result: aiResult, latencyMs });
   } catch (error: any) {
     console.error('AI API Error:', error);
     return NextResponse.json(

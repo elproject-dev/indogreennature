@@ -9,6 +9,8 @@ export interface GenerateOptions {
   messages?: ChatMessage[];
   temperature?: number;
   model?: string;
+  baseUrl?: string;
+  apiKey?: string;
 }
 
 /**
@@ -20,12 +22,14 @@ export async function callOmniRouteAI({
   messages = [],
   temperature = 0.7,
   model = process.env.OMNIROUTE_MODEL || 'kc/kilo-auto/free',
+  baseUrl,
+  apiKey,
 }: GenerateOptions): Promise<string> {
-  const baseUrl = process.env.OMNIROUTE_BASE_URL || 'https://ai.indogreennature.com/v1';
-  const apiKey = process.env.OMNIROUTE_API_KEY;
+  const activeBaseUrl = baseUrl || process.env.OMNIROUTE_BASE_URL || 'https://ai.indogreennature.com/v1';
+  const activeApiKey = apiKey || process.env.OMNIROUTE_API_KEY;
 
-  if (!apiKey) {
-    throw new Error('OMNIROUTE_API_KEY belum diatur di file environment (.env.local).');
+  if (!activeApiKey) {
+    throw new Error('OMNIROUTE_API_KEY belum diatur. Silakan atur melalui Web Pengaturan AI atau file environment (.env.local).');
   }
 
   const finalMessages: ChatMessage[] = [];
@@ -40,13 +44,13 @@ export async function callOmniRouteAI({
     finalMessages.push({ role: 'user', content: userPrompt });
   }
 
-  const url = `${baseUrl.replace(/\/+$/, '')}/chat/completions`;
+  const url = `${activeBaseUrl.replace(/\/+$/, '')}/chat/completions`;
 
   const response = await fetch(url, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      Authorization: `Bearer ${apiKey}`,
+      Authorization: `Bearer ${activeApiKey}`,
     },
     body: JSON.stringify({
       model,

@@ -362,7 +362,42 @@ export async function saveInsight(
       return { success: false, message: "Judul artikel wajib diisi.", error: "Judul artikel wajib diisi." }
     }
 
-    const slug = article.slug ? generateSlug(article.slug) : generateSlug(title)
+    let finalSlug = article.slug ? generateSlug(article.slug) : generateSlug(title)
+    if (!finalSlug) {
+      finalSlug = `artikel-${Date.now().toString(36)}`
+    }
+
+    // Pastikan slug unik jika sedang membuat artikel baru
+    if (!article.id) {
+      const { data: existing } = await supabase
+        .from("article")
+        .select("id")
+        .eq("slug", finalSlug)
+        .maybeSingle()
+
+      if (existing) {
+        let counter = 2
+        let unique = false
+        while (!unique && counter <= 50) {
+          const candidate = `${finalSlug}-${counter}`
+          const { data: check } = await supabase
+            .from("article")
+            .select("id")
+            .eq("slug", candidate)
+            .maybeSingle()
+          if (!check) {
+            finalSlug = candidate
+            unique = true
+          } else {
+            counter++
+          }
+        }
+        if (!unique) {
+          finalSlug = `${finalSlug}-${Date.now().toString(36)}`
+        }
+      }
+    }
+
     const content = article.content || (article.blocks ? blocksToMarkdown(article.blocks) : "")
     const reading_time = article.reading_time || calculateReadingTime(content)
     const cover = article.cover_image || article.src || ""
@@ -370,7 +405,7 @@ export async function saveInsight(
 
     const payload: any = {
       title,
-      slug,
+      slug: finalSlug,
       description: excerpt,
       category: article.category || "Panduan Bisnis",
       author: article.author || "Tim R&D Indo Green Nature",
@@ -399,20 +434,31 @@ export async function saveInsight(
       savedData = data
     } else {
       // Insert new
-      const { data, error } = await supabase
+      let insertResult = await supabase
         .from("article")
         .insert([payload])
         .select()
         .single()
 
-      if (error) throw error
-      savedData = data
+      // Jika terjadi race condition / constraint slug duplicate (409 Conflict / 23505)
+      if (insertResult.error && (insertResult.error.code === "23505" || insertResult.error.message?.includes("slug"))) {
+        const fallbackSlug = `${finalSlug}-${Date.now().toString(36)}`
+        payload.slug = fallbackSlug
+        insertResult = await supabase
+          .from("article")
+          .insert([payload])
+          .select()
+          .single()
+      }
+
+      if (insertResult.error) throw insertResult.error
+      savedData = insertResult.data
     }
 
     // Revalidasi cache SEO & Sitemap secara on-demand
-    if (savedData?.slug || slug) {
+    if (savedData?.slug || finalSlug) {
       import("@/app/actions/revalidate")
-        .then((mod) => mod.revalidateInsightContent(savedData?.slug || slug))
+        .then((mod) => mod.revalidateInsightContent(savedData?.slug || finalSlug))
         .catch(() => {})
     }
 
@@ -422,11 +468,13 @@ export async function saveInsight(
       message: article.id ? "Artikel berhasil diperbarui!" : "Artikel baru berhasil diterbitkan!",
     }
   } catch (err: any) {
-    console.error("saveInsight error:", err)
+    const errorDetails = err?.details || err?.hint || err?.code || ""
+    const errorMsg = err?.message || (typeof err === "object" ? JSON.stringify(err) : String(err)) || "Gagal menyimpan artikel."
+    console.error("saveInsight error:", errorMsg, errorDetails, err)
     return {
       success: false,
-      message: err.message || "Gagal menyimpan artikel.",
-      error: err.message || "Gagal menyimpan artikel.",
+      message: errorDetails ? `${errorMsg} (${errorDetails})` : errorMsg,
+      error: errorMsg,
     }
   }
 }

@@ -10,23 +10,19 @@ import {
   Bot,
   User,
   Send,
-  Sparkles,
   Copy,
   Check,
-  RotateCcw,
-  Search,
-  BookOpen,
-  FlaskConical,
-  MessageSquare,
-  ShieldCheck,
   Download,
   Loader2,
   Trash2,
-  Zap,
   Cpu,
   ChevronDown,
   X,
   Settings2,
+  Zap,
+  Search,
+  AlertCircle,
+  CheckCircle2,
 } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
@@ -83,44 +79,84 @@ const PRESET_MODELS = [
   },
 ];
 
-const QUICK_PROMPTS = [
-  {
-    icon: Search,
-    label: "Generate SEO Maklon",
-    prompt:
-      "Tolong buatkan judul SEO, meta description, dan 10 kata kunci relevan untuk halaman 'Jasa Maklon Kapsul Herbal BPOM & Halal'.",
-  },
-  {
-    icon: BookOpen,
-    label: "Tulis Artikel Insight",
-    prompt:
-      "Tuliskan artikel edukasi menarik (sekitar 300 kata) tentang 'Panduan Lengkap Memulai Bisnis Minuman Serbuk Herbal dengan Izin BPOM'.",
-  },
-  {
-    icon: FlaskConical,
-    label: "Ide Formulasi & Khasiat",
-    prompt:
-      "Berikan rekomendasi formulasi bahan aktif alami untuk produk herbal daya tahan tubuh (imunitas) dalam bentuk sediaan kapsul yang aman regulasi BPOM.",
-  },
-  {
-    icon: MessageSquare,
-    label: "Draft Balasan Calon Klien",
-    prompt:
-      "Buatkan draft balasan WhatsApp yang hangat dan profesional untuk calon klien yang menanyakan estimasi biaya maklon herbal, MOQ, dan proses perizinan BPOM.",
-  },
-  {
-    icon: ShieldCheck,
-    label: "Alur Legalitas BPOM & Halal",
-    prompt:
-      "Jelaskan secara ringkas tahapan alur legalitas dari uji laboratorium, pendaftaran notifikasi BPOM, hingga terbit sertifikasi Halal untuk produk maklon herbal.",
-  },
-];
-
 export default function AiAssistantPage() {
   const [selectedModel, setSelectedModel] = useState<string>("kc/kilo-auto/free");
   const [customModelInput, setCustomModelInput] = useState("");
   const [isModelModalOpen, setIsModelModalOpen] = useState(false);
   const [availableOmniModels, setAvailableOmniModels] = useState<string[]>([]);
+  const [modelSearch, setModelSearch] = useState("");
+  const [modelTab, setModelTab] = useState<"all" | "auto" | "free" | "openai" | "google" | "deepseek" | "claude">("all");
+  const [isTestingModel, setIsTestingModel] = useState(false);
+  const [modelTestResult, setModelTestResult] = useState<{
+    success: boolean;
+    latencyMs?: number;
+    message: string;
+    sampleResponse?: string;
+  } | null>(null);
+
+  const handleTestModel = async (modelToTest?: string) => {
+    const target = (modelToTest || selectedModel).trim();
+    if (!target) {
+      toast.error("Pilih atau ketik model yang ingin diuji");
+      return;
+    }
+    setIsTestingModel(true);
+    setModelTestResult(null);
+    try {
+      const res = await fetch("/api/ai", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          task: "test_model",
+          payload: { model: target },
+        }),
+      });
+      const data = await res.json();
+      if (res.ok && data.success) {
+        setModelTestResult({
+          success: true,
+          latencyMs: data.latencyMs,
+          message: `Model aktif (${data.latencyMs}ms)`,
+          sampleResponse: data.sampleResponse,
+        });
+        toast.success(`Model ${target} Aktif (${data.latencyMs}ms)`);
+      } else {
+        setModelTestResult({
+          success: false,
+          latencyMs: data.latencyMs,
+          message: data.error || "Model tidak merespons atau provider offline.",
+        });
+        toast.error(`Model ${target} Gagal diuji`);
+      }
+    } catch (err: any) {
+      setModelTestResult({
+        success: false,
+        message: err.message || "Gagal menguji model.",
+      });
+      toast.error("Gagal uji model");
+    } finally {
+      setIsTestingModel(false);
+    }
+  };
+
+  const filteredModels = React.useMemo(() => {
+    const list = availableOmniModels.length > 0 ? availableOmniModels : PRESET_MODELS.map((p) => p.id);
+    return list.filter((m) => {
+      const lower = m.toLowerCase();
+      if (modelTab === "auto" && !lower.startsWith("auto/")) return false;
+      if (modelTab === "free" && !lower.includes("free")) return false;
+      if (modelTab === "openai" && !lower.includes("gpt") && !lower.includes("openai")) return false;
+      if (modelTab === "google" && !lower.includes("gemini") && !lower.includes("google") && !lower.includes("gemma")) return false;
+      if (modelTab === "deepseek" && !lower.includes("deepseek")) return false;
+      if (modelTab === "claude" && !lower.includes("claude") && !lower.includes("anthropic")) return false;
+
+      if (modelSearch.trim()) {
+        const q = modelSearch.toLowerCase().trim();
+        return lower.includes(q);
+      }
+      return true;
+    });
+  }, [availableOmniModels, modelTab, modelSearch]);
 
   const [messages, setMessages] = useState<Message[]>([
     {
@@ -301,27 +337,13 @@ Saya siap membantu operasional website dan bisnis **Maklon Herbal** Anda:
   };
 
   return (
-    <div className="flex flex-col h-[calc(100vh-4.5rem)] max-w-6xl mx-auto px-4 py-4 md:py-6">
+    <div className="flex flex-col h-[calc(100vh-50px)] w-full max-w-[1440px] mx-auto px-4 lg:px-[20px] py-3 md:py-4">
       {/* HEADER SECTION */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-4 border-b border-border/60 gap-3">
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-emerald-600 to-teal-500 flex items-center justify-center text-white shadow-md shadow-emerald-500/20">
-            <Sparkles className="w-5 h-5 animate-pulse" />
-          </div>
-          <div>
-            <div className="flex items-center gap-2">
-              <h1 className="text-lg md:text-xl font-bold tracking-tight text-foreground">
-                AI Asisten Maklon Herbal
-              </h1>
-              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
-                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-ping" />
-                Online
-              </span>
-            </div>
-            <p className="text-xs text-muted-foreground">
-              CV. Indo Green Nature • CPOTB, BPOM, dan Halal Resmi
-            </p>
-          </div>
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-3.5 border-b border-border/60 gap-3">
+        <div>
+          <h1 className="text-base md:text-lg font-bold tracking-tight text-foreground">
+            AI Asisten Indo Green Nature
+          </h1>
         </div>
 
         {/* ACTIONS & MODEL SELECTOR */}
@@ -335,6 +357,16 @@ Saya siap membantu operasional website dan bisnis **Maklon Herbal** Anda:
             <Cpu className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400 group-hover:scale-110 transition-transform" />
             <span className="max-w-[130px] sm:max-w-[160px] truncate">{selectedModel}</span>
             <ChevronDown className="w-3.5 h-3.5 text-muted-foreground" />
+          </button>
+
+          {/* TOMBOL PENGATURAN AI GATEWAY */}
+          <button
+            onClick={() => window.dispatchEvent(new CustomEvent("open-ai-settings"))}
+            className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl bg-card border border-border/80 hover:border-emerald-500/50 text-xs font-medium text-foreground hover:bg-secondary/60 shadow-xs transition-all cursor-pointer"
+            title="Pengaturan AI Gateway (OmniRoute Endpoint & Kredensial)"
+          >
+            <Settings2 className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
+            <span className="hidden sm:inline">Pengaturan AI</span>
           </button>
 
           <Button
@@ -360,29 +392,8 @@ Saya siap membantu operasional website dan bisnis **Maklon Herbal** Anda:
         </div>
       </div>
 
-      {/* QUICK PROMPT BADGES */}
-      <div className="py-2.5 overflow-x-auto scrollbar-none flex items-center gap-2">
-        <span className="text-xs font-medium text-muted-foreground shrink-0 flex items-center gap-1">
-          <Zap className="w-3 h-3 text-amber-500" /> Cepat:
-        </span>
-        {QUICK_PROMPTS.map((item, idx) => {
-          const Icon = item.icon;
-          return (
-            <button
-              key={idx}
-              onClick={() => handleSendMessage(item.prompt)}
-              disabled={isLoading}
-              className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium bg-secondary/80 hover:bg-secondary text-secondary-foreground hover:text-emerald-600 dark:hover:text-emerald-400 border border-border/50 hover:border-emerald-500/40 transition-all shrink-0 cursor-pointer disabled:opacity-50"
-            >
-              <Icon className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
-              <span>{item.label}</span>
-            </button>
-          );
-        })}
-      </div>
-
       {/* CHAT MESSAGES CONTAINER */}
-      <div className="flex-1 overflow-y-auto px-1 py-4 space-y-4 rounded-xl">
+      <div className="flex-1 overflow-y-auto px-1 py-4 space-y-4 rounded-xl w-full">
         <AnimatePresence initial={false}>
           {messages.map((message) => {
             const isUser = message.role === "user";
@@ -541,22 +552,189 @@ Saya siap membantu operasional website dan bisnis **Maklon Herbal** Anda:
 
               {/* Modal Content */}
               <div className="p-4 space-y-4 overflow-y-auto">
+                {/* Active Model & Live Tester */}
+                <div className="p-3 rounded-xl bg-muted/40 border border-border/70 space-y-2">
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-semibold text-foreground flex items-center gap-1.5">
+                      <Cpu className="w-3.5 h-3.5 text-emerald-600" />
+                      Model Terpilih Saat Ini:
+                    </span>
+                    <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-700 dark:text-emerald-300 border border-emerald-500/20">
+                      {availableOmniModels.length > 0 ? `${availableOmniModels.length} Model VPS Terbaca` : "Preset"}
+                    </span>
+                  </div>
+
+                  <div className="flex items-center gap-2">
+                    <div className="flex-1 px-3 py-1.5 rounded-lg bg-background border border-border font-mono text-xs font-semibold text-emerald-700 dark:text-emerald-300 truncate">
+                      {selectedModel}
+                    </div>
+                    <Button
+                      size="sm"
+                      onClick={() => handleTestModel()}
+                      disabled={isTestingModel}
+                      className="text-xs h-8 gap-1.5 bg-emerald-600 hover:bg-emerald-700 text-white cursor-pointer shrink-0"
+                      title="Uji apakah model ini aktif dan merespons"
+                    >
+                      {isTestingModel ? (
+                        <>
+                          <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                          <span>Menguji...</span>
+                        </>
+                      ) : (
+                        <>
+                          <Zap className="w-3.5 h-3.5" />
+                          <span>Tes Model</span>
+                        </>
+                      )}
+                    </Button>
+                  </div>
+
+                  {/* Hasil Uji Model */}
+                  {modelTestResult && (
+                    <div
+                      className={`text-[11px] flex items-center justify-between gap-1.5 px-2.5 py-1.5 rounded-[5px] border ${
+                        modelTestResult.success
+                          ? "bg-green-500/10 border-green-500/30 text-green-800 dark:text-green-300"
+                          : "bg-destructive/10 border-destructive/30 text-destructive"
+                      }`}
+                    >
+                      <div className="flex items-center gap-1.5 overflow-hidden">
+                        {modelTestResult.success ? (
+                          <CheckCircle2 className="size-3.5 shrink-0" />
+                        ) : (
+                          <AlertCircle className="size-3.5 shrink-0" />
+                        )}
+                        <span className="truncate font-medium">{modelTestResult.message}</span>
+                      </div>
+                      {modelTestResult.sampleResponse && (
+                        <span className="text-[10px] font-mono bg-background/80 px-1.5 py-0.5 rounded border shrink-0">
+                          Respon: &quot;{modelTestResult.sampleResponse}&quot;
+                        </span>
+                      )}
+                    </div>
+                  )}
+                </div>
+
+                {/* TabCombobox Search & Category Tabs */}
+                <div className="space-y-2">
+                  <div className="flex items-center gap-2">
+                    <div className="relative flex-1">
+                      <Search className="size-3.5 absolute left-2.5 top-1/2 -translate-y-1/2 text-muted-foreground" />
+                      <input
+                        type="text"
+                        value={modelSearch}
+                        onChange={(e) => setModelSearch(e.target.value)}
+                        placeholder="Cari model VPS (misal: 5.4, free, gpt, gemini, claude)..."
+                        className="w-full pl-8 pr-7 py-1.5 text-xs rounded-lg bg-background border border-border focus:outline-none focus:ring-1 focus:ring-emerald-500 text-foreground"
+                      />
+                      {modelSearch && (
+                        <button
+                          type="button"
+                          onClick={() => setModelSearch("")}
+                          className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground cursor-pointer"
+                        >
+                          <X className="size-3" />
+                        </button>
+                      )}
+                    </div>
+                    <span className="text-[10px] text-muted-foreground shrink-0 font-mono">
+                      {filteredModels.length} / {availableOmniModels.length || PRESET_MODELS.length}
+                    </span>
+                  </div>
+
+                  {/* Kategori Tabs */}
+                  <div className="flex flex-wrap items-center gap-1">
+                    {[
+                      { id: "all", label: "Semua" },
+                      { id: "free", label: "🎁 Free" },
+                      { id: "auto", label: "⚡ Auto Router" },
+                      { id: "openai", label: "OpenAI / GPT" },
+                      { id: "google", label: "Google / Gemini" },
+                      { id: "deepseek", label: "DeepSeek" },
+                      { id: "claude", label: "Claude" },
+                    ].map((tab) => (
+                      <button
+                        key={tab.id}
+                        type="button"
+                        onClick={() => setModelTab(tab.id as any)}
+                        className={`text-[10px] px-2 py-0.5 rounded-[4px] border transition-colors cursor-pointer ${
+                          modelTab === tab.id
+                            ? "bg-emerald-600 text-white border-emerald-600 font-semibold"
+                            : "bg-muted hover:bg-muted/80 text-muted-foreground hover:text-foreground border-border/60"
+                        }`}
+                      >
+                        {tab.label}
+                      </button>
+                    ))}
+                  </div>
+
+                  {/* List Model Grid */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-1.5 max-h-56 overflow-y-auto p-1.5 bg-background/50 rounded-xl border border-border/70 scrollbar-thin">
+                    {filteredModels.slice(0, 100).map((m) => {
+                      const isSelected = selectedModel === m;
+                      return (
+                        <div
+                          key={m}
+                          onClick={() => {
+                            handleSelectModel(m);
+                            setModelTestResult(null);
+                          }}
+                          className={`group flex items-center justify-between p-2 rounded-lg border text-left cursor-pointer transition-colors ${
+                            isSelected
+                              ? "bg-emerald-500/15 border-emerald-500 text-emerald-800 dark:text-emerald-300 font-semibold shadow-xs"
+                              : "bg-card hover:bg-secondary/60 border-border/60 text-foreground"
+                          }`}
+                        >
+                          <span className="text-[11px] font-mono truncate mr-1.5" title={m}>
+                            {m}
+                          </span>
+                          <div className="flex items-center gap-1 shrink-0">
+                            {isSelected && <Check className="size-3 text-emerald-600" />}
+                            <button
+                              type="button"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleSelectModel(m);
+                                handleTestModel(m);
+                              }}
+                              className="opacity-0 group-hover:opacity-100 p-1 hover:bg-emerald-500/20 rounded text-[10px] text-muted-foreground hover:text-emerald-600 transition-opacity"
+                              title={`Uji respon model ${m}`}
+                            >
+                              <Zap className="size-3" />
+                            </button>
+                          </div>
+                        </div>
+                      );
+                    })}
+                    {filteredModels.length === 0 && (
+                      <div className="col-span-2 py-6 text-center text-xs text-muted-foreground">
+                        Tidak ada model yang cocok dengan kata kunci &quot;{modelSearch}&quot;
+                      </div>
+                    )}
+                    {filteredModels.length > 100 && (
+                      <div className="col-span-2 py-1.5 text-center text-[10px] text-muted-foreground font-mono">
+                        +{filteredModels.length - 100} model lainnya... ketik kata kunci untuk mempersempit.
+                      </div>
+                    )}
+                  </div>
+                </div>
+
                 {/* Custom Model Input */}
-                <div className="p-3 rounded-xl bg-secondary/40 border border-border/60 space-y-2">
+                <div className="pt-2 border-t border-border/60 space-y-1.5">
                   <label className="text-xs font-semibold text-foreground flex items-center gap-1.5">
                     <Cpu className="w-3.5 h-3.5 text-emerald-600" />
-                    Ketik Model Kustom / Manual:
+                    Ketik Model Manual:
                   </label>
                   <div className="flex gap-2">
                     <input
                       type="text"
-                      placeholder="Contoh: google/gemini-2.5-flash atau auto/chat"
+                      placeholder="Contoh: ddgw/gpt-5.4-mini atau auto/chat"
                       value={customModelInput}
                       onChange={(e) => setCustomModelInput(e.target.value)}
                       onKeyDown={(e) => {
                         if (e.key === "Enter") handleApplyCustomModel();
                       }}
-                      className="flex-1 px-3 py-1.5 text-xs rounded-lg bg-background border border-border focus:outline-none focus:ring-2 focus:ring-emerald-500/20 text-foreground"
+                      className="flex-1 px-3 py-1.5 text-xs rounded-lg bg-background border border-border focus:outline-none focus:ring-1 focus:ring-emerald-500 text-foreground"
                     />
                     <Button
                       size="sm"
@@ -567,56 +745,6 @@ Saya siap membantu operasional website dan bisnis **Maklon Herbal** Anda:
                     </Button>
                   </div>
                 </div>
-
-                {/* Preset Models List */}
-                <div className="space-y-2">
-                  <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
-                    Model Pilihan Rekomendasi:
-                  </span>
-                  <div className="space-y-2">
-                    {PRESET_MODELS.map((m) => {
-                      const isSelected = selectedModel === m.id;
-                      return (
-                        <div
-                          key={m.id}
-                          onClick={() => handleSelectModel(m.id)}
-                          className={`p-3 rounded-xl border transition-all cursor-pointer flex items-center justify-between gap-3 ${
-                            isSelected
-                              ? "bg-emerald-500/10 border-emerald-500/60 shadow-xs"
-                              : "bg-card hover:bg-secondary/50 border-border/60"
-                          }`}
-                        >
-                          <div className="space-y-0.5">
-                            <div className="flex items-center gap-2">
-                              <span className="text-sm font-semibold text-foreground">
-                                {m.name}
-                              </span>
-                              <span
-                                className={`text-[10px] px-2 py-0.5 rounded-full font-medium ${
-                                  isSelected
-                                    ? "bg-emerald-600 text-white"
-                                    : "bg-muted text-muted-foreground"
-                                }`}
-                              >
-                                {m.badge}
-                              </span>
-                            </div>
-                            <p className="text-xs text-muted-foreground">{m.desc}</p>
-                            <code className="text-[10px] text-muted-foreground/70 bg-muted px-1.5 py-0.5 rounded font-mono">
-                              {m.id}
-                            </code>
-                          </div>
-
-                          {isSelected && (
-                            <div className="w-6 h-6 rounded-full bg-emerald-600 text-white flex items-center justify-center shrink-0">
-                              <Check className="w-3.5 h-3.5" />
-                            </div>
-                          )}
-                        </div>
-                      );
-                    })}
-                  </div>
-                </div>
               </div>
 
               {/* Modal Footer */}
@@ -624,14 +752,28 @@ Saya siap membantu operasional website dan bisnis **Maklon Herbal** Anda:
                 <span>
                   Model aktif saat ini: <strong className="text-foreground">{selectedModel}</strong>
                 </span>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => setIsModelModalOpen(false)}
-                  className="text-xs cursor-pointer"
-                >
-                  Tutup
-                </Button>
+                <div className="flex items-center gap-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => {
+                      setIsModelModalOpen(false);
+                      window.dispatchEvent(new CustomEvent("open-ai-settings"));
+                    }}
+                    className="text-xs h-7 gap-1 border-emerald-500/30 text-emerald-800 dark:text-emerald-300 hover:bg-emerald-50 dark:hover:bg-emerald-950/30 cursor-pointer"
+                  >
+                    <Settings2 className="w-3 h-3" />
+                    <span>Pengaturan AI</span>
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setIsModelModalOpen(false)}
+                    className="text-xs h-7 cursor-pointer"
+                  >
+                    Tutup
+                  </Button>
+                </div>
               </div>
             </motion.div>
           </div>

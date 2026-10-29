@@ -22,6 +22,9 @@ import { toast } from "sonner"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { InsightViewer } from "@/components/insight/insight-viewer"
+import dynamic from "next/dynamic"
+import { supabase } from "@/lib/supabase"
+import { isUserAdmin } from "@/lib/auth-admin"
 import { fetchInsightBySlug, fetchInsights } from "@/lib/insight/db"
 import { InsightArticle } from "@/lib/insight/types"
 import { LoadingSpinner } from "@/components/loading-spinner"
@@ -33,7 +36,13 @@ import {
   getInitialInsightSettings,
   fetchInsightSettings,
   saveInsightSettings,
+  resetInsightSettings,
 } from "@/lib/insight-settings"
+
+const InsightSettingsSidebar = dynamic(
+  () => import("@/components/insight-settings-sidebar").then((m) => m.InsightSettingsSidebar),
+  { ssr: false }
+)
 
 function getArticleSnippet(article?: InsightArticle | null): string {
   if (!article) return ""
@@ -71,6 +80,79 @@ export default function InsightDetailPage() {
   // State untuk fungsi bar penyesuaian ukuran gambar
   const [coverHeight, setCoverHeight] = React.useState<number>(467)
   const [coverFit, setCoverFit] = React.useState<"cover" | "contain">("cover")
+  const [coverImgSrc, setCoverImgSrc] = React.useState<string | null>(null)
+  const [coverError, setCoverError] = React.useState(false)
+
+  // Pengaturan Insight Sidebar State & Handlers
+  const [isSettingsOpen, setIsSettingsOpen] = React.useState(false)
+  const [isSavingSettings, setIsSavingSettings] = React.useState(false)
+
+  // Listener Floating Button Admin & URL Query (?edit=true / ?settings=insight)
+  React.useEffect(() => {
+    const handleOpenSettings = async () => {
+      const { data: { session } } = await supabase.auth.getSession()
+      if (!session?.user || !isUserAdmin(session.user.email)) return
+      setIsSettingsOpen(true)
+    }
+
+    window.addEventListener("open-insight-settings", handleOpenSettings)
+
+    if (typeof window !== "undefined") {
+      const params = new URLSearchParams(window.location.search)
+      const isPrev = params.get("preview") === "true"
+      if (!isPrev && (params.get("edit") === "true" || params.get("settings") === "insight")) {
+        supabase.auth.getSession().then(({ data: { session } }) => {
+          if (session?.user && isUserAdmin(session.user.email)) {
+            setIsSettingsOpen(true)
+          } else {
+            setIsSettingsOpen(false)
+            window.history.replaceState({}, "", window.location.pathname)
+          }
+        })
+      }
+    }
+
+    return () => {
+      window.removeEventListener("open-insight-settings", handleOpenSettings)
+    }
+  }, [])
+
+  const handleSaveSettings = async () => {
+    setIsSavingSettings(true)
+    try {
+      const res = await saveInsightSettings(insightSettings)
+      if (res.success) {
+        toast.success("Pengaturan Insight berhasil disimpan ke sistem!")
+        setIsSettingsOpen(false)
+      } else {
+        toast.error(res.error || "Gagal menyimpan pengaturan.")
+      }
+    } catch (err: any) {
+      toast.error(err?.message || "Terjadi kesalahan saat menyimpan.")
+    } finally {
+      setIsSavingSettings(false)
+    }
+  }
+
+  const handleResetSettings = async () => {
+    if (window.confirm("Kembalikan seluruh pengaturan Insight ke kondisi bawaan (default)?")) {
+      await resetInsightSettings()
+      setInsightSettings(DEFAULT_INSIGHT_SETTINGS)
+      toast.success("Pengaturan Insight direset ke default.")
+    }
+  }
+
+  React.useEffect(() => {
+    const rawCover = article?.cover_image?.trim() || ""
+    // Jangan tampilkan cover frame sama sekali jika tanpa cover gambar atau placeholder banner default
+    if (rawCover && rawCover !== "/images/banner-default.jpg") {
+      setCoverImgSrc(rawCover)
+      setCoverError(false)
+    } else {
+      setCoverImgSrc(null)
+      setCoverError(false)
+    }
+  }, [article?.cover_image])
 
   React.useEffect(() => {
     if (insightSettings.articleCoverHeight) {
@@ -483,8 +565,8 @@ export default function InsightDetailPage() {
         <div className="grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_453px] gap-5 items-start">
           {/* Kolom Kiri: Main Article Content (rectangle: 927px x 467px Cover + Konten Artikel) */}
           <article className="min-w-0 w-full">
-            {/* Foto Frame Insight (Rasio 16:9 di mobile, custom height / 467px di desktop) */}
-            {article.cover_image && (
+            {/* Foto Frame Insight (Hanya tampil jika ada cover valid, tanpa banner default jika tidak ada cover) */}
+            {coverImgSrc && !coverError && (
               <div className="mb-6 sm:mb-8">
                 <div
                   style={{
@@ -493,12 +575,13 @@ export default function InsightDetailPage() {
                   className="relative w-full aspect-video sm:aspect-auto sm:h-[var(--cover-height)] sm:max-h-[var(--cover-height)] overflow-hidden rounded-[5px] border border-border shadow-md bg-muted transition-all duration-300"
                 >
                   <img
-                    src={article.cover_image}
-                    alt={article.title}
+                    src={coverImgSrc}
+                    alt={article?.title || "Cover Artikel"}
                     style={{
                       objectFit: coverFit,
                     }}
                     className="h-full w-full transition-all duration-300"
+                    onError={() => setCoverError(true)}
                   />
                 </div>
               </div>
@@ -573,32 +656,32 @@ export default function InsightDetailPage() {
 
             {/* rectangle-3: Quick Article Specs Widget: Detail Publikasi (height ~235px) */}
             <div className="rounded-[5px] border border-border bg-card p-4 sm:p-5 space-y-2.5 sm:space-y-3 shadow-xs">
-              <h4 className="text-xs font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-2">
+              <h4 className="text-xs font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-2 pb-1 border-b border-border/40">
                 <FolderIcon className="size-3.5 text-[#15803d]" />
                 Detail Publikasi
               </h4>
-              <div className="space-y-2 text-xs">
-                <div className="flex items-center justify-between py-1 border-b border-border/50">
-                  <span className="text-muted-foreground">Kategori</span>
-                  <span className="font-semibold text-[#15803d] dark:text-green-400">
+              <div className="space-y-2.5 text-xs">
+                <div className="flex items-center justify-between py-1 border-b border-border/50 gap-3">
+                  <span className="text-muted-foreground shrink-0">Kategori</span>
+                  <span className="font-semibold text-[#15803d] dark:text-green-400 text-right truncate">
                     {article.category}
                   </span>
                 </div>
-                <div className="flex items-center justify-between py-1 border-b border-border/50">
-                  <span className="text-muted-foreground">Waktu Baca</span>
-                  <span className="font-semibold text-foreground">
+                <div className="flex items-center justify-between py-1 border-b border-border/50 gap-3">
+                  <span className="text-muted-foreground shrink-0">Waktu Baca</span>
+                  <span className="font-semibold text-foreground text-right shrink-0">
                     {article.reading_time || "4 min baca"}
                   </span>
                 </div>
-                <div className="flex items-center justify-between py-1 border-b border-border/50">
-                  <span className="text-muted-foreground">Pembahasan</span>
-                  <span className="font-semibold text-foreground">
+                <div className="flex items-start justify-between py-1.5 border-b border-border/50 gap-4">
+                  <span className="text-muted-foreground shrink-0 pt-0.5">Pembahasan</span>
+                  <span className="font-semibold text-foreground text-right break-words max-w-[65%] leading-relaxed">
                     {article.pembahasan || "CPOTB & BPOM"}
                   </span>
                 </div>
-                <div className="flex items-center justify-between py-1 gap-2">
-                  <span className="text-muted-foreground shrink-0">Penerbit</span>
-                  <span className="font-semibold text-foreground text-right">
+                <div className="flex items-start justify-between py-1.5 gap-4">
+                  <span className="text-muted-foreground shrink-0 pt-0.5">Penerbit</span>
+                  <span className="font-semibold text-foreground text-right break-words max-w-[65%] leading-relaxed">
                     {article.author || "CV. Indo Green Nature"}
                   </span>
                 </div>
@@ -731,6 +814,19 @@ export default function InsightDetailPage() {
           </section>
         )}
       </main>
+
+      {/* ─── Sidebar / Modal Pengaturan Desktop ─── */}
+      {isSettingsOpen && (
+        <InsightSettingsSidebar
+          isOpen={isSettingsOpen}
+          onClose={() => setIsSettingsOpen(false)}
+          data={insightSettings}
+          onChange={setInsightSettings}
+          onSave={handleSaveSettings}
+          onReset={handleResetSettings}
+          isSaving={isSavingSettings}
+        />
+      )}
     </div>
   )
 }

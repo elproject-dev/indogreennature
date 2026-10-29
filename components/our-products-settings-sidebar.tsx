@@ -1783,6 +1783,7 @@ export function OurProductsSettingsSidebar({
                                 src={card.image}
                                 alt={card.title}
                                 fill
+                                unoptimized
                                 sizes="112px"
                                 className="object-cover group-hover:scale-105 transition-transform duration-300 rounded-full"
                               />
@@ -1981,6 +1982,7 @@ export function OurProductsSettingsSidebar({
                                 src={imgUrl}
                                 alt={`Slide Kiri ${idx + 1}`}
                                 fill
+                                unoptimized
                                 sizes="48px"
                                 className="object-cover"
                               />
@@ -2074,6 +2076,7 @@ export function OurProductsSettingsSidebar({
                                 src={imgUrl}
                                 alt={`Slide Kanan ${idx + 1}`}
                                 fill
+                                unoptimized
                                 sizes="48px"
                                 className="object-cover"
                               />
@@ -3658,6 +3661,7 @@ export function OurProductsSettingsSidebar({
                                     src={product.image}
                                     alt={product.name}
                                     fill
+                                    unoptimized
                                     sizes="64px"
                                     className="object-cover"
                                   />
