@@ -36,3 +36,5 @@ credentials/
 # typescript
 *.tsbuildinfo
 .env*
+*.sql
+

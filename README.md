@@ -1,36 +1,64 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# CV. Indo Green Nature - Web Application
 
-## Getting Started
+Aplikasi web profil perusahaan, katalog produk, dan dashboard admin untuk **CV. Indo Green Nature**. Dibangun dengan **Next.js 16 (App Router)** dan backend **Supabase Self-Hosted di VPS**.
 
-First, run the development server:
+---
 
+## 🚀 Panduan Lengkap Infrastruktur & VPS
+
+Seluruh panduan teknis mengenai server VPS Helipod, kredensial, konfigurasi Nginx/SSL, auto-start, penghematan RAM, serta sistem **Backup & Restore otomatis ke Google Drive** telah didokumentasikan secara rinci di:
+
+👉 **[Buka Panduan Lengkap: VPS_GUIDE.md](./VPS_GUIDE.md)**
+
+---
+
+## 🛠️ Stack Teknologi
+
+- **Frontend:** Next.js 16 (React 19, TypeScript, Tailwind CSS, Lucide Icons)
+- **Deployment Frontend:** [Vercel](https://www.indogreennature.com)
+- **Backend / Database:** Supabase Self-Hosted Docker (PostgreSQL 17, PostgREST, GoTrue Auth, Storage API, ImgProxy)
+- **API Domain:** `https://api.indogreennature.com`
+- **VPS Server:** Helipod Cloud (Debian 12, Nginx Reverse Proxy, Certbot Let's Encrypt SSL)
+- **Cloud Backup:** Rclone terintegrasi dengan Google Drive (`indogreennature.web@gmail.com`)
+
+---
+
+## 💻 Menjalankan Project di Komputer Lokal
+
+### 1. Install Dependensi
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+pnpm install
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### 2. Konfigurasi Environment Variable
+Pastikan file `.env.local` sudah mengarah ke backend Supabase VPS:
+```env
+NEXT_PUBLIC_SUPABASE_URL=https://api.indogreennature.com
+NEXT_PUBLIC_SUPABASE_ANON_KEY=eyJhbGciOi... (key anon VPS)
+```
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### 3. Jalankan Development Server
+```bash
+pnpm dev
+```
+Buka [http://localhost:3000](http://localhost:3000) di browser Anda.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+### 4. Build Production
+```bash
+pnpm build
+pnpm start
+```
 
-## Learn More
+---
 
-To learn more about Next.js, take a look at the following resources:
+## 📦 Perintah Cepat Backup & Restore VPS
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+Jika Anda sedang terhubung via SSH ke VPS (`ssh root@43.173.39.6`):
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+- **Cek Status Container:** `dps`
+- **Cek Backup di Google Drive:** `rclone ls indogreen-backup:Supabase-Backup`
+- **Backup Manual Sekarang:** `/root/backup-supabase.sh`
+- **Restore Database:** `/root/restore-supabase.sh [NAMA_FILE_BACKUP]`
+- **Matikan Studio (Hemat RAM):** `docker stop supabase-studio`
+- **Nyalakan Studio (Buka Web UI):** `docker start supabase-studio`
 
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
