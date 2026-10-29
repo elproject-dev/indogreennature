@@ -6048,21 +6048,21 @@ export default function SettingsPage() {
         try {
             const { data } = await supabase.from('lokasi').select('*').order('created_at', { ascending: false })
             if (data) setLokasis(data)
-        } catch (e) {}
+        } catch (e) { }
     }
 
     const fetchPromos = async () => {
         try {
             const { data } = await supabase.from('promo').select('*').order('id', { ascending: true })
             if (data) setPromos(data)
-        } catch (e) {}
+        } catch (e) { }
     }
 
     const fetchPilihans = async () => {
         try {
             const { data } = await supabase.from('article').select('*').order('id', { ascending: true })
             if (data) setPilihans(data)
-        } catch (e) {}
+        } catch (e) { }
     }
 
     const fetchProduks = async () => {
@@ -6085,14 +6085,14 @@ export default function SettingsPage() {
                     _raw_price: item.price,
                 })))
             }
-        } catch (e) {}
+        } catch (e) { }
     }
 
     const fetchBanners = async () => {
         try {
             const { data } = await supabase.from('banner').select('*').order('id', { ascending: true })
             if (data) setBanners(data)
-        } catch (e) {}
+        } catch (e) { }
     }
 
     const fetchAll = async () => {
