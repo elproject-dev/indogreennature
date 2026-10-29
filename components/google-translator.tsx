@@ -81,7 +81,7 @@ export function GoogleTranslator() {
       <div id="google_translate_element" className="hidden" style={{ display: "none" }} />
       <Script
         src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"
-        strategy="afterInteractive"
+        strategy="lazyOnload"
       />
     </>
   )

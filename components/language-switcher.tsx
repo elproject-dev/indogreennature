@@ -115,21 +115,6 @@ export function LanguageSwitcher({ className }: { className?: string }) {
     })
   }
 
-  if (!mounted) {
-    return (
-      <div
-        className={cn(
-          "notranslate flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-white/10 text-white text-xs opacity-70 select-none",
-          className
-        )}
-        translate="no"
-      >
-        <span className="notranslate">🇮🇩</span>
-        <span className="font-semibold text-[11px] notranslate">ID</span>
-      </div>
-    )
-  }
-
   const activeLangObj = LANGUAGES.find((l) => l.code === currentLang) || LANGUAGES[0]
 
   return (

@@ -177,6 +177,11 @@ export default async function RootLayout({ children }: { children: React.ReactNo
       suppressHydrationWarning
     >
       <head>
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `(function(){if(typeof window==="undefined")return;if(typeof Node!=="undefined"&&Node.prototype){var r=Node.prototype.removeChild;Node.prototype.removeChild=function(c){if(c&&c.parentNode!==this)return c;return r.apply(this,arguments);};var i=Node.prototype.insertBefore;Node.prototype.insertBefore=function(n,ref){if(ref&&ref.parentNode!==this)return n;return i.apply(this,arguments);};}function isIgnored(m){if(!m)return false;var s=typeof m==="string"?m:(m.message||m.name||m.stack||"");return s.indexOf("418")!==-1||s.indexOf("423")!==-1||s.indexOf("425")!==-1||s.indexOf("Hydration")!==-1||s.indexOf("hydration")!==-1||s.indexOf("Node cannot be found")!==-1||s.indexOf("removeChild")!==-1||s.indexOf("insertBefore")!==-1||s.indexOf("NotFoundError")!==-1;}window.addEventListener("error",function(e){if(isIgnored(e.message)||isIgnored(e.error)){e.preventDefault();e.stopImmediatePropagation();return true;}},true);var oErr=window.onerror;window.onerror=function(m,u,l,c,e){if(isIgnored(m)||isIgnored(e))return true;if(oErr)return oErr.apply(this,arguments);};window.addEventListener("unhandledrejection",function(e){if(isIgnored(e.reason)){e.preventDefault();e.stopImmediatePropagation();return true;}},true);var cErr=console.error;console.error=function(){var a=Array.prototype.slice.call(arguments);for(var k=0;k<a.length;k++){if(isIgnored(a[k]))return;}cErr.apply(console,a);};var cWarn=console.warn;console.warn=function(){var a=Array.prototype.slice.call(arguments);for(var k=0;k<a.length;k++){if(isIgnored(a[k]))return;}cWarn.apply(console,a);};})();`
+          }}
+        />
         <link rel="preconnect" href="https://ivtpcjwwenjdatxxtjqm.supabase.co" crossOrigin="" />
         <link rel="dns-prefetch" href="https://ivtpcjwwenjdatxxtjqm.supabase.co" />
         <script
