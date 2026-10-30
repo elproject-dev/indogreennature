@@ -40,6 +40,8 @@ import {
   ZapIcon,
   Settings2Icon,
   DicesIcon,
+  CheckCheck,
+  Leaf,
 } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
@@ -229,6 +231,12 @@ export function InsightEditor({ initialArticle, isEditMode = false }: InsightEdi
   // AI Article Chat Prompt & Model Selection State
   const [aiTopic, setAiTopic] = React.useState("")
   const [isAiGenerating, setIsAiGenerating] = React.useState(false)
+  const [thinkingStage, setThinkingStage] = React.useState("Sedang menganalisis topik...")
+  const [isTypingReply, setIsTypingReply] = React.useState(false)
+  const [currentTypingMsgIndex, setCurrentTypingMsgIndex] = React.useState<number | null>(null)
+  const aiTypingTimerRef = React.useRef<NodeJS.Timeout | null>(null)
+  const thinkingTimerRef = React.useRef<NodeJS.Timeout | null>(null)
+  const aiChatScrollRef = React.useRef<HTMLDivElement>(null)
   const [activeModel, setActiveModel] = React.useState("kc/kilo-auto/free")
   const [availableModels, setAvailableModels] = React.useState<string[]>([])
   const [isLoadingModels, setIsLoadingModels] = React.useState(false)
@@ -242,6 +250,14 @@ export function InsightEditor({ initialArticle, isEditMode = false }: InsightEdi
   const [aiChatMessages, setAiChatMessages] = React.useState<
     Array<{ role: "user" | "assistant"; text: string; time: string }>
   >([])
+
+  // Bersihkan interval animasi saat komponen unmount
+  React.useEffect(() => {
+    return () => {
+      if (aiTypingTimerRef.current) clearInterval(aiTypingTimerRef.current)
+      if (thinkingTimerRef.current) clearInterval(thinkingTimerRef.current)
+    }
+  }, [])
 
   const handleTestModel = async (modelId: string, e?: React.MouseEvent) => {
     if (e) e.stopPropagation()
@@ -338,18 +354,34 @@ export function InsightEditor({ initialArticle, isEditMode = false }: InsightEdi
       return
     }
 
+    if (aiTypingTimerRef.current) clearInterval(aiTypingTimerRef.current)
+    if (thinkingTimerRef.current) clearInterval(thinkingTimerRef.current)
+    setIsTypingReply(false)
+    setCurrentTypingMsgIndex(null)
+
     const nowTime = new Date().toLocaleTimeString("id-ID", { hour: "2-digit", minute: "2-digit" })
     setAiChatMessages((prev) => [
       ...prev,
       { role: "user", text: promptTopic, time: nowTime },
-      {
-        role: "assistant",
-        text: "⏳ Sedang meracik draf artikel lengkap (judul, kategori, tags, & seluruh blok konten)...",
-        time: nowTime,
-      },
     ])
 
     setIsAiGenerating(true)
+    setThinkingStage("Sedang menganalisis topik & konsep artikel...")
+
+    // Rotasi tahapan berpikir dinamis ala WhatsApp
+    const stages = [
+      "Sedang menganalisis topik & konsep artikel...",
+      "Meriset formula herbal & regulasi izin BPOM...",
+      "Menyusun struktur heading, poin edukasi & solusi maklon...",
+      "Memilih cover foto & tag relevan...",
+      "Sedang mengetik & menyusun seluruh draf artikel...",
+    ]
+    let stageIdx = 0
+    thinkingTimerRef.current = setInterval(() => {
+      stageIdx = (stageIdx + 1) % stages.length
+      setThinkingStage(stages[stageIdx])
+    }, 2200)
+
     try {
       const model = typeof window !== "undefined" ? localStorage.getItem("indogreen_ai_model") || "kc/kilo-auto/free" : "kc/kilo-auto/free"
       const res = await fetch("/api/ai", {
@@ -417,33 +449,67 @@ export function InsightEditor({ initialArticle, isEditMode = false }: InsightEdi
       }
 
       setAiTopic("")
+
+      // Hentikan animasi berpikir dan mulai animasi mengetik respons
+      if (thinkingTimerRef.current) clearInterval(thinkingTimerRef.current)
+
+      const successReply = `✨ Berhasil meracik artikel: "${parsedData.title}". Cover gambar dan seluruh blok konten artikel telah otomatis diterapkan ke formulir di bawah!`
+      const replyTime = new Date().toLocaleTimeString("id-ID", { hour: "2-digit", minute: "2-digit" })
+
+      let targetIdx = 0
       setAiChatMessages((prev) => {
-        const next = [...prev]
-        if (next.length > 0 && next[next.length - 1].role === "assistant") {
-          next[next.length - 1] = {
-            role: "assistant",
-            text: `✨ Berhasil meracik artikel: "${parsedData.title}". Gambar telah dimasukkan ke Cover Artikel saja tanpa membuat blok gambar baru di dalam konten!`,
-            time: new Date().toLocaleTimeString("id-ID", { hour: "2-digit", minute: "2-digit" }),
-          }
-        }
-        return next
+        targetIdx = prev.length
+        return [...prev, { role: "assistant", text: "", time: replyTime }]
       })
+
+      setIsAiGenerating(false)
+      setIsTypingReply(true)
+      setCurrentTypingMsgIndex(targetIdx)
+
+      // Animasi mengetik respons bot ala WhatsApp
+      let charIdx = 0
+      const totalChars = successReply.length
+      const step = 3
+
+      aiTypingTimerRef.current = setInterval(() => {
+        charIdx = Math.min(charIdx + step, totalChars)
+        const sliced = successReply.slice(0, charIdx)
+
+        setAiChatMessages((prev) => {
+          const next = [...prev]
+          if (next[targetIdx]) {
+            next[targetIdx] = { ...next[targetIdx], text: sliced }
+          }
+          return next
+        })
+
+        if (aiChatScrollRef.current) {
+          aiChatScrollRef.current.scrollTop = aiChatScrollRef.current.scrollHeight
+        }
+
+        if (charIdx >= totalChars) {
+          if (aiTypingTimerRef.current) clearInterval(aiTypingTimerRef.current)
+          setIsTypingReply(false)
+          setCurrentTypingMsgIndex(null)
+        }
+      }, 16)
+
       toast.success("Artikel berhasil diracik! Cover gambar telah disematkan tanpa blok baru.")
     } catch (err: any) {
-      setAiChatMessages((prev) => {
-        const next = [...prev]
-        if (next.length > 0 && next[next.length - 1].role === "assistant") {
-          next[next.length - 1] = {
-            role: "assistant",
-            text: `❌ Gagal meracik artikel: ${err.message || "Terjadi kesalahan"}`,
-            time: new Date().toLocaleTimeString("id-ID", { hour: "2-digit", minute: "2-digit" }),
-          }
-        }
-        return next
-      })
-      toast.error(err.message || "Gagal generate artikel dengan AI")
-    } finally {
+      if (thinkingTimerRef.current) clearInterval(thinkingTimerRef.current)
       setIsAiGenerating(false)
+      setIsTypingReply(false)
+      setCurrentTypingMsgIndex(null)
+
+      setAiChatMessages((prev) => [
+        ...prev,
+        {
+          role: "assistant",
+          text: `❌ Gagal meracik artikel: ${err.message || "Terjadi kesalahan"}`,
+          time: new Date().toLocaleTimeString("id-ID", { hour: "2-digit", minute: "2-digit" }),
+        },
+      ])
+      toast.error(err.message || "Gagal generate artikel dengan AI")
     }
   }
 
@@ -1022,14 +1088,30 @@ export function InsightEditor({ initialArticle, isEditMode = false }: InsightEdi
           {/* AI Chat Prompt Card - Clean Forest Green Version */}
           <div className="rounded-[6px] border border-[#166534]/30 bg-card p-4 sm:p-5 shadow-xs space-y-3">
             {/* Header: Clean Forest Green */}
-            <div className="flex items-center justify-between flex-wrap gap-2 pb-1 border-b border-border/50">
-              <div>
-                <h3 className="text-xs sm:text-sm font-bold text-foreground">
-                  Chat AI Pembuat Artikel
-                </h3>
-                <p className="text-[11px] text-muted-foreground">
-                  Ketik perintah atau topik artikel maklon herbal untuk mengisi otomatis seluruh draf di bawah.
-                </p>
+            <div className="flex items-center justify-between flex-wrap gap-2 pb-2 border-b border-border/50">
+              <div className="flex items-center gap-2.5 min-w-0">
+                <div className="relative shrink-0">
+                  <div className="w-8 h-8 rounded-full bg-[#166534]/15 border border-[#166534]/30 text-[#166534] dark:text-emerald-400 flex items-center justify-center shadow-xs">
+                    <BotIcon className="size-4" />
+                  </div>
+                  {/* Status indicator dot */}
+                  <span className="absolute bottom-0 right-0 w-2.5 h-2.5 bg-emerald-500 border-2 border-background rounded-full"></span>
+                </div>
+                <div className="min-w-0">
+                  <h3 className="text-xs sm:text-sm font-bold text-foreground truncate">
+                    Chat AI Pembuat Artikel
+                  </h3>
+                  <p className="text-[11px] text-muted-foreground flex items-center gap-1.5 truncate">
+                    {isAiGenerating || isTypingReply ? (
+                      <span className="text-[#166534] dark:text-emerald-400 font-medium flex items-center gap-1.5 animate-pulse">
+                        <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-ping" />
+                        {thinkingStage || "sedang berpikir..."}
+                      </span>
+                    ) : (
+                      <span>Ketik perintah atau topik artikel untuk meracik seluruh isi draf otomatis.</span>
+                    )}
+                  </p>
+                </div>
               </div>
 
               {/* Model Selector Button */}
@@ -1040,7 +1122,7 @@ export function InsightEditor({ initialArticle, isEditMode = false }: InsightEdi
                   setIsModelSelectorOpen(true)
                 }}
                 title="Klik untuk memilih model AI yang aktif dari VPS"
-                className="flex items-center gap-1.5 text-[10px] text-[#166534] dark:text-emerald-400 bg-[#166534]/10 hover:bg-[#166534]/20 px-2.5 py-1 rounded border border-[#166534]/30 font-mono transition-colors cursor-pointer group"
+                className="flex items-center gap-1.5 text-[10px] text-[#166534] dark:text-emerald-400 bg-[#166534]/10 hover:bg-[#166534]/20 px-2.5 py-1 rounded border border-[#166534]/30 font-mono transition-colors cursor-pointer group shrink-0"
               >
                 <span className="w-1.5 h-1.5 rounded-full bg-[#166534] animate-pulse" />
                 <span className="font-semibold">{activeModel}</span>
@@ -1048,40 +1130,85 @@ export function InsightEditor({ initialArticle, isEditMode = false }: InsightEdi
               </button>
             </div>
 
-            {/* Chat History Messages (if any) */}
-            {aiChatMessages.length > 0 && (
-              <div className="space-y-2 max-h-48 overflow-y-auto p-3 rounded bg-muted/30 border border-border/60 text-xs">
+            {/* Chat History & Visual Animasi Berpikir / Mengetik ala WhatsApp */}
+            {(aiChatMessages.length > 0 || isAiGenerating) && (
+              <div
+                ref={aiChatScrollRef}
+                className="space-y-3 max-h-56 overflow-y-auto p-3.5 rounded-xl bg-muted/20 border border-border/60 text-xs [scrollbar-width:thin]"
+              >
                 {aiChatMessages.map((msg, i) => (
                   <div
                     key={i}
                     className={cn(
-                      "flex gap-2 items-start",
+                      "flex gap-2.5 items-end",
                       msg.role === "user" ? "justify-end" : "justify-start"
                     )}
                   >
                     {msg.role === "assistant" && (
-                      <div className="w-5 h-5 rounded bg-[#166534] text-white flex items-center justify-center shrink-0 text-[10px] font-bold mt-0.5">
+                      <div className="w-6 h-6 rounded-full bg-[#166534]/15 border border-[#166534]/30 text-[#166534] dark:text-emerald-400 flex items-center justify-center shrink-0 shadow-xs mb-0.5">
                         <BotIcon className="size-3" />
                       </div>
                     )}
                     <div
                       className={cn(
-                        "rounded px-3 py-1.5 max-w-[85%] text-xs leading-relaxed",
+                        "rounded-2xl px-3.5 py-2 max-w-[85%] text-xs leading-relaxed shadow-xs",
                         msg.role === "user"
-                          ? "bg-[#166534] text-white"
-                          : "bg-background text-foreground border border-border/60"
+                          ? "bg-[#005c4b] text-white rounded-tr-xs border border-emerald-400/20"
+                          : "bg-background dark:bg-[#202c33] text-foreground rounded-tl-xs border border-border/60 dark:border-white/10"
                       )}
                     >
-                      <p>{msg.text}</p>
-                      <span className="text-[9px] opacity-70 block text-right mt-0.5">{msg.time}</span>
+                      {msg.role === "assistant" && (
+                        <div className="flex items-center gap-1 text-[#166534] dark:text-emerald-400 font-semibold text-[10px] mb-1 pb-0.5 border-b border-border/30 dark:border-white/10">
+                          <Leaf className="size-2.5" />
+                          <span>AI WRITER</span>
+                        </div>
+                      )}
+                      <p className="whitespace-pre-wrap">
+                        {msg.text}
+                        {currentTypingMsgIndex === i && (
+                          <span className="inline-block w-1.5 h-3 bg-emerald-500 animate-pulse ml-0.5 align-middle" />
+                        )}
+                      </p>
+                      <div
+                        className={cn(
+                          "text-[9px] flex items-center gap-1 mt-1",
+                          msg.role === "user" ? "text-emerald-100/70 justify-end" : "text-muted-foreground/60 justify-end"
+                        )}
+                      >
+                        <span>{msg.time}</span>
+                        {msg.role === "user" ? (
+                          <CheckCheck className="size-3 text-[#53bdeb]" />
+                        ) : (
+                          <CheckCheck className="size-3 text-muted-foreground/40" />
+                        )}
+                      </div>
                     </div>
                     {msg.role === "user" && (
-                      <div className="w-5 h-5 rounded bg-muted text-foreground flex items-center justify-center shrink-0 text-[10px] font-bold mt-0.5 border border-border/60">
+                      <div className="w-6 h-6 rounded-full bg-[#005c4b] text-white flex items-center justify-center shrink-0 text-[10px] font-bold shadow-xs mb-0.5">
                         U
                       </div>
                     )}
                   </div>
                 ))}
+
+                {/* Visual Animasi Berpikir / Mengetik ala WhatsApp */}
+                {isAiGenerating && (
+                  <div className="flex gap-2.5 items-end justify-start animate-in fade-in duration-200">
+                    <div className="w-6 h-6 rounded-full bg-[#166534]/15 border border-[#166534]/30 text-[#166534] dark:text-emerald-400 flex items-center justify-center shrink-0 shadow-xs mb-0.5">
+                      <BotIcon className="size-3" />
+                    </div>
+                    <div className="rounded-2xl rounded-tl-xs px-3.5 py-2.5 bg-background dark:bg-[#202c33] border border-[#166534]/30 shadow-xs flex items-center gap-2">
+                      <div className="flex items-center gap-1 py-0.5">
+                        <span className="w-2 h-2 rounded-full bg-emerald-500 animate-bounce [animation-delay:-0.3s]"></span>
+                        <span className="w-2 h-2 rounded-full bg-emerald-500 animate-bounce [animation-delay:-0.15s]"></span>
+                        <span className="w-2 h-2 rounded-full bg-emerald-500 animate-bounce"></span>
+                      </div>
+                      <span className="text-[11px] text-muted-foreground ml-1.5 font-medium italic">
+                        {thinkingStage}
+                      </span>
+                    </div>
+                  </div>
+                )}
               </div>
             )}
 
@@ -1110,7 +1237,7 @@ export function InsightEditor({ initialArticle, isEditMode = false }: InsightEdi
                 {isAiGenerating ? (
                   <>
                     <RefreshCwIcon className="size-3.5 animate-spin" />
-                    <span>Menulis...</span>
+                    <span>Berpikir...</span>
                   </>
                 ) : (
                   <>

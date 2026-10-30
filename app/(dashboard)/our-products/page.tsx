@@ -101,6 +101,12 @@ export default function OurProductsPage() {
       setIsSettingsOpen(false)
     }
 
+    // Tangkap query pencarian produk dari URL param ?q= atau ?search= (misal dari chat AI)
+    const searchParam = params.get("q") || params.get("search")
+    if (searchParam && isMounted) {
+      setSearchQuery(searchParam)
+    }
+
     // Muat data draft dari cache lokal terlebih dahulu seketika setelah client mount
     try {
       const cached = getInitialOurProductsSettings()

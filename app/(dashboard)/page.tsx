@@ -540,12 +540,12 @@ export default function HomePage() {
     { name: "GoFood", src: "/gofood.png", href: extLinks.gofood_link },
   ].filter((p) => Boolean(p.href && p.href.trim() !== ""));
 
-  const bannerPlugin = useRef(Autoplay({ delay: 4000, stopOnInteraction: true }));
-  const productPlugin = useRef(Autoplay({ delay: 3000, stopOnInteraction: true }));
+  const bannerPlugin = useRef(Autoplay({ delay: 4000, stopOnInteraction: false, stopOnMouseEnter: true }));
+  const productPlugin = useRef(Autoplay({ delay: 3000, stopOnInteraction: false, stopOnMouseEnter: true }));
   const ulasanPlugin = useRef(Autoplay({ delay: 3500, stopOnInteraction: false, stopOnMouseEnter: true }));
-  const jenisProdukPlugin = useRef(Autoplay({ delay: 3500, stopOnInteraction: true }));
-  const mengapaPlugin = useRef(Autoplay({ delay: 3500, stopOnInteraction: true }));
-  const prosesMaklonPlugin = useRef(Autoplay({ delay: 3500, stopOnInteraction: true }));
+  const jenisProdukPlugin = useRef(Autoplay({ delay: 3500, stopOnInteraction: false, stopOnMouseEnter: true }));
+  const mengapaPlugin = useRef(Autoplay({ delay: 3500, stopOnInteraction: false, stopOnMouseEnter: true }));
+  const prosesMaklonPlugin = useRef(Autoplay({ delay: 3500, stopOnInteraction: false, stopOnMouseEnter: true }));
   const legalitasPlugin = useRef(AutoScroll({ speed: 1.2, stopOnInteraction: false, stopOnMouseEnter: true }));
   const dipercayaBrandPlugin = useRef(AutoScroll({ speed: 1.2, stopOnInteraction: false, stopOnMouseEnter: true }));
 
@@ -3989,8 +3989,6 @@ export default function HomePage() {
                   opts={{ align: "center", loop: true }}
                   plugins={[jenisProdukPlugin.current]}
                   className="w-full"
-                  onMouseEnter={() => jenisProdukPlugin.current.stop()}
-                  onMouseLeave={() => jenisProdukPlugin.current.reset()}
                 >
                   <CarouselContent className="-ml-3 py-2">
                     {activeJenisCards.map((card, idx) => (
@@ -4304,8 +4302,6 @@ export default function HomePage() {
                   opts={{ align: "center", loop: true }}
                   plugins={[mengapaPlugin.current]}
                   className="w-full"
-                  onMouseEnter={() => mengapaPlugin.current.stop()}
-                  onMouseLeave={() => mengapaPlugin.current.reset()}
                 >
                   <CarouselContent className="-ml-3 py-2">
                     {activeMengapaCards.map((card, idx) => (
@@ -4799,8 +4795,6 @@ export default function HomePage() {
                   opts={{ align: "center", loop: true }}
                   plugins={[prosesMaklonPlugin.current]}
                   className="w-full"
-                  onMouseEnter={() => prosesMaklonPlugin.current.stop()}
-                  onMouseLeave={() => prosesMaklonPlugin.current.reset()}
                 >
                   <CarouselContent className="-ml-3 py-2">
                     {activeItems.map((item, idx) => (

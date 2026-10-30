@@ -43,19 +43,21 @@ export async function getFullWebsiteKnowledge(): Promise<string> {
     .map((p, idx) => {
       const priceFmt = `Rp ${p.price?.toLocaleString("id-ID") || 0}`
       const desc = p.description ? ` - ${p.description}` : ""
-      return `${idx + 1}. **${p.name}** (${p.category || "Herbal"}, ${priceFmt})${desc}`
+      const encodedName = encodeURIComponent(p.name.trim())
+      return `${idx + 1}. [${p.name}](/our-products?q=${encodedName}) (${p.category || "Herbal"}, ${priceFmt})${desc}`
     })
     .join("\n")
 
   const fullKnowledge = `
 === KATALOG PRODUK HERBAL SIAP JUAL (HALAMAN /our-products) ===
-CV. Indo Green Nature menjual produk herbal retail siap pakai berkualitas tinggi berizin BPOM & Halal:
+CV. Indo Green Nature menjual produk herbal retail siap pakai berkualitas tinggi berizin BPOM & Halal.
+Format setiap produk berikut sudah berupa text link langsung ke halaman katalog:
 ${productListText}
 
 Toko Marketplace Resmi:
 - Shopee: CV. Indo Green Nature Official Shop
 - Tokopedia, Lazada, dan TikTok Shop
-* Pembeli retail/eceran dapat diarahkan untuk melihat katalog lengkap di halaman website: /our-products atau membeli di marketplace resmi.
+* Pembeli retail/eceran dapat diarahkan untuk mengklik langsung nama produk di atas atau membuka katalog lengkap di [Halaman Produk Kami](/our-products).
 
 === STRUKTUR & INFORMASI LENGKAP HALAMAN WEBSITE ===
 1. Halaman Beranda (/) :
@@ -83,7 +85,8 @@ Toko Marketplace Resmi:
    - Artikel edukasi herbal, tren pasar maklon, panduan perizinan BPOM, serta tips memulai bisnis produk herbal label sendiri.
 
 === CARA MEMBERIKAN REKOMENDASI HALAMAN KEPADA PENGUNJUNG ===
-- Jika pengunjung ingin belanja produk eceran/konsumsi pribadi, sebutkan nama produknya dan sarankan melihat halaman Produk Kami (/our-products) atau marketplace resmi.
+- Jika pengunjung ingin belanja produk eceran / menanyakan daftar produk yang dijual:
+  WAJIB sebutkan daftar produk herbal dalam format TEXT LINK markdown langsung pada setiap nama produknya (contoh: [Jahe Merah Temulawak](/our-products?q=Jahe%20Merah), [Collagen Tripeptide Glow Drink](/our-products?q=Collagen), dll) agar penanya bisa langsung mengklik dan melihat detail produknya di halaman web. Berikan juga tautan katalog umum [Halaman Produk Kami](/our-products).
 - Jika pengunjung ingin membuat produk merk sendiri (maklon), jelaskan layanan maklon, MOQ mulai 1.000 pcs, dan arahkan ke WhatsApp resmi untuk simulasi biaya.
 - Jika pengunjung menanyakan legalitas/sertifikat pabrik, sarankan untuk melihat sertifikat resmi di halaman Legalitas (/legality).
 - Jika pengunjung menanyakan fasilitas pabrik/perusahaan, sarankan melihat profil di halaman Tentang Kami (/about).

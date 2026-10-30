@@ -26,6 +26,11 @@ export interface WhatsAppCsKnowledgeConfig {
   serviceCatalog: string
   moqAndPricing: string
   customTrainingNotes: string
+  // Tautan Toko Marketplace Resmi
+  shopeeUrl?: string
+  tokopediaUrl?: string
+  lazadaUrl?: string
+  tiktokShopUrl?: string
 }
 
 export const DEFAULT_WHATSAPP_CS_KNOWLEDGE: WhatsAppCsKnowledgeConfig = {
@@ -42,8 +47,17 @@ export const DEFAULT_WHATSAPP_CS_KNOWLEDGE: WhatsAppCsKnowledgeConfig = {
 5. Fasilitas One-Stop: Formulasi sampel R&D gratis revisi, pengurusan izin edar BPOM (TR/MD) sampai terbit, sertifikasi Halal MUI/BPJPH, desain kemasan profesional, serta pendaftaran HKI merek.`,
   moqAndPricing:
     "Minimal Order Quantity (MOQ) sangat bersahabat untuk brand owner pemula, mulai dari 1.000 botol/pcs per batch produksi. Estimasi biaya fleksibel disesuaikan dengan formula bahan baku, jenis kemasan, dan volume produksi.",
+  shopeeUrl: "https://shopee.co.id",
+  tokopediaUrl: "https://tokopedia.com",
+  lazadaUrl: "https://www.lazada.co.id",
+  tiktokShopUrl: "https://tiktok.com",
   customTrainingNotes: `- Sambut penanya dengan santun, ramah, dan profesional sebagai tim Customer Service resmi CV. Indo Green Nature.
 - Jika ada yang menanyakan alamat pabrik atau ingin berkunjung, berikan alamat lengkap di Wates, Kulon Progo, Yogyakarta dan tawarkan bantuan untuk menjadwalkan janji temu.
+- Jika ada yang menanyakan link toko marketplace resmi (Shopee, Tokopedia, Lazada, TikTok Shop), berikan tautan resmi dengan format tombol link markdown:
+  * Shopee: [Beli di Shopee Official Store](https://shopee.co.id)
+  * Tokopedia: [Beli di Tokopedia Official Store](https://tokopedia.com)
+  * Lazada: [Beli di Lazada Official Store](https://www.lazada.co.id)
+  * TikTok Shop: [Beli di TikTok Shop Official](https://tiktok.com)
 - Jika ada yang menanyakan katalog produk atau maklon, jelaskan sediaan kapsul, cairan obat dalam/madu, serbuk minuman, dan teh herbal berstandar CPOTB Tahap II & Halal.
 - Jika ada yang menanyakan minimal order (MOQ) atau biaya, sampaikan bahwa MOQ terjangkau mulai dari 1.000 pcs dan tim kami siap memberikan simulasi biaya gratis.
 - Jaga integritas regulasi: dilarang memberikan klaim penyembuhan penyakit medis secara berlebihan atau melanggar ketentuan BPOM.
@@ -183,6 +197,10 @@ export async function getWhatsAppCsKnowledgeServer(): Promise<WhatsAppCsKnowledg
         contactEmail: parsed.contactEmail?.trim() || DEFAULT_WHATSAPP_CS_KNOWLEDGE.contactEmail,
         serviceCatalog: parsed.serviceCatalog?.trim() || DEFAULT_WHATSAPP_CS_KNOWLEDGE.serviceCatalog,
         moqAndPricing: parsed.moqAndPricing?.trim() || DEFAULT_WHATSAPP_CS_KNOWLEDGE.moqAndPricing,
+        shopeeUrl: parsed.shopeeUrl?.trim() || DEFAULT_WHATSAPP_CS_KNOWLEDGE.shopeeUrl,
+        tokopediaUrl: parsed.tokopediaUrl?.trim() || DEFAULT_WHATSAPP_CS_KNOWLEDGE.tokopediaUrl,
+        lazadaUrl: parsed.lazadaUrl?.trim() || DEFAULT_WHATSAPP_CS_KNOWLEDGE.lazadaUrl,
+        tiktokShopUrl: parsed.tiktokShopUrl?.trim() || DEFAULT_WHATSAPP_CS_KNOWLEDGE.tiktokShopUrl,
         customTrainingNotes: parsed.customTrainingNotes?.trim() || DEFAULT_WHATSAPP_CS_KNOWLEDGE.customTrainingNotes,
       }
       csKnowledgeCache = { data: merged, timestamp: now }
@@ -211,6 +229,10 @@ export async function saveWhatsAppCsKnowledgeServer(
       contactEmail: newKnowledge.contactEmail?.trim() || current.contactEmail,
       serviceCatalog: newKnowledge.serviceCatalog?.trim() || current.serviceCatalog,
       moqAndPricing: newKnowledge.moqAndPricing?.trim() || current.moqAndPricing,
+      shopeeUrl: newKnowledge.shopeeUrl !== undefined ? newKnowledge.shopeeUrl.trim() : (current.shopeeUrl || DEFAULT_WHATSAPP_CS_KNOWLEDGE.shopeeUrl),
+      tokopediaUrl: newKnowledge.tokopediaUrl !== undefined ? newKnowledge.tokopediaUrl.trim() : (current.tokopediaUrl || DEFAULT_WHATSAPP_CS_KNOWLEDGE.tokopediaUrl),
+      lazadaUrl: newKnowledge.lazadaUrl !== undefined ? newKnowledge.lazadaUrl.trim() : (current.lazadaUrl || DEFAULT_WHATSAPP_CS_KNOWLEDGE.lazadaUrl),
+      tiktokShopUrl: newKnowledge.tiktokShopUrl !== undefined ? newKnowledge.tiktokShopUrl.trim() : (current.tiktokShopUrl || DEFAULT_WHATSAPP_CS_KNOWLEDGE.tiktokShopUrl),
       customTrainingNotes: newKnowledge.customTrainingNotes?.trim() || current.customTrainingNotes,
     }
 

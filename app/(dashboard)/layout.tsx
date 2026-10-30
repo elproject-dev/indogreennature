@@ -143,7 +143,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                 </div>
                 <BottomNavigation />
                 {isAdmin && <AdminFAB />}
-                {(pathname === "/" || pathname === "/home") && <WhatsAppButton />}
+                <WhatsAppButton />
             </div>
         </>
     )

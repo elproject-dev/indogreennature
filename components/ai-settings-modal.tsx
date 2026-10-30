@@ -33,6 +33,7 @@ import {
   Package,
   Layers,
   BookOpen,
+  ShoppingBag,
 } from "lucide-react"
 import { toast } from "sonner"
 import { Button } from "@/components/ui/button"
@@ -66,6 +67,10 @@ export function AiSettingsModal({ isOpen, onClose, onSaved }: AiSettingsModalPro
   const [csContactEmail, setCsContactEmail] = useState(DEFAULT_WHATSAPP_CS_KNOWLEDGE.contactEmail)
   const [csServiceCatalog, setCsServiceCatalog] = useState(DEFAULT_WHATSAPP_CS_KNOWLEDGE.serviceCatalog)
   const [csMoqAndPricing, setCsMoqAndPricing] = useState(DEFAULT_WHATSAPP_CS_KNOWLEDGE.moqAndPricing)
+  const [csShopeeUrl, setCsShopeeUrl] = useState(DEFAULT_WHATSAPP_CS_KNOWLEDGE.shopeeUrl || "https://shopee.co.id")
+  const [csTokopediaUrl, setCsTokopediaUrl] = useState(DEFAULT_WHATSAPP_CS_KNOWLEDGE.tokopediaUrl || "https://tokopedia.com")
+  const [csLazadaUrl, setCsLazadaUrl] = useState(DEFAULT_WHATSAPP_CS_KNOWLEDGE.lazadaUrl || "https://www.lazada.co.id")
+  const [csTiktokShopUrl, setCsTiktokShopUrl] = useState(DEFAULT_WHATSAPP_CS_KNOWLEDGE.tiktokShopUrl || "https://tiktok.com")
   const [csCustomTrainingNotes, setCsCustomTrainingNotes] = useState(DEFAULT_WHATSAPP_CS_KNOWLEDGE.customTrainingNotes)
   const [isSavingCs, setIsSavingCs] = useState(false)
 
@@ -116,6 +121,10 @@ export function AiSettingsModal({ isOpen, onClose, onSaved }: AiSettingsModalPro
           if (wk.contactEmail) setCsContactEmail(wk.contactEmail)
           if (wk.serviceCatalog) setCsServiceCatalog(wk.serviceCatalog)
           if (wk.moqAndPricing) setCsMoqAndPricing(wk.moqAndPricing)
+          if (wk.shopeeUrl !== undefined) setCsShopeeUrl(wk.shopeeUrl)
+          if (wk.tokopediaUrl !== undefined) setCsTokopediaUrl(wk.tokopediaUrl)
+          if (wk.lazadaUrl !== undefined) setCsLazadaUrl(wk.lazadaUrl)
+          if (wk.tiktokShopUrl !== undefined) setCsTiktokShopUrl(wk.tiktokShopUrl)
           if (wk.customTrainingNotes) setCsCustomTrainingNotes(wk.customTrainingNotes)
         }
         if (Array.isArray(data.models) && data.models.length > 0) {
@@ -342,6 +351,10 @@ export function AiSettingsModal({ isOpen, onClose, onSaved }: AiSettingsModalPro
             contactEmail: csContactEmail.trim(),
             serviceCatalog: csServiceCatalog.trim(),
             moqAndPricing: csMoqAndPricing.trim(),
+            shopeeUrl: csShopeeUrl.trim(),
+            tokopediaUrl: csTokopediaUrl.trim(),
+            lazadaUrl: csLazadaUrl.trim(),
+            tiktokShopUrl: csTiktokShopUrl.trim(),
             customTrainingNotes: csCustomTrainingNotes.trim(),
           },
         }),
@@ -373,6 +386,10 @@ export function AiSettingsModal({ isOpen, onClose, onSaved }: AiSettingsModalPro
     setCsContactEmail(DEFAULT_WHATSAPP_CS_KNOWLEDGE.contactEmail)
     setCsServiceCatalog(DEFAULT_WHATSAPP_CS_KNOWLEDGE.serviceCatalog)
     setCsMoqAndPricing(DEFAULT_WHATSAPP_CS_KNOWLEDGE.moqAndPricing)
+    setCsShopeeUrl(DEFAULT_WHATSAPP_CS_KNOWLEDGE.shopeeUrl || "https://shopee.co.id")
+    setCsTokopediaUrl(DEFAULT_WHATSAPP_CS_KNOWLEDGE.tokopediaUrl || "https://tokopedia.com")
+    setCsLazadaUrl(DEFAULT_WHATSAPP_CS_KNOWLEDGE.lazadaUrl || "https://www.lazada.co.id")
+    setCsTiktokShopUrl(DEFAULT_WHATSAPP_CS_KNOWLEDGE.tiktokShopUrl || "https://tiktok.com")
     setCsCustomTrainingNotes(DEFAULT_WHATSAPP_CS_KNOWLEDGE.customTrainingNotes)
     toast.info("Data pelatihan CS dikembalikan ke template bawaan.")
   }
@@ -550,7 +567,79 @@ export function AiSettingsModal({ isOpen, onClose, onSaved }: AiSettingsModalPro
                     />
                   </div>
 
-                  {/* FIELD 6: INSTRUKSI & PELATIHAN KHUSUS ADMIN */}
+                  {/* FIELD 6: LINK TOKO RESMI MARKETPLACE (SHOPEE, TOKOPEDIA, LAZADA, TIKTOK SHOP) */}
+                  <div className="space-y-3 p-3.5 rounded-xl bg-muted/40 border border-border/70">
+                    <div className="flex items-center justify-between">
+                      <label className="font-semibold text-foreground flex items-center gap-1.5 text-xs">
+                        <ShoppingBag className="size-3.5 text-emerald-600 dark:text-emerald-400" />
+                        Toko Resmi Marketplace (Shopee, Tokopedia, Lazada, TikTok Shop)
+                      </label>
+                      <span className="text-[10px] text-emerald-600 dark:text-emerald-400 font-medium">Auto-Button di Chat</span>
+                    </div>
+                    <p className="text-[11px] text-muted-foreground leading-relaxed">
+                      Jika penanya meminta link toko resmi di chat WhatsApp, AI otomatis menyajikan link resmi di bawah ini sebagai tombol badge interaktif berlogo yang rapi.
+                    </p>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
+                      {/* Shopee */}
+                      <div className="space-y-1.5">
+                        <label className="text-[11px] font-semibold text-foreground flex items-center gap-1.5">
+                          <span className="w-2.5 h-2.5 rounded-full bg-[#EE4D2D]"></span>
+                          Shopee Official Store:
+                        </label>
+                        <Input
+                          value={csShopeeUrl}
+                          onChange={(e) => setCsShopeeUrl(e.target.value)}
+                          placeholder="https://shopee.co.id/..."
+                          className="h-8.5 text-xs bg-background"
+                        />
+                      </div>
+
+                      {/* Tokopedia */}
+                      <div className="space-y-1.5">
+                        <label className="text-[11px] font-semibold text-foreground flex items-center gap-1.5">
+                          <span className="w-2.5 h-2.5 rounded-full bg-[#03AC0E]"></span>
+                          Tokopedia Official Store:
+                        </label>
+                        <Input
+                          value={csTokopediaUrl}
+                          onChange={(e) => setCsTokopediaUrl(e.target.value)}
+                          placeholder="https://tokopedia.com/..."
+                          className="h-8.5 text-xs bg-background"
+                        />
+                      </div>
+
+                      {/* Lazada */}
+                      <div className="space-y-1.5">
+                        <label className="text-[11px] font-semibold text-foreground flex items-center gap-1.5">
+                          <span className="w-2.5 h-2.5 rounded-full bg-[#0F146D]"></span>
+                          Lazada Official Store:
+                        </label>
+                        <Input
+                          value={csLazadaUrl}
+                          onChange={(e) => setCsLazadaUrl(e.target.value)}
+                          placeholder="https://www.lazada.co.id/..."
+                          className="h-8.5 text-xs bg-background"
+                        />
+                      </div>
+
+                      {/* TikTok Shop */}
+                      <div className="space-y-1.5">
+                        <label className="text-[11px] font-semibold text-foreground flex items-center gap-1.5">
+                          <span className="w-2.5 h-2.5 rounded-full bg-rose-500"></span>
+                          TikTok Shop Official:
+                        </label>
+                        <Input
+                          value={csTiktokShopUrl}
+                          onChange={(e) => setCsTiktokShopUrl(e.target.value)}
+                          placeholder="https://tiktok.com/@..."
+                          className="h-8.5 text-xs bg-background"
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* FIELD 7: INSTRUKSI & PELATIHAN KHUSUS ADMIN */}
                   <div className="space-y-1.5 p-3.5 rounded-xl bg-muted/40 border border-border/70">
                     <div className="flex items-center justify-between">
                       <label className="font-semibold text-foreground flex items-center gap-1.5 text-xs">

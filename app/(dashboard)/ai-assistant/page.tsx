@@ -23,6 +23,8 @@ import {
   Search,
   AlertCircle,
   CheckCircle2,
+  CheckCheck,
+  Leaf,
 } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
@@ -178,9 +180,19 @@ Saya siap membantu operasional website dan bisnis **Maklon Herbal** Anda:
 
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [isTyping, setIsTyping] = useState(false);
+  const [currentTypingId, setCurrentTypingId] = useState<string | null>(null);
+  const typingIntervalRef = useRef<NodeJS.Timeout | null>(null);
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+
+  // Bersihkan interval pengetikan saat komponen unmount
+  useEffect(() => {
+    return () => {
+      if (typingIntervalRef.current) clearInterval(typingIntervalRef.current);
+    };
+  }, []);
 
   // Ambil model tersimpan dari localStorage atau backend
   useEffect(() => {
@@ -225,7 +237,7 @@ Saya siap membantu operasional website dan bisnis **Maklon Herbal** Anda:
 
   useEffect(() => {
     scrollToBottom();
-  }, [messages, isLoading]);
+  }, [messages, isLoading, isTyping]);
 
   const handleCopy = (text: string, id: string) => {
     navigator.clipboard.writeText(text);
@@ -236,6 +248,9 @@ Saya siap membantu operasional website dan bisnis **Maklon Herbal** Anda:
 
   const handleClearChat = () => {
     if (confirm("Bersihkan seluruh riwayat obrolan?")) {
+      if (typingIntervalRef.current) clearInterval(typingIntervalRef.current);
+      setIsTyping(false);
+      setCurrentTypingId(null);
       setMessages([
         {
           id: Date.now().toString(),
@@ -263,7 +278,12 @@ Saya siap membantu operasional website dan bisnis **Maklon Herbal** Anda:
 
   const handleSendMessage = async (customPrompt?: string) => {
     const userText = customPrompt || input.trim();
-    if (!userText || isLoading) return;
+    if (!userText || isLoading || isTyping) return;
+
+    // Bersihkan animasi ketik yang mungkin masih berjalan
+    if (typingIntervalRef.current) clearInterval(typingIntervalRef.current);
+    setIsTyping(false);
+    setCurrentTypingId(null);
 
     const userMessage: Message = {
       id: Date.now().toString(),
@@ -302,15 +322,52 @@ Saya siap membantu operasional website dan bisnis **Maklon Herbal** Anda:
         throw new Error(data.error || "Gagal mendapatkan respon AI");
       }
 
-      const assistantMessage: Message = {
-        id: (Date.now() + 1).toString(),
-        role: "assistant",
-        content: data.result,
-        timestamp: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
-      };
+      const fullText = data.result || "";
+      const assistantId = (Date.now() + 1).toString();
+      const assistantTimestamp = new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
 
-      setMessages((prev) => [...prev, assistantMessage]);
+      // Tambahkan bubble bot dengan konten awal kosong untuk simulasi efek mengetik
+      setMessages((prev) => [
+        ...prev,
+        {
+          id: assistantId,
+          role: "assistant",
+          content: "",
+          timestamp: assistantTimestamp,
+        },
+      ]);
+
+      setIsLoading(false);
+      setIsTyping(true);
+      setCurrentTypingId(assistantId);
+
+      // Konsep mengetik real-time ala WhatsApp (animasi typewriter halus)
+      let charIdx = 0;
+      const totalChars = fullText.length;
+      // Ukuran chunk adaptif agar respon panjang tidak terlalu lama
+      const step = totalChars > 1500 ? 16 : totalChars > 600 ? 8 : totalChars > 250 ? 4 : 2;
+
+      typingIntervalRef.current = setInterval(() => {
+        charIdx = Math.min(charIdx + step, totalChars);
+        const sliced = fullText.slice(0, charIdx);
+
+        setMessages((prev) =>
+          prev.map((msg) => (msg.id === assistantId ? { ...msg, content: sliced } : msg))
+        );
+
+        if (charIdx >= totalChars) {
+          if (typingIntervalRef.current) clearInterval(typingIntervalRef.current);
+          setIsTyping(false);
+          setCurrentTypingId(null);
+          if (textareaRef.current) {
+            textareaRef.current.focus();
+          }
+        }
+      }, 16);
     } catch (err: any) {
+      setIsLoading(false);
+      setIsTyping(false);
+      setCurrentTypingId(null);
       toast.error(err.message || "Gagal memproses AI");
       setMessages((prev) => [
         ...prev,
@@ -322,7 +379,6 @@ Saya siap membantu operasional website dan bisnis **Maklon Herbal** Anda:
         },
       ]);
     } finally {
-      setIsLoading(false);
       if (textareaRef.current) {
         textareaRef.current.focus();
       }
@@ -340,10 +396,32 @@ Saya siap membantu operasional website dan bisnis **Maklon Herbal** Anda:
     <div className="flex flex-col h-[calc(100vh-50px)] w-full max-w-[1440px] mx-auto px-4 lg:px-[20px] py-3 md:py-4">
       {/* HEADER SECTION */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-3.5 border-b border-border/60 gap-3">
-        <div>
-          <h1 className="text-base md:text-lg font-bold tracking-tight text-foreground">
-            AI Asisten Indo Green Nature
-          </h1>
+        <div className="flex items-center gap-3 min-w-0">
+          <div className="relative shrink-0">
+            <div className="w-10 h-10 rounded-full bg-emerald-600/15 border border-emerald-500/30 text-emerald-600 dark:text-emerald-400 flex items-center justify-center shadow-xs">
+              <Bot className="w-5 h-5" />
+            </div>
+            {/* Status indicator dot */}
+            <span className="absolute bottom-0 right-0 w-3 h-3 bg-emerald-500 border-2 border-background rounded-full"></span>
+          </div>
+          <div className="min-w-0">
+            <h1 className="text-base md:text-lg font-bold tracking-tight text-foreground truncate">
+              AI Asisten Indo Green Nature
+            </h1>
+            <p className="text-xs flex items-center gap-1.5">
+              {isLoading || isTyping ? (
+                <span className="text-emerald-600 dark:text-emerald-400 font-medium flex items-center gap-1.5 animate-pulse">
+                  <span className="w-2 h-2 rounded-full bg-emerald-500 animate-ping"></span>
+                  sedang mengetik...
+                </span>
+              ) : (
+                <span className="text-emerald-600 dark:text-emerald-400 flex items-center gap-1.5">
+                  <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
+                  Online
+                </span>
+              )}
+            </p>
+          </div>
         </div>
 
         {/* ACTIONS & MODEL SELECTOR */}
@@ -403,56 +481,89 @@ Saya siap membantu operasional website dan bisnis **Maklon Herbal** Anda:
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.2 }}
-                className={`flex gap-3 ${isUser ? "justify-end" : "justify-start"}`}
+                className={`flex gap-2.5 ${isUser ? "justify-end" : "justify-start"}`}
               >
                 {!isUser && (
-                  <div className="w-8 h-8 rounded-lg bg-emerald-600/10 border border-emerald-500/20 text-emerald-600 dark:text-emerald-400 flex items-center justify-center shrink-0 mt-0.5">
+                  <div className="w-8 h-8 rounded-full bg-emerald-600/15 border border-emerald-500/25 text-emerald-600 dark:text-emerald-400 flex items-center justify-center shrink-0 mt-0.5 shadow-xs">
                     <Bot className="w-4 h-4" />
                   </div>
                 )}
 
                 <div
-                  className={`group relative max-w-[85%] md:max-w-[78%] rounded-2xl px-4 py-3 text-sm shadow-sm ${
+                  className={`group relative max-w-[88%] md:max-w-[78%] rounded-2xl px-4 py-3 text-sm shadow-md ${
                     isUser
-                      ? "bg-emerald-600 text-white rounded-br-xs"
-                      : "bg-card border border-border/70 text-card-foreground rounded-bl-xs"
+                      ? "bg-[#005c4b] text-white rounded-tr-xs border border-emerald-400/20"
+                      : "bg-card dark:bg-[#202c33] border border-border/70 dark:border-white/10 text-card-foreground dark:text-gray-100 rounded-tl-xs"
                   }`}
                 >
                   {!isUser && (
-                    <button
-                      onClick={() => handleCopy(message.content, message.id)}
-                      className="absolute top-2.5 right-2.5 p-1 rounded-md text-muted-foreground/60 hover:text-foreground bg-muted/60 opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer"
-                      title="Salin teks respon ini"
-                    >
-                      {copiedId === message.id ? (
-                        <Check className="w-3.5 h-3.5 text-emerald-500" />
-                      ) : (
-                        <Copy className="w-3.5 h-3.5" />
-                      )}
-                    </button>
+                    <div className="flex items-center justify-between gap-2 mb-1.5 pb-1 border-b border-border/40 dark:border-white/10">
+                      <div className="flex items-center gap-1.5 text-emerald-600 dark:text-emerald-400 font-semibold text-xs">
+                        <Leaf className="w-3.5 h-3.5" />
+                        <span>INDO GREEN NATURE SUPPORT</span>
+                      </div>
+                      <button
+                        onClick={() => handleCopy(message.content, message.id)}
+                        className="p-1 rounded-md text-muted-foreground/60 hover:text-foreground bg-muted/60 dark:bg-black/30 opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer"
+                        title="Salin teks respon ini"
+                      >
+                        {copiedId === message.id ? (
+                          <Check className="w-3.5 h-3.5 text-emerald-500" />
+                        ) : (
+                          <Copy className="w-3.5 h-3.5" />
+                        )}
+                      </button>
+                    </div>
                   )}
 
-                  <div className="prose prose-sm dark:prose-invert max-w-none break-words leading-relaxed">
+                  <div className="prose prose-sm dark:prose-invert max-w-none break-words leading-relaxed [&_strong]:text-emerald-600 dark:[&_strong]:text-emerald-400 [&_strong]:font-semibold">
                     {isUser ? (
                       <p className="whitespace-pre-wrap">{message.content}</p>
                     ) : (
-                      <ReactMarkdown remarkPlugins={[remarkGfm, remarkBreaks]}>
-                        {message.content}
-                      </ReactMarkdown>
+                      <>
+                        <ReactMarkdown
+                          remarkPlugins={[remarkGfm, remarkBreaks]}
+                          components={{
+                            a: ({ href, children }) => {
+                              const isInternal = href?.startsWith("/") || href?.startsWith("#");
+                              return (
+                                <a
+                                  href={href}
+                                  target={isInternal ? "_self" : "_blank"}
+                                  rel={isInternal ? undefined : "noopener noreferrer"}
+                                  className="text-emerald-600 dark:text-emerald-400 hover:text-emerald-500 font-semibold underline underline-offset-2 transition-colors cursor-pointer inline"
+                                >
+                                  {children}
+                                </a>
+                              );
+                            },
+                          }}
+                        >
+                          {message.content}
+                        </ReactMarkdown>
+                        {currentTypingId === message.id && (
+                          <span className="inline-block w-1.5 h-4 bg-emerald-500 animate-pulse ml-0.5 align-middle"></span>
+                        )}
+                      </>
                     )}
                   </div>
 
                   <div
-                    className={`mt-1.5 text-[10px] flex items-center gap-1 ${
-                      isUser ? "text-emerald-100/70 justify-end" : "text-muted-foreground/60"
+                    className={`mt-2 text-[10.5px] flex items-center gap-1 ${
+                      isUser ? "text-emerald-100/80 justify-end" : "text-muted-foreground/60 justify-end"
                     }`}
                   >
                     <span>{message.timestamp}</span>
+                    {isUser ? (
+                      <CheckCheck className="w-3.5 h-3.5 text-[#53bdeb]" />
+                    ) : (
+                      <CheckCheck className="w-3.5 h-3.5 text-muted-foreground/40" />
+                    )}
                   </div>
                 </div>
 
                 {isUser && (
-                  <div className="w-8 h-8 rounded-lg bg-emerald-600 text-white flex items-center justify-center shrink-0 mt-0.5 shadow-sm">
+                  <div className="w-8 h-8 rounded-full bg-emerald-600 text-white flex items-center justify-center shrink-0 mt-0.5 shadow-sm">
                     <User className="w-4 h-4" />
                   </div>
                 )}
@@ -461,19 +572,24 @@ Saya siap membantu operasional website dan bisnis **Maklon Herbal** Anda:
           })}
         </AnimatePresence>
 
+        {/* Typing indicator bubble ala WhatsApp */}
         {isLoading && (
           <motion.div
-            initial={{ opacity: 0, y: 10 }}
+            initial={{ opacity: 0, y: 8 }}
             animate={{ opacity: 1, y: 0 }}
-            className="flex gap-3 justify-start"
+            className="flex gap-2.5 items-end justify-start"
           >
-            <div className="w-8 h-8 rounded-lg bg-emerald-600/10 border border-emerald-500/20 text-emerald-600 flex items-center justify-center shrink-0">
-              <Bot className="w-4 h-4 animate-spin" />
+            <div className="w-8 h-8 rounded-full bg-emerald-600/15 border border-emerald-500/25 text-emerald-600 dark:text-emerald-400 flex items-center justify-center shrink-0 shadow-xs">
+              <Bot className="w-4 h-4" />
             </div>
-            <div className="bg-card border border-border/70 rounded-2xl px-4 py-3 text-sm shadow-sm flex items-center gap-2 text-muted-foreground">
-              <Loader2 className="w-4 h-4 animate-spin text-emerald-600" />
-              <span className="text-xs">
-                Meracik jawaban dengan model <span className="font-semibold text-foreground">{selectedModel}</span>...
+            <div className="bg-card dark:bg-[#202c33] border border-border/70 dark:border-white/10 rounded-2xl rounded-tl-xs px-4 py-3 shadow-md flex items-center gap-2">
+              <div className="flex items-center gap-1.5 py-0.5">
+                <span className="w-2 h-2 rounded-full bg-emerald-500 animate-bounce [animation-delay:-0.3s]"></span>
+                <span className="w-2 h-2 rounded-full bg-emerald-500 animate-bounce [animation-delay:-0.15s]"></span>
+                <span className="w-2 h-2 rounded-full bg-emerald-500 animate-bounce"></span>
+              </div>
+              <span className="text-xs text-muted-foreground ml-1.5 font-medium italic">
+                sedang mengetik...
               </span>
             </div>
           </motion.div>

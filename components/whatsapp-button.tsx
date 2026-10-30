@@ -8,9 +8,9 @@ import {
   Send,
   CheckCheck,
   Leaf,
-  ExternalLink,
   MapPin,
   Phone,
+  ShoppingBag,
 } from "lucide-react"
 import ReactMarkdown from "react-markdown"
 import remarkGfm from "remark-gfm"
@@ -69,7 +69,7 @@ export function WhatsAppButton() {
       if (cached && isMounted) {
         setSettings(cached)
       }
-    } catch {}
+    } catch { }
 
     const initData = async () => {
       try {
@@ -100,14 +100,14 @@ export function WhatsAppButton() {
             setSettings(event.data.data)
           }
         }
-      } catch {}
+      } catch { }
     }
 
     const handleStorage = (e: StorageEvent) => {
       if (e.key === WHATSAPP_SETTINGS_KEY && e.newValue) {
         try {
           setSettings(JSON.parse(e.newValue))
-        } catch {}
+        } catch { }
       }
     }
 
@@ -233,16 +233,27 @@ export function WhatsAppButton() {
   }
 
   const isHomePage = pathname === "/" || pathname === "/home"
-  if (!isHomePage || !settings.isEnabled) {
+  const isAllowedDesktopPage =
+    pathname.startsWith("/our-products") ||
+    pathname.startsWith("/our-product") ||
+    pathname.startsWith("/insight") ||
+    pathname.startsWith("/about") ||
+    pathname.startsWith("/legality") ||
+    pathname.startsWith("/legalitas") ||
+    pathname.startsWith("/contact")
+
+  if ((!isHomePage && !isAllowedDesktopPage) || !settings.isEnabled) {
     return null
   }
 
   const isLeft = settings.position === "left"
+  // Home: terlihat di mobile & desktop. Halaman produk, insight, about, legality, contact: HANYA di desktop (hidden md:flex).
+  const visibilityClass = isHomePage ? "flex" : "hidden md:flex"
 
   return (
     <div
       ref={chatRef}
-      className={`fixed bottom-24 ${isLeft ? "left-4 md:left-10 items-start" : "right-4 md:right-10 items-end"} md:bottom-10 z-[90] flex flex-col font-sans select-none`}
+      className={`fixed bottom-20 ${isLeft ? "left-3 sm:left-4 md:left-10 items-start" : "right-3 sm:right-4 md:right-10 items-end"} md:bottom-10 z-[90] ${visibilityClass} flex-col font-sans select-none`}
     >
       {/* Floating Chat Box Window */}
       <AnimatePresence>
@@ -267,7 +278,7 @@ export function WhatsAppButton() {
                       alt="CV. Indo Green Nature"
                       className="w-full h-full object-contain"
                       onError={(e) => {
-                        ;(e.target as HTMLElement).style.display = "none"
+                        ; (e.target as HTMLElement).style.display = "none"
                       }}
                     />
                     <Leaf className="w-5 h-5 text-[#15803D] hidden" />
@@ -320,11 +331,10 @@ export function WhatsAppButton() {
                     className={`flex flex-col ${isUser ? "items-end" : "items-start"}`}
                   >
                     <div
-                      className={`max-w-[88%] p-3 rounded-2xl shadow-md text-[12.5px] leading-relaxed ${
-                        isUser
+                      className={`max-w-[88%] p-3 rounded-2xl shadow-md text-[12.5px] leading-relaxed ${isUser
                           ? "bg-[#005c4b] text-white rounded-tr-sm border border-emerald-400/20"
                           : "bg-[#202c33] text-gray-100 rounded-tl-sm border border-white/10"
-                      }`}
+                        }`}
                     >
                       {!isUser && (
                         <div className="flex items-center gap-1.5 mb-1.5 pb-1 border-b border-white/10 text-emerald-400 font-semibold text-[11px]">
@@ -345,6 +355,17 @@ export function WhatsAppButton() {
                               const isWa =
                                 href?.includes("wa.me") ||
                                 href?.includes("whatsapp.com")
+
+                              const isShopee =
+                                href?.includes("shopee.co.id") ||
+                                href?.includes("shopee.com")
+                              const isTokopedia =
+                                href?.includes("tokopedia.com")
+                              const isLazada =
+                                href?.includes("lazada.co.id") ||
+                                href?.includes("lazada.com")
+                              const isTikTok =
+                                href?.includes("tiktok.com")
 
                               if (isMap) {
                                 const cleanLabel =
@@ -378,15 +399,72 @@ export function WhatsAppButton() {
                                 )
                               }
 
+                              if (isShopee) {
+                                return (
+                                  <a
+                                    href={href}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="not-prose inline-flex items-center gap-1.5 px-3 py-1.5 my-1.5 text-[11.5px] font-semibold rounded-xl bg-[#EE4D2D] hover:bg-[#d73211] text-white transition-all shadow-xs active:scale-95 no-underline cursor-pointer"
+                                  >
+                                    <ShoppingBag className="size-3.5" />
+                                    <span>{children || "Buka Shopee Official"}</span>
+                                  </a>
+                                )
+                              }
+
+                              if (isTokopedia) {
+                                return (
+                                  <a
+                                    href={href}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="not-prose inline-flex items-center gap-1.5 px-3 py-1.5 my-1.5 text-[11.5px] font-semibold rounded-xl bg-[#03AC0E] hover:bg-[#028a0b] text-white transition-all shadow-xs active:scale-95 no-underline cursor-pointer"
+                                  >
+                                    <ShoppingBag className="size-3.5" />
+                                    <span>{children || "Buka Tokopedia Official"}</span>
+                                  </a>
+                                )
+                              }
+
+                              if (isLazada) {
+                                return (
+                                  <a
+                                    href={href}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="not-prose inline-flex items-center gap-1.5 px-3 py-1.5 my-1.5 text-[11.5px] font-semibold rounded-xl bg-[#0F146D] hover:bg-[#0a0d4a] text-white transition-all shadow-xs active:scale-95 no-underline cursor-pointer"
+                                  >
+                                    <ShoppingBag className="size-3.5" />
+                                    <span>{children || "Buka Lazada Official"}</span>
+                                  </a>
+                                )
+                              }
+
+                              if (isTikTok) {
+                                return (
+                                  <a
+                                    href={href}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="not-prose inline-flex items-center gap-1.5 px-3 py-1.5 my-1.5 text-[11.5px] font-semibold rounded-xl bg-black hover:bg-neutral-900 text-white border border-rose-500/40 transition-all shadow-xs active:scale-95 no-underline cursor-pointer"
+                                  >
+                                    <ShoppingBag className="size-3.5 text-rose-400" />
+                                    <span>{children || "Buka TikTok Shop"}</span>
+                                  </a>
+                                )
+                              }
+
+                              const isInternal = href?.startsWith("/") || href?.startsWith("#")
+
                               return (
                                 <a
                                   href={href}
-                                  target="_blank"
-                                  rel="noopener noreferrer"
-                                  className="not-prose inline-flex items-center gap-1.5 px-2.5 py-1 my-1 text-[11.5px] font-medium rounded-lg bg-white/10 hover:bg-white/15 text-emerald-300 border border-white/10 transition-all no-underline cursor-pointer"
+                                  target={isInternal ? "_self" : "_blank"}
+                                  rel={isInternal ? undefined : "noopener noreferrer"}
+                                  className="text-emerald-400 hover:text-emerald-300 font-semibold underline underline-offset-2 transition-colors cursor-pointer inline"
                                 >
-                                  <span>{children}</span>
-                                  <ExternalLink className="size-3 opacity-70" />
+                                  {children}
                                 </a>
                               )
                             },
@@ -469,7 +547,7 @@ export function WhatsAppButton() {
       <div className="relative flex items-center group">
         {/* Tooltip on Desktop hover */}
         {!isOpen && (
-          <div className="hidden md:flex absolute right-16 items-center px-3 py-1.5 rounded-xl bg-zinc-900/90 text-white text-xs font-medium shadow-xl border border-white/10 backdrop-blur-md whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none gap-2">
+          <div className={`hidden md:flex absolute ${isLeft ? "left-16" : "right-16"} items-center px-3 py-1.5 rounded-xl bg-zinc-900/90 text-white text-xs font-medium shadow-xl border border-white/10 backdrop-blur-md whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none gap-2`}>
             <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
             <span>Chat WhatsApp CV. Indo Green Nature</span>
           </div>
@@ -478,7 +556,7 @@ export function WhatsAppButton() {
         <button
           onClick={handleToggle}
           aria-label="Chat WhatsApp CV. Indo Green Nature"
-          className="relative p-3.5 sm:p-4 rounded-full bg-gradient-to-r from-[#25D366] to-[#128C7E] text-white shadow-[0_4px_20px_rgba(37,211,102,0.45)] hover:shadow-[0_6px_25px_rgba(37,211,102,0.65)] hover:scale-105 active:scale-95 transition-transform duration-150 flex items-center justify-center border border-emerald-300/30 cursor-pointer"
+          className="relative p-2.5 sm:p-3.5 md:p-4 rounded-full bg-gradient-to-r from-[#25D366] to-[#128C7E] text-white shadow-[0_3px_14px_rgba(37,211,102,0.4)] md:shadow-[0_4px_20px_rgba(37,211,102,0.45)] hover:shadow-[0_6px_25px_rgba(37,211,102,0.65)] hover:scale-105 active:scale-95 transition-all duration-150 flex items-center justify-center border border-emerald-300/30 cursor-pointer"
         >
           {/* Glowing pulse ring */}
           <span className="absolute -inset-1 rounded-full bg-[#25D366] opacity-30 group-hover:opacity-75 blur-sm transition-opacity duration-300 animate-pulse pointer-events-none"></span>
@@ -498,10 +576,10 @@ export function WhatsAppButton() {
               className="flex items-center justify-center"
             >
               {isOpen ? (
-                <X className="w-7 h-7 stroke-[2.5]" />
+                <X className="w-5 h-5 sm:w-6 sm:h-6 md:w-7 md:h-7 stroke-[2.5]" />
               ) : (
                 <svg
-                  className="w-7 h-7 sm:w-8 sm:h-8 fill-current drop-shadow-sm"
+                  className="w-5 h-5 sm:w-6 sm:h-6 md:w-8 md:h-8 fill-current drop-shadow-sm"
                   viewBox="0 0 24 24"
                 >
                   <path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z" />
@@ -512,9 +590,9 @@ export function WhatsAppButton() {
 
           {/* Unread badge dot (Merah Notifikasi WhatsApp) */}
           {!isOpen && (
-            <span className="absolute -top-0.5 -right-0.5 flex h-4 w-4 pointer-events-none">
+            <span className="absolute -top-0.5 -right-0.5 flex h-3 w-3 md:h-4 md:w-4 pointer-events-none">
               <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-500 opacity-80"></span>
-              <span className="relative inline-flex rounded-full h-3.5 w-3.5 bg-red-500 border-2 border-[#121b22] shadow-sm"></span>
+              <span className="relative inline-flex rounded-full h-2.5 w-2.5 md:h-3.5 md:w-3.5 bg-red-500 border-[1.5px] md:border-2 border-[#121b22] shadow-sm"></span>
             </span>
           )}
         </button>
