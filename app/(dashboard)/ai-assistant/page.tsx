@@ -38,10 +38,22 @@ interface Message {
 
 const PRESET_MODELS = [
   {
-    id: "kc/kilo-auto/free",
-    name: "Kilo Auto Free (Rekomendasi)",
-    badge: "Gratis & Cepat",
-    desc: "Model pintar otomatis, tanpa biaya token & responsif.",
+    id: "agy/gemini-3.8-flash-medium",
+    name: "Gemini 3.8 Flash (Akun AGY)",
+    badge: "AGY Aktif",
+    desc: "Model resmi Google Antigravity, kuota aktif & responsif untuk chat & konsultasi maklon herbal.",
+  },
+  {
+    id: "agy/claude-sonnet-4-6",
+    name: "Claude Sonnet 4.6 (Akun AGY)",
+    badge: "AGY Pro",
+    desc: "Model penalaran tingkat tinggi Claude via akun Antigravity untuk penulisan artikel & analisa data.",
+  },
+  {
+    id: "agy/gemini-3.8-flash-high",
+    name: "Gemini 3.8 Flash High (Akun AGY)",
+    badge: "AGY High",
+    desc: "Varian presisi tinggi Google Antigravity untuk formulasi & kepatuhan regulasi BPOM.",
   },
   {
     id: "auto/best-free",
@@ -82,12 +94,12 @@ const PRESET_MODELS = [
 ];
 
 export default function AiAssistantPage() {
-  const [selectedModel, setSelectedModel] = useState<string>("kc/kilo-auto/free");
+  const [selectedModel, setSelectedModel] = useState<string>("agy/gemini-3.8-flash-medium");
   const [customModelInput, setCustomModelInput] = useState("");
   const [isModelModalOpen, setIsModelModalOpen] = useState(false);
   const [availableOmniModels, setAvailableOmniModels] = useState<string[]>([]);
   const [modelSearch, setModelSearch] = useState("");
-  const [modelTab, setModelTab] = useState<"all" | "auto" | "free" | "openai" | "google" | "deepseek" | "claude">("all");
+  const [modelTab, setModelTab] = useState<"all" | "agy" | "auto" | "free" | "openai" | "google" | "deepseek" | "claude">("all");
   const [isTestingModel, setIsTestingModel] = useState(false);
   const [modelTestResult, setModelTestResult] = useState<{
     success: boolean;
@@ -145,6 +157,7 @@ export default function AiAssistantPage() {
     const list = availableOmniModels.length > 0 ? availableOmniModels : PRESET_MODELS.map((p) => p.id);
     return list.filter((m) => {
       const lower = m.toLowerCase();
+      if (modelTab === "agy" && !lower.startsWith("agy/") && !lower.startsWith("antigravity/")) return false;
       if (modelTab === "auto" && !lower.startsWith("auto/")) return false;
       if (modelTab === "free" && !lower.includes("free")) return false;
       if (modelTab === "openai" && !lower.includes("gpt") && !lower.includes("openai")) return false;
@@ -762,6 +775,7 @@ Saya siap membantu operasional website dan bisnis **Maklon Herbal** Anda:
                   <div className="flex flex-wrap items-center gap-1">
                     {[
                       { id: "all", label: "Semua" },
+                      { id: "agy", label: "🌟 Akun AGY" },
                       { id: "free", label: "🎁 Free" },
                       { id: "auto", label: "⚡ Auto Router" },
                       { id: "openai", label: "OpenAI / GPT" },

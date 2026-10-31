@@ -56,7 +56,7 @@ export function AiSettingsModal({ isOpen, onClose, onSaved }: AiSettingsModalPro
   const [baseUrl, setBaseUrl] = useState("https://ai.indogreennature.com/v1")
   const [apiKey, setApiKey] = useState("")
   const [showApiKey, setShowApiKey] = useState(false)
-  const [defaultModel, setDefaultModel] = useState("kc/kilo-auto/free")
+  const [defaultModel, setDefaultModel] = useState("agy/gemini-3.8-flash-medium")
   const [systemPrompt, setSystemPrompt] = useState(DEFAULT_BASE_SYSTEM_PROMPT)
   const [temperature, setTemperature] = useState(0.7)
 
@@ -92,7 +92,7 @@ export function AiSettingsModal({ isOpen, onClose, onSaved }: AiSettingsModalPro
     sampleResponse?: string
   } | null>(null)
   const [modelSearch, setModelSearch] = useState("")
-  const [modelTab, setModelTab] = useState<"all" | "auto" | "free" | "openai" | "google" | "deepseek" | "claude">("all")
+  const [modelTab, setModelTab] = useState<"all" | "agy" | "auto" | "free" | "openai" | "google" | "deepseek" | "claude">("all")
   const [isComboboxOpen, setIsComboboxOpen] = useState(false)
 
   // Ambil konfigurasi aktif saat modal dibuka
@@ -245,6 +245,7 @@ export function AiSettingsModal({ isOpen, onClose, onSaved }: AiSettingsModalPro
     if (!availableModels || availableModels.length === 0) return []
     return availableModels.filter((m) => {
       const lower = m.toLowerCase()
+      if (modelTab === "agy" && !lower.startsWith("agy/") && !lower.startsWith("antigravity/")) return false
       if (modelTab === "auto" && !lower.startsWith("auto/")) return false
       if (modelTab === "free" && !lower.includes("free")) return false
       if (modelTab === "openai" && !lower.includes("gpt") && !lower.includes("openai")) return false
@@ -883,6 +884,7 @@ export function AiSettingsModal({ isOpen, onClose, onSaved }: AiSettingsModalPro
                     <div className="flex flex-wrap items-center gap-1">
                       {[
                         { id: "all", label: "Semua" },
+                        { id: "agy", label: "🌟 Akun AGY" },
                         { id: "free", label: "🎁 Free" },
                         { id: "auto", label: "⚡ Auto Router" },
                         { id: "openai", label: "OpenAI / GPT" },

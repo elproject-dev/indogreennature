@@ -21,7 +21,7 @@ export async function callOmniRouteAI({
   userPrompt,
   messages = [],
   temperature = 0.7,
-  model = process.env.OMNIROUTE_MODEL || 'kc/kilo-auto/free',
+  model = process.env.OMNIROUTE_MODEL || 'agy/gemini-3.8-flash-medium',
   baseUrl,
   apiKey,
 }: GenerateOptions): Promise<string> {

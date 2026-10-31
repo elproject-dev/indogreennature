@@ -13,7 +13,7 @@ export const DEFAULT_BASE_SYSTEM_PROMPT = `Anda adalah asisten AI profesional un
 export const DEFAULT_AI_CONFIG: AiGatewayConfig = {
   baseUrl: process.env.OMNIROUTE_BASE_URL || "https://ai.indogreennature.com/v1",
   apiKey: process.env.OMNIROUTE_API_KEY || "",
-  defaultModel: process.env.OMNIROUTE_MODEL || "kc/kilo-auto/free",
+  defaultModel: process.env.OMNIROUTE_MODEL || "agy/gemini-3.8-flash-medium",
   systemPrompt: DEFAULT_BASE_SYSTEM_PROMPT,
   temperature: 0.7,
 }
