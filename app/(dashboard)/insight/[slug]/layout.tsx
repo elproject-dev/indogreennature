@@ -7,6 +7,13 @@ interface Props {
   params: Promise<{ slug: string }>
 }
 
+function toAbsoluteUrl(url?: string, baseUrl: string = "https://www.indogreennature.com"): string {
+  if (!url) return `${baseUrl}/pwa-icon-512.png`
+  if (url.startsWith("http://") || url.startsWith("https://")) return url
+  const clean = url.startsWith("/") ? url : `/${url}`
+  return `${baseUrl}${clean}`
+}
+
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params
   const article = await fetchInsightBySlug(slug)
@@ -23,7 +30,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   const title = article.title
   const description = (article.description || article.excerpt || seo?.siteDescription || "").slice(0, 160)
   const canonicalUrl = `${baseUrl}/insight/${article.slug}`
-  const coverImage = article.cover_image || article.src || seo?.ogImageUrl || `${baseUrl}/pwa-icon-512.png`
+  const coverImage = toAbsoluteUrl(article.cover_image || article.src || seo?.ogImageUrl, baseUrl)
 
   return {
     title: title,
@@ -69,7 +76,7 @@ export default async function InsightSlugLayout({ children, params }: Props) {
   let structuredData: any = null
   if (article) {
     const canonicalUrl = `${baseUrl}/insight/${article.slug}`
-    const coverImage = article.cover_image || article.src || seo?.ogImageUrl || `${baseUrl}/pwa-icon-512.png`
+    const coverImage = toAbsoluteUrl(article.cover_image || article.src || seo?.ogImageUrl, baseUrl)
     structuredData = {
       "@context": "https://schema.org",
       "@graph": [

@@ -7,7 +7,25 @@ export const dynamic = "force-dynamic"
 export const revalidate = 0
 
 function escapeXml(str: string): string {
-  return str.replace(/&/g, "&amp;")
+  return str.replace(/&amp;/g, "&").replace(/&/g, "&amp;")
+}
+
+function formatImageUrl(url: string | null | undefined, baseUrl: string): string | undefined {
+  if (!url || typeof url !== "string") return undefined
+  const trimmed = url.trim()
+  if (!trimmed || trimmed.startsWith("data:")) return undefined
+
+  let fullUrl = trimmed
+  if (fullUrl.startsWith("//")) {
+    fullUrl = `https:${fullUrl}`
+  } else if (!fullUrl.startsWith("http://") && !fullUrl.startsWith("https://")) {
+    const cleanPath = fullUrl.startsWith("/") ? fullUrl : `/${fullUrl}`
+    fullUrl = `${baseUrl}${cleanPath}`
+  }
+
+  // Bersihkan spasi dan escape karakter khusus untuk XML
+  fullUrl = fullUrl.replace(/\s+/g, "%20")
+  return escapeXml(fullUrl)
 }
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
@@ -67,12 +85,13 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       .filter((art) => art.slug)
       .map((art) => {
         const coverImg = art.cover_image || art.src
+        const formattedImg = formatImageUrl(coverImg, baseUrl)
         return {
           url: `${baseUrl}/insight/${art.slug}`,
           lastModified: art.updated_at ? new Date(art.updated_at) : new Date(art.created_at || Date.now()),
           changeFrequency: "weekly" as const,
           priority: 0.7,
-          images: coverImg ? [escapeXml(coverImg)] : undefined,
+          images: formattedImg ? [formattedImg] : undefined,
         }
       })
   } catch (err) {
