@@ -25,6 +25,8 @@ import {
   CheckCircle2,
   CheckCheck,
   Leaf,
+  RotateCcw,
+  History,
 } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
@@ -99,14 +101,29 @@ export default function AiAssistantPage() {
   const [isModelModalOpen, setIsModelModalOpen] = useState(false);
   const [availableOmniModels, setAvailableOmniModels] = useState<string[]>([]);
   const [modelSearch, setModelSearch] = useState("");
-  const [modelTab, setModelTab] = useState<"all" | "agy" | "auto" | "free" | "openai" | "google" | "deepseek" | "claude">("all");
+  const [modelTab, setModelTab] = useState<"all" | "history" | "agy" | "auto" | "free" | "openai" | "google" | "deepseek" | "claude">("all");
+  const [modelHistory, setModelHistory] = useState<string[]>([]);
   const [isTestingModel, setIsTestingModel] = useState(false);
+  const [testingModelTarget, setTestingModelTarget] = useState<string | null>(null);
+  const [modelTestResults, setModelTestResults] = useState<Record<string, { status: "success" | "error"; latencyMs?: number; error?: string }>>({});
   const [modelTestResult, setModelTestResult] = useState<{
     success: boolean;
     latencyMs?: number;
     message: string;
     sampleResponse?: string;
   } | null>(null);
+
+  const addToHistory = (modelId: string) => {
+    const clean = modelId.trim();
+    if (!clean) return;
+    setModelHistory((prev) => {
+      const updated = [clean, ...prev.filter((m) => m !== clean)].slice(0, 20);
+      try {
+        localStorage.setItem("indogreen_ai_model_history", JSON.stringify(updated));
+      } catch {}
+      return updated;
+    });
+  };
 
   const handleTestModel = async (modelToTest?: string) => {
     const target = (modelToTest || selectedModel).trim();
@@ -115,6 +132,7 @@ export default function AiAssistantPage() {
       return;
     }
     setIsTestingModel(true);
+    setTestingModelTarget(target);
     setModelTestResult(null);
     try {
       const res = await fetch("/api/ai", {
@@ -127,34 +145,56 @@ export default function AiAssistantPage() {
       });
       const data = await res.json();
       if (res.ok && data.success) {
+        const successMsg = `Model "${target}" aktif (${data.latencyMs}ms)`;
         setModelTestResult({
           success: true,
           latencyMs: data.latencyMs,
-          message: `Model aktif (${data.latencyMs}ms)`,
+          message: successMsg,
           sampleResponse: data.sampleResponse,
         });
-        toast.success(`Model ${target} Aktif (${data.latencyMs}ms)`);
+        setModelTestResults((prev) => ({
+          ...prev,
+          [target]: { status: "success", latencyMs: data.latencyMs },
+        }));
+        toast.success(successMsg);
       } else {
+        const errMsg = data.error || "Model tidak merespons atau provider offline.";
         setModelTestResult({
           success: false,
           latencyMs: data.latencyMs,
-          message: data.error || "Model tidak merespons atau provider offline.",
+          message: `Model "${target}": ${errMsg}`,
         });
-        toast.error(`Model ${target} Gagal diuji`);
+        setModelTestResults((prev) => ({
+          ...prev,
+          [target]: { status: "error", error: errMsg },
+        }));
+        toast.error(`Model "${target}" gagal diuji: ${errMsg}`);
       }
     } catch (err: any) {
+      const errMsg = err.message || "Gagal menguji model.";
       setModelTestResult({
         success: false,
-        message: err.message || "Gagal menguji model.",
+        message: `Model "${target}": ${errMsg}`,
       });
-      toast.error("Gagal uji model");
+      setModelTestResults((prev) => ({
+        ...prev,
+        [target]: { status: "error", error: errMsg },
+      }));
+      toast.error(`Gagal uji model "${target}"`);
     } finally {
       setIsTestingModel(false);
+      setTestingModelTarget(null);
     }
   };
 
   const filteredModels = React.useMemo(() => {
-    const list = availableOmniModels.length > 0 ? availableOmniModels : PRESET_MODELS.map((p) => p.id);
+    let list: string[] = [];
+    if (modelTab === "history") {
+      list = modelHistory;
+    } else {
+      list = availableOmniModels.length > 0 ? availableOmniModels : PRESET_MODELS.map((p) => p.id);
+    }
+
     return list.filter((m) => {
       const lower = m.toLowerCase();
       if (modelTab === "agy" && !lower.startsWith("agy/") && !lower.startsWith("antigravity/")) return false;
@@ -171,7 +211,7 @@ export default function AiAssistantPage() {
       }
       return true;
     });
-  }, [availableOmniModels, modelTab, modelSearch]);
+  }, [availableOmniModels, modelTab, modelSearch, modelHistory]);
 
   const [messages, setMessages] = useState<Message[]>([
     {
@@ -214,6 +254,20 @@ Saya siap membantu operasional website dan bisnis **Maklon Herbal** Anda:
       setSelectedModel(saved);
     }
 
+    try {
+      const rawHistory = localStorage.getItem("indogreen_ai_model_history");
+      if (rawHistory) {
+        const parsed = JSON.parse(rawHistory);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          setModelHistory(parsed);
+        } else if (saved) {
+          setModelHistory([saved]);
+        }
+      } else if (saved) {
+        setModelHistory([saved]);
+      }
+    } catch {}
+
     // Fetch model default & list model dari OmniRoute
     fetch("/api/ai")
       .then((r) => r.json())
@@ -221,6 +275,7 @@ Saya siap membantu operasional website dan bisnis **Maklon Herbal** Anda:
         if (data.success) {
           if (!saved && data.defaultModel) {
             setSelectedModel(data.defaultModel);
+            setModelHistory((prev) => (prev.length === 0 ? [data.defaultModel] : prev));
           }
           if (Array.isArray(data.models)) {
             setAvailableOmniModels(data.models);
@@ -231,10 +286,15 @@ Saya siap membantu operasional website dan bisnis **Maklon Herbal** Anda:
   }, []);
 
   const handleSelectModel = (modelId: string) => {
-    setSelectedModel(modelId);
-    localStorage.setItem("indogreen_ai_model", modelId);
+    const clean = modelId.trim();
+    if (!clean) return;
+    setSelectedModel(clean);
+    try {
+      localStorage.setItem("indogreen_ai_model", clean);
+    } catch {}
+    addToHistory(clean);
     setIsModelModalOpen(false);
-    toast.success(`Model aktif diubah ke: ${modelId}`);
+    toast.success(`Model aktif diubah ke: ${clean}`);
   };
 
   const handleApplyCustomModel = () => {
@@ -775,6 +835,7 @@ Saya siap membantu operasional website dan bisnis **Maklon Herbal** Anda:
                   <div className="flex flex-wrap items-center gap-1">
                     {[
                       { id: "all", label: "Semua" },
+                      { id: "history", label: `🕒 Riwayat (${modelHistory.length})` },
                       { id: "agy", label: "🌟 Akun AGY" },
                       { id: "free", label: "🎁 Free" },
                       { id: "auto", label: "⚡ Auto Router" },
@@ -802,6 +863,9 @@ Saya siap membantu operasional website dan bisnis **Maklon Herbal** Anda:
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-1.5 max-h-56 overflow-y-auto p-1.5 bg-background/50 rounded-xl border border-border/70 scrollbar-thin">
                     {filteredModels.slice(0, 100).map((m) => {
                       const isSelected = selectedModel === m;
+                      const isTestingThis = isTestingModel && testingModelTarget === m;
+                      const testRes = modelTestResults[m];
+
                       return (
                         <div
                           key={m}
@@ -815,30 +879,57 @@ Saya siap membantu operasional website dan bisnis **Maklon Herbal** Anda:
                               : "bg-card hover:bg-secondary/60 border-border/60 text-foreground"
                           }`}
                         >
-                          <span className="text-[11px] font-mono truncate mr-1.5" title={m}>
-                            {m}
-                          </span>
-                          <div className="flex items-center gap-1 shrink-0">
-                            {isSelected && <Check className="size-3 text-emerald-600" />}
+                          <div className="flex items-center gap-1.5 min-w-0 flex-1">
+                            {isSelected && <Check className="size-3 text-emerald-600 shrink-0" />}
+                            <span className="text-[11px] font-mono truncate mr-1" title={m}>
+                              {m}
+                            </span>
+                          </div>
+                          <div className="flex items-center gap-1 shrink-0" onClick={(e) => e.stopPropagation()}>
+                            {testRes?.status === "success" && (
+                              <span className="text-[9px] text-emerald-600 bg-emerald-50 dark:bg-emerald-950/40 px-1.5 py-0.5 rounded border border-emerald-500/30 font-mono font-medium">
+                                ✅ {testRes.latencyMs}ms
+                              </span>
+                            )}
+                            {testRes?.status === "error" && (
+                              <span
+                                className="text-[9px] text-rose-600 bg-rose-50 dark:bg-rose-950/40 px-1.5 py-0.5 rounded border border-rose-500/30 font-mono font-medium truncate max-w-[65px]"
+                                title={testRes.error}
+                              >
+                                ❌ Error
+                              </span>
+                            )}
                             <button
                               type="button"
                               onClick={(e) => {
                                 e.stopPropagation();
-                                handleSelectModel(m);
                                 handleTestModel(m);
                               }}
-                              className="opacity-0 group-hover:opacity-100 p-1 hover:bg-emerald-500/20 rounded text-[10px] text-muted-foreground hover:text-emerald-600 transition-opacity"
-                              title={`Uji respon model ${m}`}
+                              disabled={isTestingModel}
+                              className="p-1 hover:bg-emerald-500/20 rounded text-[10px] text-muted-foreground hover:text-emerald-600 transition-opacity flex items-center gap-1 border border-border/50 bg-background/60 cursor-pointer disabled:opacity-50"
+                              title={`Uji respon koneksi model ${m} (tidak memilih)`}
                             >
-                              <Zap className="size-3" />
+                              {isTestingThis ? (
+                                <Loader2 className="size-2.5 animate-spin text-emerald-600" />
+                              ) : (
+                                <Zap className="size-2.5" />
+                              )}
+                              <span className="text-[9px] font-medium">{isTestingThis ? "Tes..." : "Uji"}</span>
                             </button>
                           </div>
                         </div>
                       );
                     })}
                     {filteredModels.length === 0 && (
-                      <div className="col-span-2 py-6 text-center text-xs text-muted-foreground">
-                        Tidak ada model yang cocok dengan kata kunci &quot;{modelSearch}&quot;
+                      <div className="col-span-2 py-6 text-center text-xs text-muted-foreground space-y-1">
+                        {modelTab === "history" ? (
+                          <>
+                            <p className="font-medium text-foreground">Belum ada riwayat model yang digunakan.</p>
+                            <p className="text-[11px]">Pilih model dari tab lain untuk menambahkannya ke riwayat Anda.</p>
+                          </>
+                        ) : (
+                          <p>Tidak ada model yang cocok dengan kata kunci &quot;{modelSearch}&quot;</p>
+                        )}
                       </div>
                     )}
                     {filteredModels.length > 100 && (
@@ -847,6 +938,29 @@ Saya siap membantu operasional website dan bisnis **Maklon Herbal** Anda:
                       </div>
                     )}
                   </div>
+
+                  {/* Tombol Bersihkan Riwayat jika di Tab Riwayat */}
+                  {modelTab === "history" && modelHistory.length > 0 && (
+                    <div className="flex justify-between items-center text-[10px] text-muted-foreground pt-1">
+                      <span>Tersimpan {modelHistory.length} riwayat model terakhir</span>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          if (confirm("Hapus seluruh riwayat model yang pernah digunakan?")) {
+                            setModelHistory([]);
+                            try {
+                              localStorage.removeItem("indogreen_ai_model_history");
+                            } catch {}
+                            toast.success("Riwayat model berhasil dibersihkan");
+                          }
+                        }}
+                        className="text-muted-foreground hover:text-destructive flex items-center gap-1 cursor-pointer transition-colors"
+                      >
+                        <RotateCcw className="size-2.5" />
+                        Bersihkan Riwayat
+                      </button>
+                    </div>
+                  )}
                 </div>
 
                 {/* Custom Model Input */}

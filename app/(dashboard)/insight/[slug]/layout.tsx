@@ -16,6 +16,14 @@ function toAbsoluteUrl(url?: string, baseUrl: string = "https://www.indogreennat
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params
+
+  if (slug === "preview") {
+    return {
+      title: "Pratinjau Artikel Insight | CV. Indo Green Nature",
+      robots: { index: false, follow: false },
+    }
+  }
+
   const article = await fetchInsightBySlug(slug)
   const seo = await fetchSeoConfig()
   const baseUrl = (process.env.NEXT_PUBLIC_SITE_URL || seo?.canonicalUrl || "https://www.indogreennature.com").replace(/\/+$/, "")
@@ -69,6 +77,11 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 
 export default async function InsightSlugLayout({ children, params }: Props) {
   const { slug } = await params
+
+  if (slug === "preview") {
+    return <>{children}</>
+  }
+
   const article = await fetchInsightBySlug(slug)
   const seo = await fetchSeoConfig()
   const baseUrl = (process.env.NEXT_PUBLIC_SITE_URL || seo?.canonicalUrl || "https://www.indogreennature.com").replace(/\/+$/, "")

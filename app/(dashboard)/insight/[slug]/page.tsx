@@ -233,7 +233,9 @@ export default function InsightDetailPage() {
     async function loadData() {
       setLoading(true)
       try {
-        if (slug === "preview") {
+        const isPreviewQuery = typeof window !== "undefined" && new URLSearchParams(window.location.search).get("preview") === "true"
+
+        if (slug === "preview" || isPreviewQuery) {
           setIsPreviewMode(true)
           let draft: InsightArticle | null = null
           if (typeof window !== "undefined") {
@@ -247,7 +249,18 @@ export default function InsightDetailPage() {
             }
           }
 
-          if (!draft) {
+          if (draft) {
+            if (isMounted) {
+              setArticle(draft)
+            }
+            const all = await fetchInsights()
+            if (isMounted) {
+              setRelatedArticles(all.slice(0, 4))
+            }
+            return
+          }
+
+          if (slug === "preview") {
             draft = {
               id: 999999,
               title: "Pratinjau Artikel Insight",
@@ -263,18 +276,18 @@ export default function InsightDetailPage() {
               updated_at: new Date().toISOString(),
               is_active: true,
             }
-          }
 
-          if (isMounted) {
-            setArticle(draft)
-          }
+            if (isMounted) {
+              setArticle(draft)
+            }
 
-          // Load other articles for related section
-          const all = await fetchInsights()
-          if (isMounted) {
-            setRelatedArticles(all.slice(0, 4))
+            // Load other articles for related section
+            const all = await fetchInsights()
+            if (isMounted) {
+              setRelatedArticles(all.slice(0, 4))
+            }
+            return
           }
-          return
         }
 
         const found = await fetchInsightBySlug(slug)
@@ -305,7 +318,8 @@ export default function InsightDetailPage() {
 
   // Sinkronisasi realtime artikel draf saat berada di tab pratinjau
   React.useEffect(() => {
-    if (slug !== "preview" && !isPreviewMode) return
+    const isPrev = slug === "preview" || isPreviewMode || (typeof window !== "undefined" && new URLSearchParams(window.location.search).get("preview") === "true")
+    if (!isPrev) return
     let isMounted = true
 
     let bc: BroadcastChannel | null = null

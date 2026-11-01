@@ -42,6 +42,7 @@ import {
   DicesIcon,
   CheckCheck,
   Leaf,
+  RotateCcwIcon,
 } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
@@ -243,6 +244,8 @@ export function InsightEditor({ initialArticle, isEditMode = false }: InsightEdi
   const [isModelSelectorOpen, setIsModelSelectorOpen] = React.useState(false)
   const [modelSearch, setModelSearch] = React.useState("")
   const [customModelInput, setCustomModelInput] = React.useState("")
+  const [modelTab, setModelTab] = React.useState<"all" | "history" | "agy" | "auto" | "free" | "openai" | "google" | "deepseek" | "claude">("all")
+  const [modelHistory, setModelHistory] = React.useState<string[]>([])
   const [testingModelId, setTestingModelId] = React.useState<string | null>(null)
   const [modelTestResults, setModelTestResults] = React.useState<
     Record<string, { status: "success" | "error"; latencyMs?: number; error?: string }>
@@ -250,6 +253,18 @@ export function InsightEditor({ initialArticle, isEditMode = false }: InsightEdi
   const [aiChatMessages, setAiChatMessages] = React.useState<
     Array<{ role: "user" | "assistant"; text: string; time: string }>
   >([])
+
+  const addToModelHistory = (modelId: string) => {
+    const clean = modelId.trim()
+    if (!clean) return
+    setModelHistory((prev) => {
+      const updated = [clean, ...prev.filter((m) => m !== clean)].slice(0, 20)
+      try {
+        localStorage.setItem("indogreen_ai_model_history", JSON.stringify(updated))
+      } catch {}
+      return updated
+    })
+  }
 
   // Bersihkan interval animasi saat komponen unmount
   React.useEffect(() => {
@@ -332,6 +347,20 @@ export function InsightEditor({ initialArticle, isEditMode = false }: InsightEdi
     if (typeof window !== "undefined") {
       const stored = localStorage.getItem("indogreen_ai_model")
       if (stored) setActiveModel(stored)
+
+      try {
+        const rawHistory = localStorage.getItem("indogreen_ai_model_history")
+        if (rawHistory) {
+          const parsed = JSON.parse(rawHistory)
+          if (Array.isArray(parsed) && parsed.length > 0) {
+            setModelHistory(parsed)
+          } else if (stored) {
+            setModelHistory([stored])
+          }
+        } else if (stored) {
+          setModelHistory([stored])
+        }
+      } catch {}
     }
     fetchActiveModels()
   }, [fetchActiveModels])
@@ -343,6 +372,7 @@ export function InsightEditor({ initialArticle, isEditMode = false }: InsightEdi
     try {
       localStorage.setItem("indogreen_ai_model", cleanId)
     } catch {}
+    addToModelHistory(cleanId)
     setIsModelSelectorOpen(false)
     toast.success(`Model AI aktif: ${cleanId}`)
   }
@@ -2365,6 +2395,35 @@ export function InsightEditor({ initialArticle, isEditMode = false }: InsightEdi
               </Button>
             </div>
 
+            {/* Kategori Tabs */}
+            <div className="flex flex-wrap items-center gap-1">
+              {[
+                { id: "all", label: "Semua" },
+                { id: "history", label: `🕒 Riwayat (${modelHistory.length})` },
+                { id: "agy", label: "🌟 Akun AGY" },
+                { id: "free", label: "🎁 Free" },
+                { id: "auto", label: "⚡ Auto Router" },
+                { id: "openai", label: "OpenAI / GPT" },
+                { id: "google", label: "Google / Gemini" },
+                { id: "deepseek", label: "DeepSeek" },
+                { id: "claude", label: "Claude" },
+              ].map((tab) => (
+                <button
+                  key={tab.id}
+                  type="button"
+                  onClick={() => setModelTab(tab.id as any)}
+                  className={cn(
+                    "text-[10px] px-2 py-0.5 rounded-[4px] border transition-colors cursor-pointer",
+                    modelTab === tab.id
+                      ? "bg-[#166534] text-white border-[#166534] font-semibold"
+                      : "bg-muted/60 hover:bg-muted text-muted-foreground hover:text-foreground border-border/60"
+                  )}
+                >
+                  {tab.label}
+                </button>
+              ))}
+            </div>
+
             {/* List Model Aktif dari VPS */}
             <div className="space-y-1 max-h-60 overflow-y-auto pr-1">
               {isLoadingModels ? (
@@ -2374,13 +2433,40 @@ export function InsightEditor({ initialArticle, isEditMode = false }: InsightEdi
                 </div>
               ) : (
                 (() => {
-                  const filtered = availableModels.filter((m) =>
-                    m.toLowerCase().includes(modelSearch.toLowerCase().trim())
-                  )
+                  let list: string[] = []
+                  if (modelTab === "history") {
+                    list = modelHistory
+                  } else {
+                    list = availableModels
+                  }
+
+                  const filtered = list.filter((m) => {
+                    const lower = m.toLowerCase()
+                    if (modelTab === "agy" && !lower.startsWith("agy/") && !lower.startsWith("antigravity/")) return false
+                    if (modelTab === "auto" && !lower.startsWith("auto/")) return false
+                    if (modelTab === "free" && !lower.includes("free")) return false
+                    if (modelTab === "openai" && !lower.includes("gpt") && !lower.includes("openai")) return false
+                    if (modelTab === "google" && !lower.includes("gemini") && !lower.includes("google") && !lower.includes("gemma")) return false
+                    if (modelTab === "deepseek" && !lower.includes("deepseek")) return false
+                    if (modelTab === "claude" && !lower.includes("claude") && !lower.includes("anthropic")) return false
+
+                    if (modelSearch.trim()) {
+                      return lower.includes(modelSearch.toLowerCase().trim())
+                    }
+                    return true
+                  })
+
                   if (filtered.length === 0) {
                     return (
-                      <div className="py-6 text-center text-xs text-muted-foreground">
-                        Tidak ada model yang cocok dengan &quot;{modelSearch}&quot;
+                      <div className="py-6 text-center text-xs text-muted-foreground space-y-1">
+                        {modelTab === "history" ? (
+                          <>
+                            <p className="font-medium text-foreground">Belum ada riwayat model yang digunakan.</p>
+                            <p className="text-[11px]">Pilih model dari tab lain untuk menambahkannya ke riwayat Anda.</p>
+                          </>
+                        ) : (
+                          <p>Tidak ada model yang cocok dengan kata kunci &quot;{modelSearch}&quot;</p>
+                        )}
                       </div>
                     )
                   }
@@ -2428,7 +2514,7 @@ export function InsightEditor({ initialArticle, isEditMode = false }: InsightEdi
                             onClick={(e) => handleTestModel(m, e)}
                             disabled={isTestingThis}
                             className="px-2 py-0.5 rounded text-[10px] font-mono text-muted-foreground hover:text-foreground hover:bg-muted border border-border/60 transition-colors cursor-pointer disabled:opacity-50 flex items-center gap-1"
-                            title="Uji koneksi ping model ini sekarang"
+                            title="Uji koneksi ping model ini sekarang (tidak memilih)"
                           >
                             {isTestingThis ? (
                               <RefreshCwIcon className="size-2.5 animate-spin text-[#166534]" />
@@ -2444,6 +2530,29 @@ export function InsightEditor({ initialArticle, isEditMode = false }: InsightEdi
                 })()
               )}
             </div>
+
+            {/* Tombol Bersihkan Riwayat jika di Tab Riwayat */}
+            {modelTab === "history" && modelHistory.length > 0 && (
+              <div className="flex justify-between items-center text-[10px] text-muted-foreground pt-1 border-t border-border/50">
+                <span>Tersimpan {modelHistory.length} riwayat model terakhir</span>
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (confirm("Hapus seluruh riwayat model yang pernah digunakan?")) {
+                      setModelHistory([])
+                      try {
+                        localStorage.removeItem("indogreen_ai_model_history")
+                      } catch {}
+                      toast.success("Riwayat model berhasil dibersihkan")
+                    }
+                  }}
+                  className="text-muted-foreground hover:text-destructive flex items-center gap-1 cursor-pointer transition-colors"
+                >
+                  <RotateCcwIcon className="size-2.5" />
+                  Bersihkan Riwayat
+                </button>
+              </div>
+            )}
           </div>
 
           <DialogFooter className="p-3 border-t border-border/70 bg-muted/20 flex flex-wrap gap-2 justify-between items-center text-xs text-muted-foreground">

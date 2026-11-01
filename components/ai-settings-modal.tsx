@@ -85,6 +85,8 @@ export function AiSettingsModal({ isOpen, onClose, onSaved }: AiSettingsModalPro
   } | null>(null)
 
   const [isTestingModel, setIsTestingModel] = useState(false)
+  const [testingModelTarget, setTestingModelTarget] = useState<string | null>(null)
+  const [modelTestResults, setModelTestResults] = useState<Record<string, { status: "success" | "error"; latencyMs?: number; error?: string }>>({})
   const [modelTestResult, setModelTestResult] = useState<{
     success: boolean
     latencyMs?: number
@@ -92,8 +94,21 @@ export function AiSettingsModal({ isOpen, onClose, onSaved }: AiSettingsModalPro
     sampleResponse?: string
   } | null>(null)
   const [modelSearch, setModelSearch] = useState("")
-  const [modelTab, setModelTab] = useState<"all" | "agy" | "auto" | "free" | "openai" | "google" | "deepseek" | "claude">("all")
+  const [modelTab, setModelTab] = useState<"all" | "history" | "agy" | "auto" | "free" | "openai" | "google" | "deepseek" | "claude">("all")
+  const [modelHistory, setModelHistory] = useState<string[]>([])
   const [isComboboxOpen, setIsComboboxOpen] = useState(false)
+
+  const addToModelHistory = (modelId: string) => {
+    const clean = modelId.trim()
+    if (!clean) return
+    setModelHistory((prev) => {
+      const updated = [clean, ...prev.filter((m) => m !== clean)].slice(0, 20)
+      try {
+        localStorage.setItem("indogreen_ai_model_history", JSON.stringify(updated))
+      } catch {}
+      return updated
+    })
+  }
 
   // Ambil konfigurasi aktif saat modal dibuka
   useEffect(() => {
@@ -103,13 +118,26 @@ export function AiSettingsModal({ isOpen, onClose, onSaved }: AiSettingsModalPro
     setIsLoading(true)
     setTestResult(null)
 
+    try {
+      const rawHistory = localStorage.getItem("indogreen_ai_model_history")
+      if (rawHistory) {
+        const parsed = JSON.parse(rawHistory)
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          setModelHistory(parsed)
+        }
+      }
+    } catch {}
+
     fetch("/api/ai")
       .then((res) => res.json())
       .then((data) => {
         if (!isMounted) return
         if (data.success && data.config) {
           if (data.config.baseUrl) setBaseUrl(data.config.baseUrl)
-          if (data.config.defaultModel) setDefaultModel(data.config.defaultModel)
+          if (data.config.defaultModel) {
+            setDefaultModel(data.config.defaultModel)
+            setModelHistory((prev) => (prev.length === 0 ? [data.config.defaultModel] : prev))
+          }
           if (data.config.systemPrompt) setSystemPrompt(data.config.systemPrompt)
           if (typeof data.config.temperature === "number") setTemperature(data.config.temperature)
         }
@@ -198,6 +226,7 @@ export function AiSettingsModal({ isOpen, onClose, onSaved }: AiSettingsModalPro
       return
     }
     setIsTestingModel(true)
+    setTestingModelTarget(target)
     setModelTestResult(null)
     try {
       const res = await fetch("/api/ai", {
@@ -214,36 +243,59 @@ export function AiSettingsModal({ isOpen, onClose, onSaved }: AiSettingsModalPro
       })
       const data = await res.json()
       if (res.ok && data.success) {
+        const successMsg = `Model "${target}" aktif (${data.latencyMs}ms)`
         setModelTestResult({
           success: true,
           latencyMs: data.latencyMs,
-          message: `Model aktif (${data.latencyMs}ms)`,
+          message: successMsg,
           sampleResponse: data.sampleResponse,
         })
-        toast.success(`Model ${target} Aktif (${data.latencyMs}ms)`)
+        setModelTestResults((prev) => ({
+          ...prev,
+          [target]: { status: "success", latencyMs: data.latencyMs },
+        }))
+        toast.success(successMsg)
       } else {
+        const errMsg = data.error || "Model tidak merespons atau provider offline."
         setModelTestResult({
           success: false,
           latencyMs: data.latencyMs,
-          message: data.error || "Model tidak merespons atau provider offline.",
+          message: `Model "${target}": ${errMsg}`,
         })
-        toast.error(`Model ${target} Gagal diuji`)
+        setModelTestResults((prev) => ({
+          ...prev,
+          [target]: { status: "error", error: errMsg },
+        }))
+        toast.error(`Model "${target}" gagal diuji: ${errMsg}`)
       }
     } catch (err: any) {
+      const errMsg = err.message || "Gagal menguji model."
       setModelTestResult({
         success: false,
-        message: err.message || "Gagal menguji model.",
+        message: `Model "${target}": ${errMsg}`,
       })
-      toast.error("Gagal uji model")
+      setModelTestResults((prev) => ({
+        ...prev,
+        [target]: { status: "error", error: errMsg },
+      }))
+      toast.error(`Gagal uji model: ${target}`)
     } finally {
       setIsTestingModel(false)
+      setTestingModelTarget(null)
     }
   }
 
   // Filter daftar model berdasarkan Tab kategori & input pencarian
   const filteredModels = React.useMemo(() => {
-    if (!availableModels || availableModels.length === 0) return []
-    return availableModels.filter((m) => {
+    let list: string[] = []
+    if (modelTab === "history") {
+      list = modelHistory
+    } else {
+      if (!availableModels || availableModels.length === 0) return []
+      list = availableModels
+    }
+
+    return list.filter((m) => {
       const lower = m.toLowerCase()
       if (modelTab === "agy" && !lower.startsWith("agy/") && !lower.startsWith("antigravity/")) return false
       if (modelTab === "auto" && !lower.startsWith("auto/")) return false
@@ -259,7 +311,7 @@ export function AiSettingsModal({ isOpen, onClose, onSaved }: AiSettingsModalPro
       }
       return true
     })
-  }, [availableModels, modelTab, modelSearch])
+  }, [availableModels, modelTab, modelSearch, modelHistory])
 
   // Simpan konfigurasi ke database
   const handleSave = async () => {
@@ -291,6 +343,7 @@ export function AiSettingsModal({ isOpen, onClose, onSaved }: AiSettingsModalPro
         if (typeof window !== "undefined") {
           localStorage.setItem("indogreen_ai_model", defaultModel.trim())
         }
+        addToModelHistory(defaultModel.trim())
         onSaved?.()
         onClose()
       } else {
@@ -884,6 +937,7 @@ export function AiSettingsModal({ isOpen, onClose, onSaved }: AiSettingsModalPro
                     <div className="flex flex-wrap items-center gap-1">
                       {[
                         { id: "all", label: "Semua" },
+                        { id: "history", label: `🕒 Riwayat (${modelHistory.length})` },
                         { id: "agy", label: "🌟 Akun AGY" },
                         { id: "free", label: "🎁 Free" },
                         { id: "auto", label: "⚡ Auto Router" },
@@ -911,11 +965,15 @@ export function AiSettingsModal({ isOpen, onClose, onSaved }: AiSettingsModalPro
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-1 max-h-48 overflow-y-auto p-1.5 bg-background/60 rounded-[6px] border border-border/60 scrollbar-thin">
                       {filteredModels.slice(0, 100).map((m) => {
                         const isSelected = defaultModel === m
+                        const isTestingThis = isTestingModel && testingModelTarget === m
+                        const testRes = modelTestResults[m]
+
                         return (
                           <div
                             key={m}
                             onClick={() => {
                               setDefaultModel(m)
+                              addToModelHistory(m)
                               setModelTestResult(null)
                             }}
                             className={`group flex items-center justify-between px-2 py-1 rounded-[4px] border text-left cursor-pointer transition-colors ${
@@ -924,30 +982,57 @@ export function AiSettingsModal({ isOpen, onClose, onSaved }: AiSettingsModalPro
                                 : "bg-card hover:bg-muted/70 border-border/50 text-foreground"
                             }`}
                           >
-                            <span className="text-[10.5px] font-mono truncate mr-1.5" title={m}>
-                              {m}
-                            </span>
-                            <div className="flex items-center gap-1 shrink-0">
-                              {isSelected && <Check className="size-3 text-[#15803d]" />}
+                            <div className="flex items-center gap-1.5 min-w-0 flex-1">
+                              {isSelected && <Check className="size-3 text-[#15803d] shrink-0" />}
+                              <span className="text-[10.5px] font-mono truncate mr-1" title={m}>
+                                {m}
+                              </span>
+                            </div>
+                            <div className="flex items-center gap-1 shrink-0" onClick={(e) => e.stopPropagation()}>
+                              {testRes?.status === "success" && (
+                                <span className="text-[8.5px] text-green-700 dark:text-green-300 bg-green-500/10 px-1 py-0.5 rounded border border-green-500/20 font-mono">
+                                  ✅ {testRes.latencyMs}ms
+                                </span>
+                              )}
+                              {testRes?.status === "error" && (
+                                <span
+                                  className="text-[8.5px] text-destructive bg-destructive/10 px-1 py-0.5 rounded border border-destructive/20 font-mono truncate max-w-[55px]"
+                                  title={testRes.error}
+                                >
+                                  ❌ Error
+                                </span>
+                              )}
                               <button
                                 type="button"
                                 onClick={(e) => {
                                   e.stopPropagation()
-                                  setDefaultModel(m)
                                   handleTestModel(m)
                                 }}
-                                className="opacity-0 group-hover:opacity-100 p-0.5 hover:bg-emerald-500/20 rounded text-[9px] text-muted-foreground hover:text-[#15803d] transition-opacity"
-                                title={`Uji model ${m}`}
+                                disabled={isTestingModel}
+                                className="p-0.5 hover:bg-emerald-500/20 rounded text-[9px] text-muted-foreground hover:text-[#15803d] transition-opacity border border-border/40 bg-background/80 flex items-center gap-1 px-1 cursor-pointer disabled:opacity-50"
+                                title={`Uji respon koneksi model ${m} (tidak memilih)`}
                               >
-                                <Zap className="size-2.5" />
+                                {isTestingThis ? (
+                                  <Loader2 className="size-2.5 animate-spin text-[#15803d]" />
+                                ) : (
+                                  <Zap className="size-2.5" />
+                                )}
+                                <span className="text-[8.5px] font-medium">{isTestingThis ? "Tes..." : "Uji"}</span>
                               </button>
                             </div>
                           </div>
                         )
                       })}
                       {filteredModels.length === 0 && (
-                        <div className="col-span-2 py-4 text-center text-xs text-muted-foreground">
-                          Tidak ada model yang cocok dengan kata kunci &quot;{modelSearch}&quot;
+                        <div className="col-span-2 py-4 text-center text-xs text-muted-foreground space-y-1">
+                          {modelTab === "history" ? (
+                            <>
+                              <p className="font-medium text-foreground">Belum ada riwayat model yang digunakan.</p>
+                              <p className="text-[10px]">Pilih model dari tab lain untuk menambahkannya ke riwayat Anda.</p>
+                            </>
+                          ) : (
+                            <p>Tidak ada model yang cocok dengan kata kunci &quot;{modelSearch}&quot;</p>
+                          )}
                         </div>
                       )}
                       {filteredModels.length > 100 && (
@@ -956,6 +1041,29 @@ export function AiSettingsModal({ isOpen, onClose, onSaved }: AiSettingsModalPro
                         </div>
                       )}
                     </div>
+
+                    {/* Tombol Bersihkan Riwayat jika di Tab Riwayat */}
+                    {modelTab === "history" && modelHistory.length > 0 && (
+                      <div className="flex justify-between items-center text-[10px] text-muted-foreground pt-1">
+                        <span>Tersimpan {modelHistory.length} riwayat model terakhir</span>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            if (confirm("Hapus seluruh riwayat model yang pernah digunakan?")) {
+                              setModelHistory([])
+                              try {
+                                localStorage.removeItem("indogreen_ai_model_history")
+                              } catch {}
+                              toast.success("Riwayat model berhasil dibersihkan")
+                            }
+                          }}
+                          className="text-muted-foreground hover:text-destructive flex items-center gap-1 cursor-pointer transition-colors"
+                        >
+                          <RotateCcw className="size-2.5" />
+                          Bersihkan Riwayat
+                        </button>
+                      </div>
+                    )}
                   </div>
                 )}
               </div>
