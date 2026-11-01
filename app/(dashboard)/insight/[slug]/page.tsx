@@ -368,25 +368,32 @@ export default function InsightDetailPage() {
     setTimeout(() => setCopied(false), 2000)
   }
 
-  const handleShareWhatsApp = async () => {
+  const handleShareWhatsApp = () => {
     if (typeof window === "undefined" || !article) return
     const shareUrl = window.location.href
-    if (navigator.share) {
-      try {
-        await navigator.share({
-          title: article.title,
-          text: `*${article.title}*\n\nBaca artikel insight herbal menarik dari CV. Indo Green Nature:`,
-          url: shareUrl,
-        })
-        return
-      } catch {
-        // Fallback jika user menutup/membatalkan native share
-      }
-    }
-    const text = encodeURIComponent(
-      `*${article.title}*\n\nBaca artikel insight herbal menarik dari CV. Indo Green Nature:\n${shareUrl}`
+    const message = `*${article.title}*\n\nBaca artikel insight herbal menarik dari CV. Indo Green Nature:\n${shareUrl}`
+    const text = encodeURIComponent(message)
+
+    // Deteksi apakah perangkat seluler (Android, iPhone, iPad)
+    const isMobile = /Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
+      navigator.userAgent
     )
-    window.open(`https://api.whatsapp.com/send?text=${text}`, "_blank")
+
+    if (isMobile) {
+      // Langsung panggil skema URI WhatsApp agar aplikasi WhatsApp terbuka seketika di ponsel
+      const start = Date.now()
+      window.location.href = `whatsapp://send?text=${text}`
+
+      // Fallback jika aplikasi WhatsApp belum terpasang di perangkat
+      setTimeout(() => {
+        if (Date.now() - start < 2000 && !document.hidden) {
+          window.open(`https://api.whatsapp.com/send?text=${text}`, "_blank")
+        }
+      }, 1500)
+    } else {
+      // Di komputer/desktop, buka WhatsApp Web / Desktop di tab baru
+      window.open(`https://api.whatsapp.com/send?text=${text}`, "_blank", "noopener,noreferrer")
+    }
   }
 
   if (loading) {
@@ -635,6 +642,42 @@ export default function InsightDetailPage() {
                 </div>
               </div>
             )}
+
+            {/* Bottom Share Bar */}
+            <div className="mt-8 pt-5 border-t border-border/60 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+              <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+                Bagikan Artikel Ini:
+              </span>
+              <div className="flex items-center gap-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={handleShareWhatsApp}
+                  className="h-8 sm:h-9 gap-1.5 text-xs text-[#15803d] dark:text-green-400 border-[#15803d]/30 hover:bg-[#15803d]/10 dark:hover:bg-green-950/30 font-medium rounded-[5px]"
+                >
+                  <WhatsAppIcon className="size-3.5" />
+                  <span>Bagikan WA</span>
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={handleCopyLink}
+                  className="h-8 sm:h-9 gap-1.5 text-xs font-medium rounded-[5px]"
+                >
+                  {copied ? (
+                    <>
+                      <CheckIcon className="size-3.5 text-[#15803d]" />
+                      <span className="text-[#15803d] font-semibold">Tersalin</span>
+                    </>
+                  ) : (
+                    <>
+                      <Share2Icon className="size-3.5" />
+                      <span>Salin Link</span>
+                    </>
+                  )}
+                </Button>
+              </div>
+            </div>
           </article>
 
           {/* Kolom Kanan: Sidebar Cards (rectangle-2, rectangle-3, rectangle-4: width 453px, gap 20px) */}
