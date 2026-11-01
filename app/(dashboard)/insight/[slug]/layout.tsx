@@ -60,12 +60,18 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
           secureUrl: ogImageUrl,
           width: 1200,
           height: 630,
-          type: "image/png",
+          type: "image/jpeg",
           alt: title,
         },
       ],
       siteName: seo?.companyName || "CV. Indo Green Nature",
       locale: "id_ID",
+    },
+    facebook: {
+      appId: seo?.facebookAppId || "966242223397117",
+    },
+    other: {
+      "fb:app_id": seo?.facebookAppId || "966242223397117",
     },
     twitter: {
       card: "summary_large_image",

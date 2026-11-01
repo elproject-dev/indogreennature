@@ -24,6 +24,7 @@ export interface SeoConfig {
   tiktokUrl?: string
   youtubeUrl?: string
   linkedinUrl?: string
+  facebookAppId?: string
 }
 
 export const SEO_CONFIG_KEY = "seo_config"
@@ -39,6 +40,7 @@ export const DEFAULT_SEO_CONFIG: SeoConfig = {
   robotsIndex: true,
   author: "CV. Indo Green Nature",
   companyName: "CV. Indo Green Nature",
+  facebookAppId: "966242223397117",
   // Organization Schema defaults
   streetAddress: "Jl. Wahid Hasyim No. 123",
   addressLocality: "Wates",

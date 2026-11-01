@@ -1182,6 +1182,34 @@ export function SeoSettingsModal({ isOpen, onClose }: SeoSettingsModalProps) {
                       <p className="text-[11px] text-muted-foreground leading-relaxed">
                         Langkah cepat verifikasi: Pilih metode <strong>&quot;HTML Tag&quot;</strong> di Google Search Console, salin kode atribut content, tempel di sini, dan klik tombol <strong>Simpan Pengaturan SEO</strong> di bawah. Website Anda akan otomatis terverifikasi!
                       </p>
+
+                      <div className="space-y-1.5 pt-3 border-t border-border/50">
+                        <div className="flex items-center justify-between">
+                          <Label htmlFor="facebookAppId" className="text-xs font-semibold flex items-center gap-1.5">
+                            <Share2 className="w-4 h-4 text-primary" />
+                            <span>Facebook App ID (fb:app_id)</span>
+                          </Label>
+                          <a
+                            href="https://developers.facebook.com/tools/debug/"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-[11px] text-primary hover:underline flex items-center gap-1"
+                          >
+                            <span>Facebook Debugger</span>
+                            <ExternalLink className="w-3 h-3" />
+                          </a>
+                        </div>
+                        <Input
+                          id="facebookAppId"
+                          value={config.facebookAppId || ""}
+                          onChange={(e) => setConfig({ ...config, facebookAppId: e.target.value })}
+                          placeholder="966242223397117"
+                          className="text-xs font-mono rounded-[5px]"
+                        />
+                        <p className="text-[11px] text-muted-foreground leading-relaxed">
+                          ID Aplikasi Meta Developer untuk validasi OpenGraph Facebook dan menghilangkan peringatan properti hilang <code>fb:app_id</code> di Facebook Sharing Debugger.
+                        </p>
+                      </div>
                     </div>
                   </div>
 
