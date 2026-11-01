@@ -65,7 +65,7 @@ export async function generateMetadata(): Promise<Metadata> {
           secureUrl: ogImageUrl,
           width: 1200,
           height: 630,
-          type: "image/jpeg",
+          type: "image/png",
           alt: siteTitle,
         },
       ],

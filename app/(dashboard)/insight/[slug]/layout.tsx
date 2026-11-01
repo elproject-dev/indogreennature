@@ -60,7 +60,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
           secureUrl: ogImageUrl,
           width: 1200,
           height: 630,
-          type: "image/jpeg",
+          type: "image/png",
           alt: title,
         },
       ],
