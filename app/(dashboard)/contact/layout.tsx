@@ -7,7 +7,7 @@ export async function generateMetadata(): Promise<Metadata> {
   const canonicalUrl = `${baseUrl}/contact`
   const title = `Hubungi Kami - Konsultasi Maklon Herbal Gratis | ${seo?.companyName || "CV. Indo Green Nature"}`
   const description = "Konsultasikan ide produk herbal Anda bersama tim formulasi kami. Dapatkan penawaran harga maklon terbaik, MOQ bersahabat, dan sampel produk gratis."
-  const image = seo?.ogImageUrl || `${baseUrl}/pwa-icon-512.png`
+  const ogImageUrl = `${baseUrl}/api/og?type=website`
 
   return {
     title: "Hubungi Kami - Konsultasi Maklon Herbal Gratis",
@@ -21,14 +21,23 @@ export async function generateMetadata(): Promise<Metadata> {
       url: canonicalUrl,
       type: "website",
       siteName: seo?.companyName || "CV. Indo Green Nature",
-      images: [{ url: image, width: 1200, height: 630, alt: title }],
+      images: [
+        {
+          url: ogImageUrl,
+          secureUrl: ogImageUrl,
+          width: 1200,
+          height: 630,
+          type: "image/jpeg",
+          alt: title,
+        },
+      ],
       locale: "id_ID",
     },
     twitter: {
       card: "summary_large_image",
       title,
       description,
-      images: [image],
+      images: [ogImageUrl],
     },
   }
 }

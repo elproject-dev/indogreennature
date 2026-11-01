@@ -38,7 +38,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   const title = article.title
   const description = (article.description || article.excerpt || seo?.siteDescription || "").slice(0, 160)
   const canonicalUrl = `${baseUrl}/insight/${article.slug}`
-  const coverImage = toAbsoluteUrl(article.cover_image || article.src || seo?.ogImageUrl, baseUrl)
+  const ogImageUrl = `${baseUrl}/api/og?slug=${encodeURIComponent(article.slug)}`
 
   return {
     title: title,
@@ -56,9 +56,11 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
       authors: [article.author || "Tim R&D Indo Green Nature"],
       images: [
         {
-          url: coverImage,
+          url: ogImageUrl,
+          secureUrl: ogImageUrl,
           width: 1200,
           height: 630,
+          type: "image/jpeg",
           alt: title,
         },
       ],
@@ -69,7 +71,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
       card: "summary_large_image",
       title: title,
       description: description,
-      images: [coverImage],
+      images: [ogImageUrl],
     },
     keywords: article.tags && article.tags.length > 0 ? article.tags : undefined,
   }

@@ -7,7 +7,7 @@ export async function generateMetadata(): Promise<Metadata> {
   const canonicalUrl = `${baseUrl}/legality`
   const title = `Legalitas & Sertifikasi Resmi (BPOM RI, Halal, CPOTB) | ${seo?.companyName || "CV. Indo Green Nature"}`
   const description = "Jaminan legalitas lengkap produksi maklon herbal CV. Indo Green Nature: Izin Edar BPOM RI, Sertifikat Halal MUI/BPJPH, standar CPOTB dan ISO mutu."
-  const image = seo?.ogImageUrl || `${baseUrl}/pwa-icon-512.png`
+  const ogImageUrl = `${baseUrl}/api/og?type=website`
 
   return {
     title: "Legalitas & Sertifikasi Resmi (BPOM RI, Halal, CPOTB)",
@@ -21,14 +21,23 @@ export async function generateMetadata(): Promise<Metadata> {
       url: canonicalUrl,
       type: "website",
       siteName: seo?.companyName || "CV. Indo Green Nature",
-      images: [{ url: image, width: 1200, height: 630, alt: title }],
+      images: [
+        {
+          url: ogImageUrl,
+          secureUrl: ogImageUrl,
+          width: 1200,
+          height: 630,
+          type: "image/jpeg",
+          alt: title,
+        },
+      ],
       locale: "id_ID",
     },
     twitter: {
       card: "summary_large_image",
       title,
       description,
-      images: [image],
+      images: [ogImageUrl],
     },
   }
 }

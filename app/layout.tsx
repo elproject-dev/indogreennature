@@ -35,10 +35,10 @@ export const revalidate = 60; // Refresh cache server setiap 60 detik
 
 export async function generateMetadata(): Promise<Metadata> {
   const seo = await fetchSeoConfig();
-  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || seo.canonicalUrl || "https://www.indogreennature.com";
+  const baseUrl = (process.env.NEXT_PUBLIC_SITE_URL || seo.canonicalUrl || "https://www.indogreennature.com").replace(/\/+$/, "");
   const siteTitle = seo.siteTitle || DEFAULT_SEO_CONFIG.siteTitle;
   const siteDescription = seo.siteDescription || DEFAULT_SEO_CONFIG.siteDescription;
-  const ogImage = seo.ogImageUrl || DEFAULT_SEO_CONFIG.ogImageUrl;
+  const ogImageUrl = `${baseUrl}/api/og?type=website`;
   const keywords = seo.siteKeywords
     ? seo.siteKeywords.split(",").map((k) => k.trim()).filter(Boolean)
     : DEFAULT_SEO_CONFIG.siteKeywords.split(",").map((k) => k.trim());
@@ -61,9 +61,11 @@ export async function generateMetadata(): Promise<Metadata> {
       siteName: seo.companyName || "CV. Indo Green Nature",
       images: [
         {
-          url: ogImage,
+          url: ogImageUrl,
+          secureUrl: ogImageUrl,
           width: 1200,
           height: 630,
+          type: "image/jpeg",
           alt: siteTitle,
         },
       ],
@@ -74,7 +76,7 @@ export async function generateMetadata(): Promise<Metadata> {
       card: "summary_large_image",
       title: siteTitle,
       description: siteDescription,
-      images: [ogImage],
+      images: [ogImageUrl],
     },
     robots: {
       index: seo.robotsIndex !== false,

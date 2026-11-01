@@ -104,26 +104,90 @@ export const compressImageToWebP = (file: File | Blob): Promise<Blob> => {
 }
 
 /**
+ * Kompres gambar khusus untuk SEO OpenGraph (JPEG 1200x630 kompatibilitas WhatsApp & Facebook)
+ */
+export const compressImageForSeo = (file: File | Blob): Promise<Blob> => {
+  return new Promise((resolve, reject) => {
+    if (typeof window === 'undefined') return reject(new Error('Bukan di browser'))
+
+    const reader = new FileReader()
+    reader.readAsDataURL(file)
+    reader.onload = (event) => {
+      const img = new Image()
+      img.src = event.target?.result as string
+      img.onload = () => {
+        const canvas = document.createElement('canvas')
+        const TARGET_WIDTH = 1200
+        const TARGET_HEIGHT = 630
+
+        canvas.width = TARGET_WIDTH
+        canvas.height = TARGET_HEIGHT
+        const ctx = canvas.getContext('2d')
+        if (!ctx) return reject(new Error('Canvas tidak didukung'))
+
+        // Background netral
+        ctx.fillStyle = '#064e3b'
+        ctx.fillRect(0, 0, TARGET_WIDTH, TARGET_HEIGHT)
+
+        // Hitung scaling "cover" agar proporsional
+        const hRatio = TARGET_WIDTH / img.width
+        const vRatio = TARGET_HEIGHT / img.height
+        const ratio = Math.max(hRatio, vRatio)
+        const centerShiftX = (TARGET_WIDTH - img.width * ratio) / 2
+        const centerShiftY = (TARGET_HEIGHT - img.height * ratio) / 2
+
+        ctx.drawImage(
+          img,
+          0,
+          0,
+          img.width,
+          img.height,
+          centerShiftX,
+          centerShiftY,
+          img.width * ratio,
+          img.height * ratio
+        )
+
+        canvas.toBlob(
+          (blob) => {
+            if (blob) resolve(blob)
+            else reject(new Error('Kompresi SEO gagal'))
+          },
+          'image/jpeg',
+          0.85
+        )
+      }
+      img.onerror = (err) => reject(err)
+    }
+    reader.onerror = (err) => reject(err)
+  })
+}
+
+/**
  * Upload a file to Supabase Storage bucket "media"
- * Automatically compresses to WebP first!
+ * Automatically compresses appropriately (WebP for web, JPEG for broadcast/SEO)
  * Returns the public URL of the uploaded file
  */
 export async function uploadMedia(file: File, folder: string = 'images', forBroadcast: boolean = false): Promise<string | null> {
+  const isJpeg = forBroadcast || folder === 'seo'
   let finalBlob: Blob = file
-  let fileExt = forBroadcast ? 'jpg' : 'webp'
-  let contentType = forBroadcast ? 'image/jpeg' : 'image/webp'
+  let fileExt = isJpeg ? 'jpg' : 'webp'
+  let contentType = isJpeg ? 'image/jpeg' : 'image/webp'
 
   try {
     if (forBroadcast) {
       // Khusus broadcast: pakai JPEG agar FCM support gambar di notifikasi
       finalBlob = await compressImageForBroadcast(file)
+    } else if (folder === 'seo') {
+      // Khusus SEO / OG Image: pakai JPEG 1200x630
+      finalBlob = await compressImageForSeo(file)
     } else {
       finalBlob = await compressImageToWebP(file)
     }
   } catch (err) {
     console.warn('Gagal kompresi, menggunakan file asli:', err)
-    fileExt = file.name ? file.name.split('.').pop() || 'jpg' : 'jpg'
-    contentType = file.type || 'image/jpeg'
+    fileExt = file.name ? file.name.split('.').pop() || (isJpeg ? 'jpg' : 'webp') : (isJpeg ? 'jpg' : 'webp')
+    contentType = file.type || (isJpeg ? 'image/jpeg' : 'image/webp')
   }
 
   const cleanFolder = folder.replace(/^\/+|\/+$/g, '')

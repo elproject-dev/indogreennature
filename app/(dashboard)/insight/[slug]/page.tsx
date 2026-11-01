@@ -368,10 +368,23 @@ export default function InsightDetailPage() {
     setTimeout(() => setCopied(false), 2000)
   }
 
-  const handleShareWhatsApp = () => {
+  const handleShareWhatsApp = async () => {
     if (typeof window === "undefined" || !article) return
+    const shareUrl = window.location.href
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: article.title,
+          text: `*${article.title}*\n\nBaca artikel insight herbal menarik dari CV. Indo Green Nature:`,
+          url: shareUrl,
+        })
+        return
+      } catch {
+        // Fallback jika user menutup/membatalkan native share
+      }
+    }
     const text = encodeURIComponent(
-      `*${article.title}*\n\nBaca artikel insight herbal menarik dari CV. Indo Green Nature:\n${window.location.href}`
+      `*${article.title}*\n\nBaca artikel insight herbal menarik dari CV. Indo Green Nature:\n${shareUrl}`
     )
     window.open(`https://api.whatsapp.com/send?text=${text}`, "_blank")
   }
