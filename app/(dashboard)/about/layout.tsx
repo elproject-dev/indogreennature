@@ -7,7 +7,7 @@ export async function generateMetadata(): Promise<Metadata> {
   const canonicalUrl = `${baseUrl}/about`
   const title = `Tentang Kami - Pabrik Maklon Herbal CPOTB & BPOM | ${seo?.companyName || "CV. Indo Green Nature"}`
   const description = "Profil resmi CV. Indo Green Nature, manufaktur maklon produk herbal terpercaya di Indonesia dengan sertifikasi BPOM, Halal, CPOTB, dan fasilitas modern."
-  const ogImageUrl = `${baseUrl}/api/og?type=website`
+  const ogImageUrl = `${baseUrl}/og-image.jpg`
 
   return {
     title: "Tentang Kami - Pabrik Maklon Herbal CPOTB & BPOM",
@@ -38,6 +38,7 @@ export async function generateMetadata(): Promise<Metadata> {
     },
     other: {
       "fb:app_id": seo?.facebookAppId || "966242223397117",
+      "image_src": ogImageUrl,
     },
     twitter: {
       card: "summary_large_image",

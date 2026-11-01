@@ -72,6 +72,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
     },
     other: {
       "fb:app_id": seo?.facebookAppId || "966242223397117",
+      "image_src": ogImageUrl,
     },
     twitter: {
       card: "summary_large_image",

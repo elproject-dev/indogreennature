@@ -38,7 +38,7 @@ export async function generateMetadata(): Promise<Metadata> {
   const baseUrl = (process.env.NEXT_PUBLIC_SITE_URL || seo.canonicalUrl || "https://www.indogreennature.com").replace(/\/+$/, "");
   const siteTitle = seo.siteTitle || DEFAULT_SEO_CONFIG.siteTitle;
   const siteDescription = seo.siteDescription || DEFAULT_SEO_CONFIG.siteDescription;
-  const ogImageUrl = `${baseUrl}/api/og?type=website`;
+  const ogImageUrl = `${baseUrl}/og-image.jpg`;
   const keywords = seo.siteKeywords
     ? seo.siteKeywords.split(",").map((k) => k.trim()).filter(Boolean)
     : DEFAULT_SEO_CONFIG.siteKeywords.split(",").map((k) => k.trim());
@@ -77,6 +77,7 @@ export async function generateMetadata(): Promise<Metadata> {
     },
     other: {
       "fb:app_id": seo.facebookAppId || "966242223397117",
+      "image_src": ogImageUrl,
     },
     twitter: {
       card: "summary_large_image",

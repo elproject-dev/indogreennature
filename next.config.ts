@@ -59,7 +59,6 @@ const nextConfig: NextConfig = {
   compress: true,
   poweredByHeader: false,
   experimental: {
-    inlineCss: true,
     optimizePackageImports: ["lucide-react", "react-icons", "date-fns", "recharts"],
   },
   images: {

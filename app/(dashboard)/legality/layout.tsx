@@ -7,7 +7,7 @@ export async function generateMetadata(): Promise<Metadata> {
   const canonicalUrl = `${baseUrl}/legality`
   const title = `Legalitas & Sertifikasi Resmi (BPOM RI, Halal, CPOTB) | ${seo?.companyName || "CV. Indo Green Nature"}`
   const description = "Jaminan legalitas lengkap produksi maklon herbal CV. Indo Green Nature: Izin Edar BPOM RI, Sertifikat Halal MUI/BPJPH, standar CPOTB dan ISO mutu."
-  const ogImageUrl = `${baseUrl}/api/og?type=website`
+  const ogImageUrl = `${baseUrl}/og-image.jpg`
 
   return {
     title: "Legalitas & Sertifikasi Resmi (BPOM RI, Halal, CPOTB)",
@@ -38,6 +38,7 @@ export async function generateMetadata(): Promise<Metadata> {
     },
     other: {
       "fb:app_id": seo?.facebookAppId || "966242223397117",
+      "image_src": ogImageUrl,
     },
     twitter: {
       card: "summary_large_image",

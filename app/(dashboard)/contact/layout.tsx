@@ -7,7 +7,7 @@ export async function generateMetadata(): Promise<Metadata> {
   const canonicalUrl = `${baseUrl}/contact`
   const title = `Hubungi Kami - Konsultasi Maklon Herbal Gratis | ${seo?.companyName || "CV. Indo Green Nature"}`
   const description = "Konsultasikan ide produk herbal Anda bersama tim formulasi kami. Dapatkan penawaran harga maklon terbaik, MOQ bersahabat, dan sampel produk gratis."
-  const ogImageUrl = `${baseUrl}/api/og?type=website`
+  const ogImageUrl = `${baseUrl}/og-image.jpg`
 
   return {
     title: "Hubungi Kami - Konsultasi Maklon Herbal Gratis",
@@ -38,6 +38,7 @@ export async function generateMetadata(): Promise<Metadata> {
     },
     other: {
       "fb:app_id": seo?.facebookAppId || "966242223397117",
+      "image_src": ogImageUrl,
     },
     twitter: {
       card: "summary_large_image",

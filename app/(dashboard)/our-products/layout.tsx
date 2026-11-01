@@ -7,7 +7,7 @@ export async function generateMetadata(): Promise<Metadata> {
   const canonicalUrl = `${baseUrl}/our-products`
   const title = `Katalog Produk & Formulasi Maklon Herbal | ${seo?.companyName || "CV. Indo Green Nature"}`
   const description = "Jelajahi pilihan formulasi maklon herbal: minuman serbuk fungsional, kapsul ekstrak alami, dan teh celup kesehatan berstandar BPOM & Halal resmi."
-  const ogImageUrl = `${baseUrl}/api/og?type=website`
+  const ogImageUrl = `${baseUrl}/og-image.jpg`
 
   return {
     title: "Katalog Produk & Formulasi Maklon Herbal",
@@ -38,6 +38,7 @@ export async function generateMetadata(): Promise<Metadata> {
     },
     other: {
       "fb:app_id": seo?.facebookAppId || "966242223397117",
+      "image_src": ogImageUrl,
     },
     twitter: {
       card: "summary_large_image",
